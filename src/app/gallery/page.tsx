@@ -31,7 +31,7 @@ export default function GalleryPage() {
   
   if (!userId) {
     return (
-      <div className="min-h-screen sky-gradient">
+      <div className="min-h-screen cafe-bg">
         <Navigation />
         <div className="max-w-4xl mx-auto px-4 py-12 text-center">
           <div className="ghibli-card">
@@ -72,7 +72,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="min-h-screen watercolor-bg">
+    <div className="min-h-screen cafe-bg">
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

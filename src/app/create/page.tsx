@@ -17,7 +17,10 @@ import {
   Trees,
   Palette,
   Wand2,
-  PawPrint
+  PawPrint,
+  Video,
+  Play,
+  Check
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -28,22 +31,74 @@ export default function CreatePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   
-  const [currentStep, setCurrentStep] = useState<'upload' | 'processing' | 'result' | 'refine'>('upload')
+  const [currentStep, setCurrentStep] = useState<'style' | 'upload' | 'processing' | 'result' | 'refine'>('style')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [customPrompt, setCustomPrompt] = useState<string>("")
   const [generatedPrompt, setGeneratedPrompt] = useState<string>("")
+  const [savedImages, setSavedImages] = useState<string[]>([])
+  const [showVideoOption, setShowVideoOption] = useState(false)
+  const [videoTaskId, setVideoTaskId] = useState<string | null>(null)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [videoGenerating, setVideoGenerating] = useState(false)
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
 
-  // 预设的风格选项
-  const styleOptions = [
-    { id: 'sunny', icon: Sun, label: '阳光明媚', prompt: '在阳光明媚的草地上，温暖的色调' },
-    { id: 'dreamy', icon: Cloud, label: '梦幻云朵', prompt: '在梦幻的云朵之间，柔和的粉色调' },
-    { id: 'forest', icon: Trees, label: '森林冒险', prompt: '在神秘的森林中冒险，绿色自然色调' },
-    { id: 'warm', icon: Heart, label: '温馨时光', prompt: '温馨的家庭氛围，暖色调' },
-    { id: 'playful', icon: Sparkles, label: '活泼欢乐', prompt: '活泼欢乐的氛围，鲜艳的色彩' },
-    { id: 'artistic', icon: Palette, label: '艺术风格', prompt: '艺术绘画风格，油画质感' },
+  // 主要艺术风格选项
+  const mainStyleOptions = [
+    { 
+      id: 'ghibli', 
+      icon: Heart, 
+      label: '宫崎骏动漫', 
+      description: '温暖治愈的手绘风格',
+      prompt: 'Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration'
+    },
+    { 
+      id: 'disney', 
+      icon: Sparkles, 
+      label: '迪士尼卡通', 
+      description: '可爱生动的卡通风格',
+      prompt: 'Disney animation style, cute cartoon, vibrant colors, expressive characters, playful, colorful, animated movie style, Disney Pixar art style'
+    },
+    { 
+      id: 'realistic', 
+      icon: Camera, 
+      label: '写实油画', 
+      description: '经典油画肖像风格',
+      prompt: 'realistic oil painting style, classical portrait, detailed brushwork, rich textures, professional portrait painting, fine art style, museum quality'
+    },
+    { 
+      id: 'watercolor', 
+      icon: Palette, 
+      label: '水彩插画', 
+      description: '柔美的水彩艺术风格',
+      prompt: 'watercolor illustration, soft watercolor painting, delicate brushstrokes, flowing colors, artistic illustration, gentle and dreamy watercolor art'
+    },
+    { 
+      id: 'vintage', 
+      icon: Sun, 
+      label: '复古怀旧', 
+      description: '温暖的复古摄影风格',
+      prompt: 'vintage photography style, retro aesthetic, warm sepia tones, nostalgic atmosphere, classic portrait photography, timeless vintage look'
+    },
+    { 
+      id: 'modern', 
+      icon: Wand2, 
+      label: '现代艺术', 
+      description: '简约现代的艺术风格',
+      prompt: 'modern art style, contemporary illustration, clean lines, minimalist design, digital art, stylized portrait, modern graphic design'
+    },
+  ]
+
+  // 场景风格选项（在选择主风格后显示）
+  const sceneOptions = [
+    { id: 'sunny', icon: Sun, label: '阳光明媚', prompt: '在温暖的阳光下，金色阳光透过窗户，暖色调，舒适氛围' },
+    { id: 'dreamy', icon: Cloud, label: '梦幻云朵', prompt: '在梦幻的云朵中，天空般的柔和背景，粉蓝色调，漂浮的云朵装饰' },
+    { id: 'forest', icon: Trees, label: '森林自然', prompt: '在被绿植环绕的自然环境中，自然绿色调，木质纹理，植物装饰' },
+    { id: 'warm', icon: Heart, label: '温馨家庭', prompt: '在温馨的家庭环境中，舒适的沙发和暖色灯光，家庭般的温暖氛围' },
+    { id: 'playful', icon: Sparkles, label: '活泼欢乐', prompt: '在充满活力的环境中，鲜艳的色彩，玩具和装饰品，欢乐氛围' },
+    { id: 'artistic', icon: Palette, label: '艺术空间', prompt: '在艺术风格的空间中，创意装饰，艺术画作，独特的设计风格' },
   ]
 
   const handleFileSelect = (file: File) => {
@@ -51,8 +106,7 @@ export default function CreatePage() {
       setSelectedFile(file)
       const url = URL.createObjectURL(file)
       setSelectedImageUrl(url)
-      setCurrentStep('processing')
-      generatePortrait(file)
+      setCurrentStep('upload')
     } else {
       toast({
         title: "文件格式错误",
@@ -60,6 +114,17 @@ export default function CreatePage() {
         variant: "destructive",
       })
     }
+  }
+
+  const handleStyleSelect = (style: any) => {
+    setSelectedStyle(style)
+    setCurrentStep('upload')
+  }
+
+  const handleGenerate = () => {
+    if (!selectedFile || !selectedStyle) return
+    setCurrentStep('processing')
+    generatePortrait(selectedFile, selectedStyle.prompt)
   }
 
   const handleUploadClick = () => {
@@ -79,9 +144,13 @@ export default function CreatePage() {
         formData.append("userId", userId)
       }
       
-      // 基础的宫崎骏风格提示词
-      const basePrompt = "Ghibli style, hand-drawn illustration, cute dog character, warm colors, watercolor painting, soft lighting, whimsical, heartwarming"
-      const fullPrompt = additionalPrompt ? `${basePrompt}, ${additionalPrompt}` : basePrompt
+      // 铁的定义：100%保留原有特征的基础提示词
+      const preservationPrompt = "IMPORTANT: Preserve 100% of original subject's physical features, facial expression, pose, gesture, body position, size, biological characteristics, and anatomical details exactly as shown in the reference image. Maintain identical facial structure, eye shape, nose, mouth, ears, fur patterns, markings, and any distinctive features."
+      
+      // 使用选定的风格或默认风格
+      const basePrompt = additionalPrompt || selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
+      
+      const fullPrompt = `${preservationPrompt} ${basePrompt}`
       formData.append("prompt", fullPrompt)
       formData.append("art_style", "anime")
       formData.append("cuteness_level", "maximum")
@@ -101,6 +170,17 @@ export default function CreatePage() {
       setGeneratedImage(data.imageUrl)
       setGeneratedPrompt(fullPrompt)
       setCurrentStep('result')
+      
+      // 自动保存生成的图片
+      if (data.imageUrl) {
+        const newSavedImages = [...savedImages, data.imageUrl]
+        setSavedImages(newSavedImages)
+        
+        // 如果已经生成了3张图片，显示视频生成选项
+        if (newSavedImages.length >= 3) {
+          setShowVideoOption(true)
+        }
+      }
       
       toast({
         title: "生成成功！",
@@ -125,10 +205,104 @@ export default function CreatePage() {
     await generatePortrait(selectedFile, stylePrompt)
   }
 
+  const handleNextImage = () => {
+    // 重置当前图片状态，准备上传下一张
+    setSelectedFile(null)
+    setSelectedImageUrl(null)
+    setGeneratedImage(null)
+    setCustomPrompt("")
+    setCurrentStep('upload')
+  }
+
   const handleCustomPrompt = async () => {
     if (!selectedFile || !customPrompt.trim()) return
     setCurrentStep('processing')
     await generatePortrait(selectedFile, customPrompt)
+  }
+
+  // 生成视频
+  const generateVideo = async () => {
+    if (savedImages.length < 3) {
+      toast({
+        title: "图片不足",
+        description: "需要至少3张图片才能生成视频",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setVideoGenerating(true)
+    try {
+      const response = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          images: savedImages,
+          prompt: `温馨的宠物日记视频，${selectedStyle?.label || '宫崎骏'}风格动画，保持原始特征，艺术化表现`
+        })
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('视频生成服务需要配置API密钥，请联系管理员')
+        }
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || '视频生成请求失败')
+      }
+
+      const data = await response.json()
+      setVideoTaskId(data.taskId)
+      
+      // 开始轮询视频生成状态
+      pollVideoStatus(data.taskId)
+      
+    } catch (error) {
+      console.error('Video generation error:', error)
+      toast({
+        title: "视频生成暂不可用",
+        description: error instanceof Error ? error.message : "请稍后重试或联系技术支持",
+        variant: "destructive",
+      })
+      setVideoGenerating(false)
+    }
+  }
+
+  // 轮询视频状态
+  const pollVideoStatus = async (taskId: string) => {
+    const checkStatus = async () => {
+      try {
+        const response = await fetch(`/api/generate-video?taskId=${taskId}`)
+        const data = await response.json()
+        
+        if (data.status === 'succeeded') {
+          setVideoUrl(data.output?.[0]?.url || null)
+          setVideoGenerating(false)
+          toast({
+            title: "视频生成成功！",
+            description: "您的狗狗vlog已经准备好了",
+          })
+          return
+        } else if (data.status === 'failed') {
+          setVideoGenerating(false)
+          toast({
+            title: "视频生成失败",
+            description: data.error || "生成过程中出现错误",
+            variant: "destructive",
+          })
+          return
+        }
+        
+        // 如果还在处理中，3秒后再次检查
+        setTimeout(checkStatus, 3000)
+      } catch (error) {
+        console.error('Status check error:', error)
+        setVideoGenerating(false)
+      }
+    }
+    
+    checkStatus()
   }
 
   const handleReset = () => {
@@ -137,267 +311,477 @@ export default function CreatePage() {
     setGeneratedImage(null)
     setCustomPrompt("")
     setGeneratedPrompt("")
-    setCurrentStep('upload')
+    setSavedImages([])
+    setShowVideoOption(false)
+    setVideoTaskId(null)
+    setVideoUrl(null)
+    setVideoGenerating(false)
+    setSelectedStyle(null)
+    setCurrentStep('style')
   }
 
   return (
-    <div className="min-h-screen watercolor-bg">
+    <div className="min-h-screen premium-bg">
       <Navigation />
       
-      <main className="max-w-6xl mx-auto px-4 py-12">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         {/* 步骤指示器 */}
-        <div className="flex justify-center mb-12">
-          <div className="flex items-center space-x-4">
-            <div className={`flex items-center space-x-2 ${currentStep === 'upload' ? 'text-forest-dark' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'upload' ? 'bg-forest text-white' : 'bg-gray-200'}`}>
-                1
-              </div>
-              <span className="hidden sm:inline">上传照片</span>
+        <div className="step-indicator">
+          <div className="step">
+            <div className={`step-number ${currentStep === 'style' ? 'active' : selectedStyle ? 'completed' : 'inactive'}`}>
+              {selectedStyle ? <Check className="w-4 h-4" /> : '1'}
             </div>
-            <div className="w-8 h-0.5 bg-gray-300"></div>
-            <div className={`flex items-center space-x-2 ${currentStep === 'processing' || currentStep === 'result' || currentStep === 'refine' ? 'text-forest-dark' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'processing' || currentStep === 'result' || currentStep === 'refine' ? 'bg-forest text-white' : 'bg-gray-200'}`}>
-                2
-              </div>
-              <span className="hidden sm:inline">生成漫画</span>
+            <span className="text-sm font-medium">选择风格</span>
+          </div>
+          <div className={`step-line ${selectedStyle ? 'completed' : ''}`}></div>
+          <div className="step">
+            <div className={`step-number ${currentStep === 'upload' ? 'active' : savedImages.length > 0 ? 'completed' : 'inactive'}`}>
+              {savedImages.length > 0 ? <Check className="w-4 h-4" /> : '2'}
             </div>
-            <div className="w-8 h-0.5 bg-gray-300"></div>
-            <div className={`flex items-center space-x-2 ${currentStep === 'refine' ? 'text-forest-dark' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'refine' ? 'bg-forest text-white' : 'bg-gray-200'}`}>
-                3
-              </div>
-              <span className="hidden sm:inline">微调风格</span>
+            <span className="text-sm font-medium">上传照片</span>
+          </div>
+          <div className={`step-line ${savedImages.length > 0 ? 'completed' : ''}`}></div>
+          <div className="step">
+            <div className={`step-number ${currentStep === 'processing' || currentStep === 'result' ? 'active' : savedImages.length > 0 ? 'completed' : 'inactive'}`}>
+              {savedImages.length > 0 ? <Check className="w-4 h-4" /> : '3'}
             </div>
+            <span className="text-sm font-medium">AI创作</span>
+          </div>
+          <div className={`step-line ${savedImages.length >= 3 ? 'completed' : ''}`}></div>
+          <div className="step">
+            <div className={`step-number ${savedImages.length >= 3 ? 'completed' : 'inactive'}`}>
+              {savedImages.length >= 3 ? <Check className="w-4 h-4" /> : '4'}
+            </div>
+            <span className="text-sm font-medium">制作视频</span>
           </div>
         </div>
 
-        {/* 上传界面 */}
-        {currentStep === 'upload' && (
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-forest-dark handwriting mb-4">
-                记录狗狗的美好瞬间
-              </h1>
-              <p className="text-lg text-forest">选择一张您最爱的狗狗照片，让AI为它创作独特的漫画形象</p>
+        {/* 保存的图片缩略图 - 始终显示 */}
+        {savedImages.length > 0 && (
+          <div className="mb-8 fade-in">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-semibold text-neutral-700">
+                已保存的作品 ({savedImages.length}/3)
+              </h3>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* 拍照按钮 */}
-              <button
-                onClick={handleCameraClick}
-                className="ghibli-card hover:scale-105 transition-transform duration-300 cursor-pointer group"
-              >
-                <div className="flex flex-col items-center space-y-4 py-8">
-                  <div className="w-20 h-20 rounded-full forest-gradient flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Camera className="h-10 w-10 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-forest-dark handwriting">拍照记录</h3>
-                  <p className="text-sm text-forest">使用相机拍摄新照片</p>
+            <div className="thumbnail-grid max-w-md mx-auto">
+              {[0, 1, 2].map((index) => (
+                <div key={index} className={`thumbnail-item ${savedImages[index] ? 'has-image' : 'empty'}`}>
+                  {savedImages[index] ? (
+                    <Image
+                      src={savedImages[index]}
+                      alt={`保存的图片 ${index + 1}`}
+                      width={120}
+                      height={120}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <PawPrint className="w-8 h-8 text-neutral-400" />
+                  )}
                 </div>
-              </button>
-
-              {/* 上传按钮 */}
-              <button
-                onClick={handleUploadClick}
-                className="ghibli-card hover:scale-105 transition-transform duration-300 cursor-pointer group"
-              >
-                <div className="flex flex-col items-center space-y-4 py-8">
-                  <div className="w-20 h-20 rounded-full forest-gradient flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Upload className="h-10 w-10 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-forest-dark handwriting">上传照片</h3>
-                  <p className="text-sm text-forest">从相册选择照片</p>
-                </div>
-              </button>
+              ))}
             </div>
+            
+            {/* 视频生成按钮 */}
+            {showVideoOption && (
+              <div className="text-center mt-6 fade-in">
+                <button
+                  onClick={generateVideo}
+                  disabled={videoGenerating}
+                  className="video-button inline-flex items-center space-x-2 disabled:opacity-50"
+                >
+                  {videoGenerating ? (
+                    <>
+                      <div className="loading-spinner"></div>
+                      <span>生成视频中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Video className="w-5 h-5" />
+                      <span>制作狗狗vlog视频</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
-            {/* 隐藏的文件输入 */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) handleFileSelect(file)
-              }}
-            />
-            <input
-              ref={cameraInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) handleFileSelect(file)
-              }}
-            />
-
-            {/* 提示信息 */}
-            <div className="mt-12 text-center">
-              <div className="inline-flex items-center space-x-2 text-forest">
-                <PawPrint className="h-5 w-5" />
-                <span className="text-sm">支持 JPG、PNG 等常见图片格式</span>
-                <PawPrint className="h-5 w-5" />
+        {/* 视频播放器 */}
+        {videoUrl && (
+          <div className="mb-8 fade-in">
+            <div className="premium-card p-6">
+              <h3 className="text-lg font-semibold text-neutral-700 mb-4 text-center">
+                🎬 您的狗狗vlog视频
+              </h3>
+              <video
+                controls
+                className="w-full max-w-lg mx-auto rounded-xl"
+                poster={savedImages[0]}
+              >
+                <source src={videoUrl} type="video/mp4" />
+                您的浏览器不支持视频播放
+              </video>
+              <div className="text-center mt-4">
+                <a
+                  href={videoUrl}
+                  download={`puppy-diary-vlog-${Date.now()}.mp4`}
+                  className="premium-button inline-flex items-center space-x-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>下载视频</span>
+                </a>
               </div>
             </div>
           </div>
         )}
 
-        {/* 处理中界面 */}
-        {currentStep === 'processing' && (
-          <div className="max-w-4xl mx-auto">
-            <div className="ghibli-card">
-              <div className="text-center py-16">
-                <Loader2 className="h-16 w-16 mx-auto text-forest animate-spin mb-6" />
-                <h2 className="text-2xl font-semibold text-forest-dark handwriting mb-2">
-                  正在创作您的漫画...
-                </h2>
-                <p className="text-forest">AI正在将您的狗狗照片转化为温暖的手绘作品</p>
-                <p className="text-sm text-forest/70 mt-2">这可能需要20-30秒</p>
+        {/* 视频编辑器风格布局 */}
+        <div className="editor-layout">
+          
+          {/* 左侧工具面板 */}
+          <div className="editor-sidebar-left">
+            {/* 风格选择面板 */}
+            {currentStep === 'style' && (
+              <div className="editor-panel">
+                <h3 className="panel-title">选择艺术风格</h3>
+                <div className="style-selection-grid">
+                  {mainStyleOptions.map((style) => {
+                    const Icon = style.icon
+                    return (
+                      <button
+                        key={style.id}
+                        onClick={() => handleStyleSelect(style)}
+                        className={`style-selection-card ${selectedStyle?.id === style.id ? 'selected' : ''}`}
+                      >
+                        <Icon className="w-8 h-8 mb-2" />
+                        <div className="font-medium text-sm">{style.label}</div>
+                        <div className="text-xs text-neutral-500 mt-1">{style.description}</div>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* 结果展示界面 */}
-        {(currentStep === 'result' || currentStep === 'refine') && generatedImage && (
-          <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* 左侧 - 生成的图片 */}
-              <div className="ghibli-card">
-                <h3 className="text-xl font-semibold text-forest-dark handwriting mb-4">
-                  您的狗狗漫画
-                </h3>
-                <div className="aspect-square bg-cream rounded-2xl overflow-hidden mb-4">
-                  <Image
-                    src={generatedImage}
-                    alt="生成的狗狗漫画"
-                    width={500}
-                    height={500}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      const a = document.createElement('a')
-                      a.href = generatedImage
-                      a.download = `puppy-diary-${Date.now()}.png`
-                      a.click()
-                    }}
-                    className="flex-1 ghibli-button flex items-center justify-center space-x-2"
-                  >
-                    <Download className="h-4 w-4" />
-                    <span>保存图片</span>
-                  </button>
-                  <button
-                    onClick={handleReset}
-                    className="flex-1 px-4 py-2 rounded-full border-2 border-forest bg-white hover:bg-forest-light transition-all flex items-center justify-center space-x-2"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    <span>重新开始</span>
-                  </button>
-                </div>
+            {/* 素材导入面板 */}
+            {currentStep === 'upload' && (
+              <div className="editor-panel">
+                <h3 className="panel-title">素材导入</h3>
                 
-                {!userId && (
-                  <div className="mt-4 p-4 bg-sand/50 rounded-xl border-2 border-rose">
-                    <p className="text-sm text-forest-dark mb-2">
-                      喜欢这幅作品吗？登录后可以保存到您的相册！
-                    </p>
-                    <div className="flex gap-2">
-                      <Link href="/sign-up" className="flex-1">
-                        <button className="w-full px-3 py-1.5 bg-forest text-white rounded-full text-sm hover:bg-forest-dark transition">
-                          免费注册
-                        </button>
-                      </Link>
-                      <Link href="/sign-in" className="flex-1">
-                        <button className="w-full px-3 py-1.5 border-2 border-forest rounded-full text-sm hover:bg-forest-light transition">
-                          登录
-                        </button>
-                      </Link>
-                    </div>
+                {selectedStyle && (
+                  <div className="selected-style-info mb-4 p-3 bg-neutral-50 rounded-lg">
+                    <div className="text-sm font-medium">已选风格：{selectedStyle.label}</div>
+                    <div className="text-xs text-neutral-500">{selectedStyle.description}</div>
                   </div>
                 )}
-              </div>
-
-              {/* 右侧 - 微调选项 */}
-              <div className="ghibli-card">
-                <h3 className="text-xl font-semibold text-forest-dark handwriting mb-4">
-                  微调风格
-                </h3>
                 
-                {/* 预设风格选项 */}
-                <div className="mb-6">
-                  <p className="text-sm text-forest mb-3">选择不同的风格效果：</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {styleOptions.map((style) => {
-                      const Icon = style.icon
-                      return (
-                        <button
-                          key={style.id}
-                          onClick={() => {
-                            setCurrentStep('refine')
-                            handleStyleChange(style.prompt)
-                          }}
-                          disabled={isProcessing}
-                          className="p-3 rounded-xl border-2 border-forest-light hover:border-forest hover:bg-forest-light/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Icon className="h-5 w-5 text-forest group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-forest-dark font-medium">{style.label}</span>
-                          </div>
-                        </button>
-                      )
-                    })}
+                <div className="upload-buttons-grid">
+                  <button
+                    onClick={handleCameraClick}
+                    className="tool-button"
+                  >
+                    <Camera className="w-6 h-6" />
+                    <span>拍照</span>
+                  </button>
+                  <button
+                    onClick={handleUploadClick}
+                    className="tool-button"
+                  >
+                    <Upload className="w-6 h-6" />
+                    <span>选择文件</span>
+                  </button>
+                </div>
+                
+                {selectedFile && selectedImageUrl && (
+                  <div className="mt-4">
+                    <div className="preview-thumbnail mb-3">
+                      <Image
+                        src={selectedImageUrl}
+                        alt="预览图片"
+                        width={200}
+                        height={200}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                    </div>
+                    <button
+                      onClick={handleGenerate}
+                      disabled={isProcessing}
+                      className="w-full premium-button disabled:opacity-50"
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      开始创作
+                    </button>
                   </div>
+                )}
+
+                {/* 隐藏的文件输入 */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleFileSelect(file)
+                  }}
+                />
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleFileSelect(file)
+                  }}
+                />
+              </div>
+            )}
+
+            {/* 风格调整工具 */}
+            {(currentStep === 'result' || currentStep === 'refine') && (
+              <div className="editor-panel">
+                <h3 className="panel-title">场景调整</h3>
+                
+                <div className="style-tools">
+                  {sceneOptions.map((scene) => {
+                    const Icon = scene.icon
+                    return (
+                      <button
+                        key={scene.id}
+                        onClick={() => handleStyleChange(scene.prompt)}
+                        disabled={isProcessing}
+                        className="style-tool-button disabled:opacity-50"
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="text-xs">{scene.label}</span>
+                      </button>
+                    )
+                  })}
                 </div>
 
-                {/* 自定义提示词 */}
-                <div className="border-t-2 border-forest-light pt-6">
-                  <p className="text-sm text-forest mb-3">或输入您想要的风格描述：</p>
+                <div className="mt-4">
+                  <label className="text-xs font-medium text-neutral-600 mb-2 block">
+                    自定义场景
+                  </label>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={customPrompt}
                       onChange={(e) => setCustomPrompt(e.target.value)}
-                      placeholder="例如：在花园里玩耍，春天的氛围..."
-                      className="flex-1 px-4 py-2 border-2 border-forest-light rounded-full focus:border-forest focus:outline-none"
+                      placeholder="描述您想要的场景..."
+                      className="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-400"
                       disabled={isProcessing}
                     />
                     <button
-                      onClick={() => {
-                        setCurrentStep('refine')
-                        handleCustomPrompt()
-                      }}
+                      onClick={handleCustomPrompt}
                       disabled={isProcessing || !customPrompt.trim()}
-                      className="px-6 py-2 bg-forest text-white rounded-full hover:bg-forest-dark transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                      className="tool-button-small disabled:opacity-50"
                     >
-                      <Wand2 className="h-4 w-4" />
-                      <span>生成</span>
+                      <Wand2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* 当前使用的提示词 */}
-                {generatedPrompt && (
-                  <div className="mt-6 p-4 bg-sky-light/30 rounded-xl border-2 border-sky">
-                    <p className="text-xs text-sky-deep font-medium mb-1">当前风格描述：</p>
-                    <p className="text-xs text-forest-dark">{generatedPrompt}</p>
+                {/* 继续创作按钮 */}
+                {savedImages.length < 3 && (
+                  <div className="mt-4 pt-4 border-t border-neutral-200">
+                    <button
+                      onClick={handleNextImage}
+                      className="w-full premium-button-secondary"
+                    >
+                      <Camera className="w-4 h-4 mr-2" />
+                      上传下一张图片
+                    </button>
                   </div>
                 )}
               </div>
-            </div>
+            )}
+          </div>
 
-            {/* 提示信息 */}
-            <div className="mt-8 text-center">
-              <p className="text-sm text-forest">
-                每次微调都会基于原始照片重新生成，尝试不同风格找到您最喜欢的效果！
-              </p>
+          {/* 中央主预览区 */}
+          <div className="editor-main-view">
+            {/* 风格选择状态 */}
+            {currentStep === 'style' && (
+              <div className="preview-empty">
+                <div className="text-center">
+                  <Palette className="w-20 h-20 mx-auto mb-4 text-neutral-300" />
+                  <h3 className="text-xl font-semibold text-neutral-600 mb-2">选择您喜爱的艺术风格</h3>
+                  <p className="text-sm text-neutral-500">每种风格都会保留宠物的原始特征，只改变艺术表现形式</p>
+                </div>
+              </div>
+            )}
+
+            {/* 处理中 */}
+            {currentStep === 'processing' && (
+              <div className="preview-loading">
+                <div className="loading-spinner mb-6"></div>
+                <h3 className="text-lg font-semibold text-neutral-700 mb-2">
+                  AI创作中...
+                </h3>
+                <p className="text-sm text-neutral-500">保留100%原始特征，转换为{selectedStyle?.label || '漫画'}风格</p>
+              </div>
+            )}
+
+            {/* 生成结果 */}
+            {(currentStep === 'result' || currentStep === 'refine') && generatedImage && (
+              <div className="preview-content">
+                <div className="preview-image-container">
+                  <Image
+                    src={generatedImage}
+                    alt="生成的宠物画作"
+                    width={500}
+                    height={500}
+                    className="preview-image"
+                  />
+                </div>
+                <div className="preview-actions">
+                  <button
+                    onClick={() => {
+                      const a = document.createElement('a')
+                      a.href = generatedImage
+                      a.download = `pet-portrait-${selectedStyle?.id || 'artwork'}-${Date.now()}.png`
+                      a.click()
+                    }}
+                    className="action-button primary"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>导出</span>
+                  </button>
+                  {savedImages.length >= 3 ? (
+                    <button
+                      onClick={handleReset}
+                      className="action-button secondary"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span>重新开始</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleNextImage}
+                      className="action-button secondary"
+                    >
+                      <Camera className="w-4 h-4" />
+                      <span>下一张</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 上传状态 */}
+            {currentStep === 'upload' && (
+              <div className="preview-empty">
+                <div className="text-center">
+                  <Upload className="w-20 h-20 mx-auto mb-4 text-neutral-300" />
+                  <h3 className="text-xl font-semibold text-neutral-600 mb-2">上传您宠物的照片</h3>
+                  <p className="text-sm text-neutral-500">支持 JPG、PNG 等图片格式，将转换为{selectedStyle?.label || '选定'}风格</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 右侧属性面板 */}
+          <div className="editor-sidebar-right">
+            {(currentStep === 'result' || currentStep === 'refine') && (
+              <div className="editor-panel">
+                <h3 className="panel-title">图像属性</h3>
+                <div className="property-list">
+                  <div className="property-item">
+                    <span className="property-label">尺寸</span>
+                    <span className="property-value">512×512</span>
+                  </div>
+                  <div className="property-item">
+                    <span className="property-label">风格</span>
+                    <span className="property-value">宫崎骏漫画</span>
+                  </div>
+                  <div className="property-item">
+                    <span className="property-label">特征保留</span>
+                    <span className="property-value">100%</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!userId && (currentStep === 'result' || currentStep === 'refine') && (
+              <div className="editor-panel">
+                <h3 className="panel-title">账户升级</h3>
+                <div className="upgrade-content">
+                  <p className="text-xs text-neutral-600 mb-3">
+                    登录后可保存所有作品到云端相册
+                  </p>
+                  <div className="space-y-2">
+                    <Link href="/sign-up" className="block">
+                      <button className="w-full tool-button text-xs">
+                        免费注册
+                      </button>
+                    </Link>
+                    <Link href="/sign-in" className="block">
+                      <button className="w-full tool-button-outline text-xs">
+                        登录
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 底部时间轴（缩略图区域） */}
+        <div className="editor-timeline">
+          <div className="timeline-header">
+            <h4 className="text-sm font-semibold text-neutral-700">项目素材</h4>
+            <div className="timeline-controls">
+              <span className="text-xs text-neutral-500">{savedImages.length}/3 已生成</span>
+              {showVideoOption && (
+                <button
+                  onClick={generateVideo}
+                  disabled={videoGenerating}
+                  className="timeline-video-button disabled:opacity-50"
+                >
+                  {videoGenerating ? (
+                    <>
+                      <div className="loading-spinner-small"></div>
+                      <span>制作中</span>
+                    </>
+                  ) : (
+                    <>
+                      <Video className="w-4 h-4" />
+                      <span>制作Vlog</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
-        )}
+          
+          <div className="timeline-track">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className={`timeline-item ${savedImages[index] ? 'has-content' : 'empty'}`}>
+                {savedImages[index] ? (
+                  <div className="timeline-thumbnail">
+                    <Image
+                      src={savedImages[index]}
+                      alt={`Frame ${index + 1}`}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="timeline-index">{index + 1}</div>
+                  </div>
+                ) : (
+                  <div className="timeline-placeholder">
+                    <PawPrint className="w-6 h-6 text-neutral-400" />
+                    <span className="timeline-index">{index + 1}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   )

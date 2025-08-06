@@ -156,12 +156,17 @@ async def generate_image(
     start_time = time.time()
     
     try:
-        # 构建中文Prompt（豆包支持中英双语）
+        # 构建严格保留原有特征的中文Prompt（豆包支持中英双语）
+        # 铁的定义：100%保留原有特征
+        preservation_prompt = "重要：必须100%保留原始图片中的人物或宠物的所有特征：面部表情、姿势、动作、身体大小、生物特征、解剖细节，包括眼睛形状、鼻子、嘴巴、耳朵、毛发图案、标记和任何独特特征都要完全一致。"
+        
         if prompt and prompt.strip():
-            final_prompt = prompt.strip()
+            # 用户自定义prompt，但仍要加上保留原有特征的要求
+            final_prompt = f"{preservation_prompt} {prompt.strip()}"
         else:
-            # 首次生成使用宫崎骏风格提示词
-            final_prompt = "同样的人物或者动物，保留原有样貌动作神态姿势表情，保留原有大小，把整体变为宫崎骏风的漫画，包括背景，温暖柔和的色彩，手绘质感，细腻的光影，梦幻般的氛围"
+            # 默认宫崎骏风格转换
+            base_style = "将图片转换为宫崎骏风格的手绘漫画，温暖柔和的水彩色调，细腻的光影效果，梦幻氛围，手工绘制质感"
+            final_prompt = f"{preservation_prompt} {base_style}"
         
         logger.info(f"🎨 生成提示词: {final_prompt}")
         
@@ -188,12 +193,12 @@ async def generate_image(
                 "prompt": final_prompt,
                 "model": "豆包 Seedream-3.0 图像编辑",
                 "showPromptInput": True,  # 显示提示词输入框
-                "suggestedPrompts": [  # 建议的微调选项
-                    "变为可爱的泡泡玛特手办风格，Q版造型",
-                    "保持宫崎骏风格，但背景变为森林",
-                    "变为水彩画风格，更加梦幻",
-                    "变为油画质感，色彩更浓郁",
-                    "变为铅笔素描风格，黑白色调"
+                "suggestedPrompts": [  # 建议的微调选项（已包含特征保留要求）
+                    "在温暖的猫狗咖啡厅环境中，保持原有姿势和表情，变为可爱的泡泡玛特手办风格",
+                    "在梦幻的森林咖啡厅背景中，保持所有原有特征，宫崎骏风格更加突出",
+                    "在咖啡香气环绕的环境中，保持原有表情动作，变为柔美的水彩画风格",
+                    "在温馨的咖啡厅角落，保持原有神态，变为浓郁的油画质感",
+                    "在静谧的咖啡厅氛围中，保持原有所有特征，变为精致的彩色素描风格"
                 ]
             })
         else:

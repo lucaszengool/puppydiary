@@ -9,7 +9,7 @@
   }
   
   body {
-    @apply bg-cream text-forest-dark;
+    @apply bg-neutral-50 text-neutral-900;
     font-family: var(--font-noto);
   }
   
@@ -18,202 +18,495 @@
   }
 }
 
-/* 宫崎骏风格渐变 */
-.ghibli-gradient {
-  background: linear-gradient(135deg, #a8d5ba 0%, #f7e4c1 30%, #ffc7a0 60%, #d4a5a5 100%);
-}
-
-/* 天空渐变 */
-.sky-gradient {
-  background: linear-gradient(180deg, #b3d9ff 0%, #e6f3ff 50%, #fff9e6 100%);
-}
-
-/* 森林渐变 */
-.forest-gradient {
-  background: linear-gradient(135deg, #7fb069 0%, #a8d5ba 50%, #d9f2e6 100%);
-}
-
-/* 手绘风格阴影 */
-.hand-drawn-shadow {
-  box-shadow: 
-    3px 3px 0 0 rgba(127, 176, 105, 0.1),
-    6px 6px 0 0 rgba(127, 176, 105, 0.05),
-    1px 1px 3px rgba(0, 0, 0, 0.1);
+/* 高级简洁背景 */
+.premium-bg {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 50%, #f0f0f0 100%);
   position: relative;
+  overflow: hidden;
 }
 
-/* 手绘边框效果 */
-.hand-drawn-border {
-  border: 2px solid #7fb069;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-  position: relative;
-}
-
-.hand-drawn-border-light {
-  border: 2px solid #d4a5a5;
-  border-radius: 225px 25px 255px 25px/25px 255px 25px 225px;
-}
-
-/* 漂浮动画 */
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(-10px) rotate(-1deg); }
-  75% { transform: translateY(-5px) rotate(1deg); }
-}
-
-@keyframes gentle-float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-gentle-float {
-  animation: gentle-float 3s ease-in-out infinite;
-}
-
-/* 上传区域样式 */
-.image-upload-area {
-  background: linear-gradient(135deg, rgba(168, 213, 186, 0.2) 0%, rgba(247, 228, 193, 0.2) 100%);
-  border: 3px dashed #a8d5ba;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-  transition: all 0.3s ease;
-}
-
-.image-upload-area:hover {
-  background: linear-gradient(135deg, rgba(168, 213, 186, 0.3) 0%, rgba(247, 228, 193, 0.3) 100%);
-  border-color: #7fb069;
-  transform: scale(1.02);
-}
-
-/* 按钮样式 */
-.ghibli-button {
-  @apply px-6 py-3 rounded-full font-medium transition-all duration-300;
-  background: linear-gradient(135deg, #7fb069 0%, #a8d5ba 100%);
-  color: white;
-  box-shadow: 
-    2px 2px 0 0 rgba(127, 176, 105, 0.3),
-    4px 4px 0 0 rgba(127, 176, 105, 0.1);
-  border-radius: 225px 25px 255px 25px/25px 255px 25px 225px;
-}
-
-.ghibli-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    3px 3px 0 0 rgba(127, 176, 105, 0.3),
-    6px 6px 0 0 rgba(127, 176, 105, 0.1);
-}
-
-.ghibli-button:active {
-  transform: translateY(0);
-  box-shadow: 
-    1px 1px 0 0 rgba(127, 176, 105, 0.3),
-    2px 2px 0 0 rgba(127, 176, 105, 0.1);
-}
-
-/* 卡片样式 */
-.ghibli-card {
-  @apply bg-white/80 backdrop-blur-sm rounded-3xl p-6;
-  border: 2px solid #d4a5a5;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-  box-shadow: 
-    3px 3px 0 0 rgba(212, 165, 165, 0.2),
-    6px 6px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* 云朵装饰 */
-.cloud {
-  background: white;
-  border-radius: 100px;
-  position: relative;
-  opacity: 0.7;
-}
-
-.cloud::before,
-.cloud::after {
+.premium-bg::before {
   content: '';
-  background: white;
   position: absolute;
-  border-radius: 100px;
-}
-
-.cloud::before {
-  width: 50px;
-  height: 50px;
-  top: -25px;
-  left: 10px;
-}
-
-.cloud::after {
-  width: 60px;
-  height: 40px;
-  top: -15px;
-  right: 10px;
-}
-
-/* 叶子装饰 */
-.leaf {
-  width: 30px;
-  height: 30px;
-  background: #7fb069;
-  border-radius: 0 100% 0 100%;
-  position: relative;
-  transform: rotate(45deg);
-}
-
-/* 加载动画 */
-@keyframes sketch-draw {
-  0% { stroke-dashoffset: 1000; }
-  100% { stroke-dashoffset: 0; }
-}
-
-.sketch-loading {
-  stroke-dasharray: 1000;
-  animation: sketch-draw 2s ease-in-out infinite;
-}
-
-/* 手写字体效果 */
-.handwriting {
-  font-family: var(--font-kalam);
-  letter-spacing: 0.05em;
-}
-
-/* 水彩效果背景 */
-.watercolor-bg {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-image: 
-    radial-gradient(circle at 20% 80%, rgba(168, 213, 186, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(247, 228, 193, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(212, 165, 165, 0.2) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.01) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(0, 0, 0, 0.015) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-/* 页面过渡 */
-.page-transition {
-  animation: fadeIn 0.5s ease-in-out;
+/* 极简动画 */
+.subtle-float {
+  animation: subtle-float 6s ease-in-out infinite;
 }
 
-@keyframes fadeIn {
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+/* 漂浮的宠物元素 */
+.floating-pets {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floating-heart {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.1;
+  animation: float-up linear infinite;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.1;
+  }
+  90% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+@keyframes fade-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* 高级卡片样式 */
+.premium-card {
+  @apply bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+  @apply shadow-lg;
+  border-color: rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.premium-card-active {
+  @apply shadow-xl;
+  border-color: rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+/* 高级按钮样式 */
+.premium-button {
+  @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.premium-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.premium-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.premium-button-secondary {
+  @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+  background: white;
+  color: #374151;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.premium-button-secondary:hover {
+  background: #fafafa;
+  border-color: rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* 视频按钮特殊样式 */
+.video-button {
+  @apply premium-button;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.video-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.video-button:hover::before {
+  left: 100%;
+}
+
+/* 缩略图网格 */
+.thumbnail-grid {
+  @apply grid grid-cols-3 gap-4 p-6 bg-white/60 backdrop-blur-sm rounded-2xl;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.thumbnail-item {
+  @apply aspect-square rounded-xl overflow-hidden relative;
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.thumbnail-item.has-image {
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.thumbnail-item.has-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.thumbnail-item.empty {
+  @apply bg-neutral-100 flex items-center justify-center;
+  border-style: dashed;
+}
+
+.thumbnail-item img {
+  @apply w-full h-full object-cover;
+}
+
+/* 步骤指示器 */
+.step-indicator {
+  @apply flex items-center justify-center space-x-8 mb-12;
+}
+
+.step {
+  @apply flex items-center space-x-3;
+}
+
+.step-number {
+  @apply w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold;
+  transition: all 0.3s ease;
+}
+
+.step-number.active {
+  @apply bg-neutral-900 text-white shadow-lg;
+}
+
+.step-number.inactive {
+  @apply bg-neutral-200 text-neutral-500;
+}
+
+.step-number.completed {
+  @apply bg-green-500 text-white;
+}
+
+.step-line {
+  @apply w-16 h-0.5 bg-neutral-200;
+}
+
+.step-line.completed {
+  @apply bg-green-500;
+}
+
+/* 上传区域 */
+.upload-area {
+  @apply premium-card cursor-pointer;
+  min-height: 200px;
+}
+
+.upload-area:hover {
+  @apply premium-card-active;
+}
+
+/* 生成结果区域 */
+.result-area {
+  @apply premium-card;
+  min-height: 400px;
+}
+
+/* 加载状态 */
+.loading-spinner {
+  @apply w-8 h-8 border-2 border-neutral-200 border-t-neutral-900 rounded-full animate-spin;
+}
+
+/* 风格选择器 */
+.style-selector {
+  @apply grid grid-cols-2 md:grid-cols-3 gap-3;
+}
+
+.style-option {
+  @apply premium-card cursor-pointer text-center p-4;
+  min-height: 80px;
+}
+
+.style-option.selected {
+  @apply premium-card-active;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* 视频编辑器布局 */
+.editor-layout {
+  @apply grid grid-cols-[300px_1fr_250px] gap-4 h-[600px];
+}
+
+.editor-sidebar-left,
+.editor-sidebar-right {
+  @apply flex flex-col space-y-4;
+}
+
+.editor-main-view {
+  @apply premium-card flex flex-col;
+}
+
+.editor-panel {
+  @apply premium-card p-4;
+}
+
+.panel-title {
+  @apply text-sm font-semibold text-neutral-800 mb-3 pb-2 border-b border-neutral-100;
+}
+
+/* 工具按钮 */
+.upload-buttons-grid {
+  @apply grid grid-cols-1 gap-2;
+}
+
+.tool-button {
+  @apply w-full flex items-center space-x-3 px-4 py-3 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors text-sm;
+}
+
+.tool-button-small {
+  @apply px-3 py-2 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors;
+}
+
+.tool-button-outline {
+  @apply w-full px-4 py-3 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors text-sm;
+}
+
+/* 风格选择 */
+.style-selection-grid {
+  @apply grid grid-cols-1 gap-3;
+}
+
+.style-selection-card {
+  @apply p-4 rounded-lg border border-neutral-200 hover:border-neutral-400 transition-all text-center cursor-pointer;
+}
+
+.style-selection-card.selected {
+  @apply border-neutral-900 bg-neutral-50 shadow-md;
+}
+
+.style-selection-card:hover {
+  @apply transform scale-105;
+}
+
+/* 风格工具 */
+.style-tools {
+  @apply grid grid-cols-2 gap-2;
+}
+
+.style-tool-button {
+  @apply flex flex-col items-center space-y-1 p-3 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors;
+}
+
+.selected-style-info {
+  @apply bg-neutral-50 border border-neutral-200 rounded-lg;
+}
+
+/* 主预览区 */
+.preview-loading {
+  @apply flex-1 flex flex-col items-center justify-center;
+}
+
+.preview-content {
+  @apply flex-1 flex flex-col;
+}
+
+.preview-image-container {
+  @apply flex-1 flex items-center justify-center p-8;
+}
+
+.preview-image {
+  @apply max-w-full max-h-full object-contain rounded-xl shadow-lg;
+}
+
+.preview-actions {
+  @apply flex items-center justify-center space-x-3 p-4 border-t border-neutral-100;
+}
+
+.preview-empty {
+  @apply flex-1 flex items-center justify-center;
+}
+
+.action-button {
+  @apply flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all;
+}
+
+.action-button.primary {
+  @apply bg-neutral-900 text-white hover:bg-neutral-800;
+}
+
+.action-button.secondary {
+  @apply border border-neutral-300 text-neutral-700 hover:bg-neutral-50;
+}
+
+/* 属性面板 */
+.property-list {
+  @apply space-y-2;
+}
+
+.property-item {
+  @apply flex justify-between items-center py-1;
+}
+
+.property-label {
+  @apply text-xs text-neutral-600;
+}
+
+.property-value {
+  @apply text-xs font-medium text-neutral-800;
+}
+
+.upgrade-content {
+  @apply space-y-3;
+}
+
+/* 时间轴 */
+.editor-timeline {
+  @apply mt-6 premium-card p-4;
+}
+
+.timeline-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.timeline-controls {
+  @apply flex items-center space-x-3;
+}
+
+.timeline-video-button {
+  @apply video-button px-4 py-2 text-sm flex items-center space-x-2;
+}
+
+.timeline-track {
+  @apply flex items-center space-x-4;
+}
+
+.timeline-item {
+  @apply w-20 h-20 rounded-lg overflow-hidden relative border-2 transition-colors;
+}
+
+.timeline-item.has-content {
+  @apply border-neutral-300;
+}
+
+.timeline-item.empty {
+  @apply border-dashed border-neutral-200;
+}
+
+.timeline-thumbnail {
+  @apply relative w-full h-full;
+}
+
+.timeline-placeholder {
+  @apply w-full h-full flex flex-col items-center justify-center bg-neutral-50;
+}
+
+.timeline-index {
+  @apply absolute bottom-1 right-1 w-5 h-5 bg-black/70 text-white text-xs rounded-full flex items-center justify-center;
+}
+
+.loading-spinner-small {
+  @apply w-4 h-4 border border-neutral-200 border-t-white rounded-full animate-spin;
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .editor-layout {
+    @apply grid-cols-1 h-auto gap-6;
+  }
+  
+  .editor-sidebar-left,
+  .editor-sidebar-right {
+    @apply flex-row space-x-4 space-y-0;
+  }
+  
+  .editor-main-view {
+    @apply h-96;
+  }
+}
+
+@media (max-width: 768px) {
+  .thumbnail-grid {
+    @apply grid-cols-3 gap-2 p-4;
+  }
+  
+  .step-indicator {
+    @apply space-x-4;
+  }
+  
+  .step-line {
+    @apply w-8;
+  }
+  
+  .editor-sidebar-left,
+  .editor-sidebar-right {
+    @apply flex-col space-x-0 space-y-4;
+  }
+  
+  .upload-buttons-grid {
+    @apply grid-cols-2;
+  }
+  
+  .timeline-track {
+    @apply space-x-2;
+  }
+  
+  .timeline-item {
+    @apply w-16 h-16;
+  }
+}
+
 /* 自定义滚动条 */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f7e4c1;
-  border-radius: 10px;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #a8d5ba;
-  border-radius: 10px;
-  border: 2px solid #f7e4c1;
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7fb069;
+  background: #94a3b8;
 }
