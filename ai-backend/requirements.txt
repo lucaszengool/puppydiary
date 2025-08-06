@@ -8,7 +8,7 @@ diffusers==0.25.0
 transformers==4.36.2
 accelerate==0.25.0
 xformers==0.0.23
-controlnet-aux==0.4.0
+controlnet-aux==0.0.9
 opencv-python==4.8.1.78
 numpy==1.25.2
 scipy==1.11.4

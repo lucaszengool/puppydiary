@@ -21,7 +21,14 @@ AI_BACKEND_URL=http://localhost:8003
 ```
 Note: For production, you'll need to deploy the Python backend separately and update this URL.
 
-### 3. Optional API Keys (for additional features)
+### 3. Uploadthing Configuration (Required for image storage)
+```
+UPLOADTHING_SECRET=your-uploadthing-secret
+UPLOADTHING_APP_ID=your-uploadthing-app-id
+```
+Get these from: https://uploadthing.com/dashboard
+
+### 4. Optional API Keys (for additional features)
 ```
 # OpenAI API Key (for GPT-4 features - optional)
 OPENAI_API_KEY=your-openai-key-here
@@ -36,7 +43,7 @@ ARK_API_KEY=your-ark-api-key-here
 DOUBAO_API_KEY=your-doubao-api-key-here
 ```
 
-### 4. Node.js Configuration (Optional but recommended)
+### 5. Node.js Configuration (Optional but recommended)
 ```
 NODE_ENV=production
 ```
