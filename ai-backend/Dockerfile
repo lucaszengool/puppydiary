@@ -2,35 +2,21 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies for OpenCV and image processing
-RUN apt-get update && apt-get install -y \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    libgl1-mesa-glx \
-    wget \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+# Install minimal dependencies for simple backend
+RUN pip install --no-cache-dir \
+    fastapi==0.104.1 \
+    uvicorn[standard]==0.24.0 \
+    python-multipart==0.0.6 \
+    pillow==10.1.0
 
-# Copy requirements
-COPY requirements-production.txt .
+# Copy the simple backend
+COPY simple_railway_backend.py .
 
-# Install Python dependencies with CPU-only torch
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements-production.txt
+# Use Railway's PORT environment variable
+ENV PORT=8083
 
-# Copy application files
-COPY enhanced_main.py .
-COPY doubao_backend.py .
+# Expose port
+EXPOSE $PORT
 
-# Create a startup script to use the PORT environment variable
-RUN echo '#!/bin/bash\nuvicorn enhanced_main:app --host 0.0.0.0 --port ${PORT:-8083}' > start.sh && \
-    chmod +x start.sh
-
-# Railway will set the PORT environment variable  
-EXPOSE ${PORT:-8083}
-
-# Use the startup script
-CMD ["./start.sh"]
+# Run the simple backend directly
+CMD uvicorn simple_railway_backend:app --host 0.0.0.0 --port $PORT

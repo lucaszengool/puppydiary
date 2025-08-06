@@ -243,3 +243,27 @@ Optimized buffer size: 149375
 🚀 Starting FLUX generation request...
 ✅ Local AI generation successful in 10.5s
  POST /api/generate 200 in 10861ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 9.6s
+ POST /api/generate 200 in 9717ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.1s
+ POST /api/generate 200 in 10226ms
