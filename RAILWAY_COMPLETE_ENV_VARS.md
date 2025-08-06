@@ -18,8 +18,10 @@ CLERK_WEBHOOK_SECRET=whsec_3JdYlttIcnLRcm1fejLVOQiUyHZnqU+Y
 AI_BACKEND_URL=https://gleaming-truth-production.up.railway.app
 
 # Uploadthing 配置（用于图片云存储，可选但推荐）
-UPLOADTHING_SECRET=sk-ut-get-from-uploadthing-dashboard
-UPLOADTHING_APP_ID=your-app-id-from-uploadthing
+# 请使用你在 .env.local 中的实际值
+UPLOADTHING_SECRET=your-uploadthing-secret-key
+UPLOADTHING_APP_ID=your-uploadthing-app-id  
+UPLOADTHING_TOKEN=your-uploadthing-token
 
 # 可选 API 密钥
 OPENAI_API_KEY=sk-your-openai-api-key-here

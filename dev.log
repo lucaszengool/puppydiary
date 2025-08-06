@@ -182,3 +182,7 @@ Optimized buffer size: 149375
  ✓ Compiled in 1322ms (1151 modules)
  GET /create?_rsc=4ph3u 200 in 80ms
  GET /create?_rsc=4ph3u 200 in 83ms
+   Reload env: .env.local
+ ✓ Compiled in 531ms (1430 modules)
+ GET /create?_rsc=4ph3u 200 in 175ms
+ GET /create?_rsc=4ph3u 200 in 180ms
