@@ -169,3 +169,16 @@ Optimized buffer size: 149375
  GET /create?_rsc=4ph3u 200 in 1943ms
  GET /create?_rsc=4ph3u 200 in 22ms
  GET /create?_rsc=4ph3u 200 in 22ms
+ GET /create 200 in 282ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1282ms (1140 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1683ms
+ ✓ Compiled in 2.2s (1151 modules)
+ GET /create?_rsc=4ph3u 200 in 126ms
+ GET /create?_rsc=4ph3u 200 in 116ms
+ ✓ Compiled in 693ms (1151 modules)
+ GET /create?_rsc=4ph3u 200 in 60ms
+ GET /create?_rsc=4ph3u 200 in 61ms
+ ✓ Compiled in 1322ms (1151 modules)
+ GET /create?_rsc=4ph3u 200 in 80ms
+ GET /create?_rsc=4ph3u 200 in 83ms

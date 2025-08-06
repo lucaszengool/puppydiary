@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libxrender-dev \
     libgomp1 \
     libgl1-mesa-glx \
+    libglib2.0-0 \
     wget \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -21,7 +22,7 @@ COPY requirements-production.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements-production.txt
 
-# Copy application files
+# Copy the enhanced main application
 COPY enhanced_main.py .
 COPY doubao_backend.py .
 

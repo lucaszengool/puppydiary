@@ -44,6 +44,8 @@ export default function CreatePage() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [videoGenerating, setVideoGenerating] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState<any>(null)
+  const [originalPrompt, setOriginalPrompt] = useState<string>("")  // Store the original prompt for reuse
+  const [isFirstGeneration, setIsFirstGeneration] = useState(true)  // Track if it's the first generation
 
   // 主要艺术风格选项
   const mainStyleOptions = [
@@ -147,10 +149,31 @@ export default function CreatePage() {
       // 铁的定义：100%保留原有特征的基础提示词
       const preservationPrompt = "IMPORTANT: Preserve 100% of original subject's physical features, facial expression, pose, gesture, body position, size, biological characteristics, and anatomical details exactly as shown in the reference image. Maintain identical facial structure, eye shape, nose, mouth, ears, fur patterns, markings, and any distinctive features."
       
-      // 使用选定的风格或默认风格
-      const basePrompt = additionalPrompt || selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
+      let fullPrompt: string
       
-      const fullPrompt = `${preservationPrompt} ${basePrompt}`
+      // If this is not the first generation and we have an original prompt, reuse it
+      if (!isFirstGeneration && originalPrompt) {
+        // Preserve the complete original prompt and just append the new style
+        fullPrompt = originalPrompt
+        if (additionalPrompt) {
+          // Replace only the background/scene part of the prompt
+          const scenePattern = /(在[^，。]+的环境中|在[^，。]+空间中|在[^，。]+氛围中|在[^，。]+场景中)/
+          if (scenePattern.test(fullPrompt)) {
+            fullPrompt = fullPrompt.replace(scenePattern, additionalPrompt)
+          } else {
+            fullPrompt = `${fullPrompt}, ${additionalPrompt}`
+          }
+        }
+      } else {
+        // First generation - create the full prompt
+        const basePrompt = additionalPrompt || selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
+        fullPrompt = `${preservationPrompt} ${basePrompt}`
+        
+        // Store the original prompt for future use
+        setOriginalPrompt(fullPrompt)
+        setIsFirstGeneration(false)
+      }
+      
       formData.append("prompt", fullPrompt)
       formData.append("art_style", "anime")
       formData.append("cuteness_level", "maximum")
@@ -212,6 +235,9 @@ export default function CreatePage() {
     setGeneratedImage(null)
     setCustomPrompt("")
     setCurrentStep('upload')
+    // Reset prompt-related state for new image
+    setOriginalPrompt("")
+    setIsFirstGeneration(true)
   }
 
   const handleCustomPrompt = async () => {

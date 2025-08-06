@@ -17,9 +17,9 @@ CLERK_WEBHOOK_SECRET=whsec_3JdYlttIcnLRcm1fejLVOQiUyHZnqU+Y
 
 ### 2. AI Backend Configuration (Required)
 ```
-AI_BACKEND_URL=http://localhost:8003
+AI_BACKEND_URL=https://gleaming-truth-production.up.railway.app
 ```
-Note: For production, you'll need to deploy the Python backend separately and update this URL.
+Note: This points to your Railway-deployed AI backend service.
 
 ### 3. Uploadthing Configuration (Required for image storage)
 ```
