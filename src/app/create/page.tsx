@@ -245,11 +245,13 @@ export default function CreatePage() {
       })
 
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('视频生成服务需要配置API密钥，请联系管理员')
-        }
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || '视频生成请求失败')
+        if (response.status === 401) {
+          throw new Error('视频生成服务认证失败，请联系技术支持')
+        } else if (response.status === 400) {
+          throw new Error(errorData.error || errorData.details || '视频生成参数错误')
+        }
+        throw new Error(errorData.error || errorData.details || '视频生成请求失败')
       }
 
       const data = await response.json()

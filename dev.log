@@ -1,0 +1,134 @@
+
+> pepmart-pet-portraits@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.25
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 6.4s
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 732ms (293 modules)
+ ○ Compiling /create ...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+ ✓ Compiled /create in 14.3s (1169 modules)
+ GET /create 200 in 15246ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 6.6s (1140 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 5846ms
+ GET /create?_rsc=4ph3u 200 in 23ms
+ ✓ Compiled /api/generate in 424ms (693 modules)
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG100.jpg 145133 image/jpeg
+Image buffer size: 145133
+Optimized buffer size: 94405
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.5s
+ POST /api/generate 200 in 11779ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.2s
+ POST /api/generate 200 in 10334ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.7s
+ POST /api/generate 200 in 10826ms
+INFO: Clerk: The request to /api/generate-video is being protected (401) because there is no signed-in user, and the path is included in `apiRoutes`. To prevent this behavior, choose one of:
+
+1. To prevent Clerk authentication from protecting (401) the api route, remove the rule matching "/api/generate-video" from the `apiRoutes` array passed to authMiddleware
+2. To make the route accessible to both signed in and signed out users, add "/api/generate-video" to the `publicRoutes` array passed to authMiddleware
+3. To prevent Clerk authentication from running at all, pass `ignoredRoutes: ["/((?!api|trpc))(_next.*|.+\.[\w]+$)", "/api/generate-video"]` to authMiddleware
+4. Pass a custom `afterAuth` to authMiddleware, and replace Clerk's default behavior of redirecting unless a route is included in publicRoutes
+
+For additional information about middleware, please visit https://clerk.com/docs/nextjs/middleware
+(This log only appears in development mode, or if `debug: true` is passed to authMiddleware)
+INFO: Clerk: The request to /api/generate-video is being protected (401) because there is no signed-in user, and the path is included in `apiRoutes`. To prevent this behavior, choose one of:
+
+1. To prevent Clerk authentication from protecting (401) the api route, remove the rule matching "/api/generate-video" from the `apiRoutes` array passed to authMiddleware
+2. To make the route accessible to both signed in and signed out users, add "/api/generate-video" to the `publicRoutes` array passed to authMiddleware
+3. To prevent Clerk authentication from running at all, pass `ignoredRoutes: ["/((?!api|trpc))(_next.*|.+\.[\w]+$)", "/api/generate-video"]` to authMiddleware
+4. Pass a custom `afterAuth` to authMiddleware, and replace Clerk's default behavior of redirecting unless a route is included in publicRoutes
+
+For additional information about middleware, please visit https://clerk.com/docs/nextjs/middleware
+(This log only appears in development mode, or if `debug: true` is passed to authMiddleware)
+ GET /create 200 in 325ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 67ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG100.jpg 145133 image/jpeg
+Image buffer size: 145133
+Optimized buffer size: 94405
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+ ✓ Compiled in 486ms (293 modules)
+✅ Local AI generation successful in 25.0s
+ POST /api/generate 200 in 25109ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG100.jpg 145133 image/jpeg
+Image buffer size: 145133
+Optimized buffer size: 94405
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 14.3s
+ POST /api/generate 200 in 14481ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 17.1s
+ POST /api/generate 200 in 17287ms
+ ○ Compiling /api/generate-video ...
+ ✓ Compiled /api/generate-video in 812ms (694 modules)
+ POST /api/generate-video 400 in 1062ms
+ ✓ Compiled in 968ms (1161 modules)
+ GET /create?_rsc=4ph3u 200 in 122ms
+ GET /create?_rsc=4ph3u 200 in 125ms

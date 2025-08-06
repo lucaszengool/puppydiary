@@ -138,13 +138,26 @@ def analyze_image_features(image: Image.Image) -> str:
     # Simple color analysis
     avg_color = np.mean(img_array, axis=(0, 1))
     
-    # Determine dominant color
-    if avg_color[0] > avg_color[1] and avg_color[0] > avg_color[2]:
-        dominant_color = "brown" if avg_color[0] < 180 else "light brown"
-    elif avg_color[1] > avg_color[2]:
-        dominant_color = "golden"
-    else:
-        dominant_color = "cream"
+    # Determine dominant colors (can be multiple)
+    colors = []
+    if avg_color[0] > 150:
+        if avg_color[0] > 200:
+            colors.append("white")
+        elif avg_color[0] > 180:
+            colors.append("light brown")
+        else:
+            colors.append("brown")
+    
+    if avg_color[1] > avg_color[2] and avg_color[1] > 150:
+        colors.append("golden")
+    
+    if avg_color[2] > 150 and avg_color[2] > avg_color[1]:
+        colors.append("gray")
+    
+    if len(colors) == 0:
+        colors.append("dark")
+    
+    dominant_color = " and ".join(colors[:2]) if len(colors) > 1 else colors[0]
     
     # Simple texture analysis based on variance
     gray = np.dot(img_array[...,:3], [0.2989, 0.5870, 0.1140])
@@ -215,32 +228,32 @@ def convert_to_enhanced_pet_portrait(image: Image.Image, style: str, art_style: 
         # Analyze the input image for better feature preservation
         image_features = analyze_image_features(image)
         
-        # Build enhanced prompt for SDXL
+        # Build enhanced prompt for SDXL with EXACT feature preservation
         if "poodle" in style or "dog" in style:
-            animal_type = f"adorable poodle dog with {image_features}"
+            animal_type = f"poodle dog with EXACT SAME {image_features}, maintaining all original physical features including exact fur color and texture"
         elif "cat" in style:
-            animal_type = f"beautiful cat with {image_features}"
+            animal_type = f"cat with EXACT SAME {image_features}, maintaining all original physical features including exact fur patterns and colors"
         else:
-            animal_type = f"cute pet with {image_features}"
+            animal_type = f"pet with EXACT SAME {image_features}, maintaining all original physical features and appearance"
         
-        # Add pose details
+        # Add pose details - preserve original pose
         if "sleeping" in style:
-            pose_details = "sleeping peacefully, cozy resting pose"
+            pose_details = "in exact same sleeping pose as original, peaceful resting position"
         elif "sitting" in style:
-            pose_details = "sitting elegantly, alert happy pose"
+            pose_details = "in exact same sitting pose as original, same body position"
         else:
-            pose_details = "natural pose, same position"
+            pose_details = "in EXACT SAME pose and position as original photo, same facial expression"
         
-        # Enhanced prompt that emphasizes dramatic style differences
-        prompt = f"masterpiece portrait of {animal_type}, {pose_details}, in distinctive {base_style}, featuring {cuteness}, with striking {colors}, highly detailed, professional quality, unique artistic style, dramatic transformation"
+        # Enhanced prompt that preserves features while applying style
+        prompt = f"masterpiece portrait of the EXACT SAME {animal_type}, {pose_details}, transformed into {base_style} style while PRESERVING ALL original features colors and markings, {cuteness}, with {colors}, maintaining identical appearance characteristics, same expression same fur pattern same eye color, professional quality {art_style} artwork"
     
     # Use custom negative prompt if provided, otherwise use enhanced default
     if custom_negative:
         negative_prompt = custom_negative
         logger.info(f"Using custom negative prompt: {negative_prompt[:100]}...")
     else:
-        # Enhanced negative prompt
-        negative_prompt = "ugly, bad quality, blurry, distorted, deformed, low resolution, pixelated, artifacts, bad anatomy, missing limbs, extra limbs, duplicate, malformed, scary, dark, human, boring, generic, same style, no transformation"
+        # Enhanced negative prompt - avoid changing the pet's features
+        negative_prompt = "ugly, bad quality, blurry, distorted, deformed, low resolution, pixelated, artifacts, bad anatomy, missing limbs, extra limbs, duplicate, malformed, scary, dark, human, different animal, different breed, different fur color, different eye color, changed features, wrong pose"
     
     try:
         logger.info(f"ENHANCED GENERATION - Art Style: {art_style}, Cuteness: {cuteness_level}, Colors: {color_palette}")
@@ -268,7 +281,7 @@ def convert_to_enhanced_pet_portrait(image: Image.Image, style: str, art_style: 
                     image=canny_image,
                     num_inference_steps=25,
                     guidance_scale=7.5,
-                    controlnet_conditioning_scale=controlnet_strength,
+                    controlnet_conditioning_scale=max(0.85, controlnet_strength),  # Higher strength for better feature preservation
                     generator=torch.Generator(device=ai_models.device).manual_seed(42)  # Fixed seed for consistency
                 ).images[0]
                 
@@ -288,7 +301,7 @@ def convert_to_enhanced_pet_portrait(image: Image.Image, style: str, art_style: 
                     prompt=prompt,
                     negative_prompt=negative_prompt,
                     image=processed_img,
-                    strength=0.6,  # Higher strength for more dramatic transformations
+                    strength=0.45,  # Lower strength to preserve more original features
                     num_inference_steps=30,  # More steps for better quality
                     guidance_scale=8.0,  # Higher guidance for stronger style adherence
                     generator=torch.Generator(device=ai_models.device).manual_seed(42)  # Fixed seed for consistency

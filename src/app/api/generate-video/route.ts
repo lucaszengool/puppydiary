@@ -20,8 +20,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '需要至少3张图片生成视频' }, { status: 400 })
     }
 
-    // 使用您提供的API密钥
-    const ARK_API_KEY = "d02d7827-d0c9-4e86-b99b-ba1952eeb25d"
+    // 从环境变量获取API密钥
+    const ARK_API_KEY = process.env.ARK_API_KEY || ""
+    
+    if (!ARK_API_KEY || ARK_API_KEY === "your-ark-api-key-here") {
+      return NextResponse.json({ 
+        error: '视频生成服务未配置', 
+        details: '需要在环境变量中配置有效的ARK_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。'
+      }, { status: 503 })
+    }
+
+    // 检查第一张图片是否为base64数据URL
+    const firstImage = images[0]
+    if (firstImage.startsWith('data:')) {
+      return NextResponse.json({ 
+        error: '视频生成需要公开可访问的图片URL，当前生成的图片为本地数据。请考虑配置图片云存储服务。',
+        details: 'Base64 data URLs cannot be processed by the video generation API. Need publicly accessible image URLs.'
+      }, { status: 400 })
+    }
+
+    console.log('First image URL:', firstImage.substring(0, 100) + '...')
 
     // 创建视频生成任务 - 使用正确的API格式
     console.log('Creating video with prompt:', prompt)
@@ -94,8 +112,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: '缺少taskId参数' }, { status: 400 })
     }
 
-    // 使用您提供的API密钥
-    const ARK_API_KEY = "d02d7827-d0c9-4e86-b99b-ba1952eeb25d"
+    // 从环境变量获取API密钥
+    const ARK_API_KEY = process.env.ARK_API_KEY || ""
+    
+    if (!ARK_API_KEY || ARK_API_KEY === "your-ark-api-key-here") {
+      return NextResponse.json({ 
+        error: '视频生成服务未配置', 
+        details: '需要在环境变量中配置有效的ARK_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。'
+      }, { status: 503 })
+    }
 
     const response = await fetch(`https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks/${taskId}`, {
       headers: {
