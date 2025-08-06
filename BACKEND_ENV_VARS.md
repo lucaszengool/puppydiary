@@ -1,33 +1,15 @@
 # Backend Service (gleaming-truth) Environment Variables
 
-Remove the Clerk variables from your backend and add these instead:
+Replace ALL variables with these for Doubao-only backend:
 
 ```env
-# Hugging Face Configuration (for model downloads)
-HF_TOKEN=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
-HF_HOME=/app/models
-
-# Model Cache Directories
-TRANSFORMERS_CACHE=/app/models
-DIFFUSERS_CACHE=/app/models
-HF_DATASETS_CACHE=/app/models
-
-# PyTorch Configuration (Memory optimization)
-PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
-OMP_NUM_THREADS=4
-MKL_NUM_THREADS=4
+# Doubao API Configuration (Required)
+VOLCENGINE_API_KEY=d02d7827-d0c9-4e86-b99b-ba1952eeb25d
+DOUBAO_ENDPOINT_ID=ep-20250806185345-cvg4w
 
 # Python Configuration
 PYTHONUNBUFFERED=1
 PYTHONDONTWRITEBYTECODE=1
-
-# Disable telemetry
-DISABLE_TELEMETRY=1
-TRANSFORMERS_OFFLINE=0
-HF_DATASETS_OFFLINE=0
-
-# Doubao API (if using)
-DOUBAO_API_KEY=d02d7827-d0c9-4e86-b99b-ba1952eeb25d
 
 # Service Configuration
 LOG_LEVEL=INFO

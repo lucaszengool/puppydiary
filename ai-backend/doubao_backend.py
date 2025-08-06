@@ -12,6 +12,7 @@ from pathlib import Path
 from io import BytesIO
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, Form, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 import requests
@@ -23,10 +24,19 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="豆包 PopMart 图像生成 API")
 
-# 火山引擎配置 - 使用你的真实配置
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 火山引擎配置 - 从环境变量读取
 VOLCENGINE_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
-VOLCENGINE_API_KEY = "d02d7827-d0c9-4e86-b99b-ba1952eeb25d"  # 你的API Key
-DOUBAO_ENDPOINT_ID = "ep-20250806185345-cvg4w"  # 你的图像生成端点ID
+VOLCENGINE_API_KEY = os.environ.get("VOLCENGINE_API_KEY", "d02d7827-d0c9-4e86-b99b-ba1952eeb25d")
+DOUBAO_ENDPOINT_ID = os.environ.get("DOUBAO_ENDPOINT_ID", "ep-20250806185345-cvg4w")
 
 class DoubaoImageGenerator:
     def __init__(self, api_key: str, base_url: str):
