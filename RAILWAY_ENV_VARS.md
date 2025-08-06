@@ -23,11 +23,10 @@ Note: This points to your Railway-deployed AI backend service.
 
 ### 3. Uploadthing Configuration (Required for image storage)
 ```
-UPLOADTHING_SECRET=your-uploadthing-secret-key
-UPLOADTHING_APP_ID=your-uploadthing-app-id
-UPLOADTHING_TOKEN=your-uploadthing-token
+UPLOADTHING_SECRET=sk_live_974f7ae23e370830dd44c4b41f171a44bd83e0f31a87a6e44d118e31a40f26b6
+UPLOADTHING_APP_ID=t0nxfkjshd
+UPLOADTHING_TOKEN=eyJhcGlLZXkiOiJza19saXZlXzk3NGY3YWUyM2UzNzA4MzBkZDQ0YzRiNDFmMTcxYTQ0YmQ4M2UwZjMxYTg3YTZlNDRkMTE4ZTMxYTQwZjI2YjYiLCJhcHBJZCI6InQwbnhma2pzaGQiLCJyZWdpb25zIjpbInNlYTEiXX0=
 ```
-Get these from: https://uploadthing.com/dashboard
 
 ### 4. Optional API Keys (for additional features)
 ```
