@@ -1,0 +1,17 @@
+# Ignore all files except doubao_backend.py
+*
+!doubao_backend.py
+!Dockerfile
+
+# Ignore heavy model files and backends
+enhanced_main.py
+simple_railway_backend.py
+requirements*.txt
+*.safetensors
+*.pt
+*.bin
+models/
+checkpoints/
+venv/
+__pycache__/
+*.log
