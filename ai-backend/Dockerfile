@@ -26,11 +26,11 @@ COPY enhanced_main.py .
 COPY doubao_backend.py .
 
 # Create a startup script to use the PORT environment variable
-RUN echo '#!/bin/bash\nuvicorn enhanced_main:app --host 0.0.0.0 --port ${PORT:-8003}' > start.sh && \
+RUN echo '#!/bin/bash\nuvicorn enhanced_main:app --host 0.0.0.0 --port ${PORT:-8083}' > start.sh && \
     chmod +x start.sh
 
-# Railway will set the PORT environment variable
-EXPOSE ${PORT:-8003}
+# Railway will set the PORT environment variable  
+EXPOSE ${PORT:-8083}
 
 # Use the startup script
 CMD ["./start.sh"]

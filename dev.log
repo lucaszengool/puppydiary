@@ -186,3 +186,60 @@ Optimized buffer size: 149375
  ✓ Compiled in 531ms (1430 modules)
  GET /create?_rsc=4ph3u 200 in 175ms
  GET /create?_rsc=4ph3u 200 in 180ms
+ ○ Compiling /api/generate ...
+ ✓ Compiled /api/generate in 1016ms (692 modules)
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG100.jpg 145133 image/jpeg
+Image buffer size: 145133
+Optimized buffer size: 94405
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.3s
+ POST /api/generate 200 in 11703ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.2s
+ POST /api/generate 200 in 10319ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 9.7s
+ POST /api/generate 200 in 9802ms
+ ○ Compiling /api/generate-video ...
+ ✓ Compiled /api/generate-video in 568ms (694 modules)
+ POST /api/generate-video 503 in 706ms
+ ✓ Compiled in 930ms (1430 modules)
+ ✓ Compiled /api/generate-video in 321ms (688 modules)
+ POST /api/generate-video 503 in 694ms
+ ✓ Compiled /api/generate in 155ms (694 modules)
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.5s
+ POST /api/generate 200 in 10861ms
