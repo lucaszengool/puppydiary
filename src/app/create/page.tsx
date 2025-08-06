@@ -43,7 +43,7 @@ export default function CreatePage() {
   const [videoTaskId, setVideoTaskId] = useState<string | null>(null)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [videoGenerating, setVideoGenerating] = useState(false)
-  const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
+  const [selectedStyle, setSelectedStyle] = useState<any>(null)
 
   // 主要艺术风格选项
   const mainStyleOptions = [

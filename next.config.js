@@ -22,6 +22,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'dalleprodsec.blob.core.windows.net',
       },
+      {
+        protocol: 'https',
+        hostname: 'ark-content-generation-cn-beijing.tos-cn-beijing.volces.com',
+      },
     ],
   },
   experimental: {

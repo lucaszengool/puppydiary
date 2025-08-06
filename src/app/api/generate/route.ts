@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     try {
       // Create FormData for local AI backend
       const aiFormData = new FormData()
-      const imageBlob = new Blob([optimizedBuffer], { type: 'image/jpeg' })
+      const imageBlob = new Blob([new Uint8Array(optimizedBuffer)], { type: 'image/jpeg' })
       aiFormData.append('image', imageBlob, 'pet.jpg')
       aiFormData.append('style', 'sleeping_popmart_poodle')
       

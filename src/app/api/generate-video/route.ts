@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs'
 
+// Specify Node.js runtime to avoid Edge Runtime issues
+export const runtime = 'nodejs'
+
 interface VideoGenerationRequest {
   images: string[]
   prompt?: string
@@ -25,7 +28,7 @@ export async function POST(req: NextRequest) {
     console.log('Using first image:', images[0])
     
     const requestBody = {
-      model: 'ep-20250806195158-t2c5h',
+      model: 'doubao-seedance-1-0-pro-250528', // 使用正确的模型ID
       content: [
         {
           type: 'text',
@@ -42,7 +45,7 @@ export async function POST(req: NextRequest) {
     
     console.log('Request body:', JSON.stringify(requestBody, null, 2))
     
-    const createResponse = await fetch('https://ark.cn-beijing.volces.com/api/v3/content_generation/tasks', {
+    const createResponse = await fetch('https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +97,7 @@ export async function GET(req: NextRequest) {
     // 使用您提供的API密钥
     const ARK_API_KEY = "d02d7827-d0c9-4e86-b99b-ba1952eeb25d"
 
-    const response = await fetch(`https://ark.cn-beijing.volces.com/api/v3/content_generation/tasks/${taskId}`, {
+    const response = await fetch(`https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks/${taskId}`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${ARK_API_KEY}`,
