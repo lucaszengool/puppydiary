@@ -191,13 +191,45 @@ export async function POST(request: NextRequest) {
         portraitId = portrait.id
       }
 
+      // Upload generated image to Uploadthing for public URL
+      let publicImageUrl = aiResult.imageUrl
+      try {
+        if (aiResult.imageUrl.startsWith('data:image/')) {
+          // Convert base64 to blob and upload
+          const base64Data = aiResult.imageUrl.split(',')[1]
+          const imageBuffer = Buffer.from(base64Data, 'base64')
+          
+          // Create a form for upload
+          const uploadFormData = new FormData()
+          const blob = new Blob([imageBuffer], { type: 'image/jpeg' })
+          uploadFormData.append('files', blob, `generated-${Date.now()}.jpg`)
+          
+          // Upload to Uploadthing
+          const uploadResponse = await fetch('/api/uploadthing', {
+            method: 'POST',
+            body: uploadFormData,
+          })
+          
+          if (uploadResponse.ok) {
+            const uploadResult = await uploadResponse.json()
+            if (uploadResult?.[0]?.url) {
+              publicImageUrl = uploadResult[0].url
+              console.log('✅ Uploaded to cloud storage:', publicImageUrl)
+            }
+          }
+        }
+      } catch (uploadError) {
+        console.log('⚠️ Cloud upload failed, using base64:', uploadError)
+      }
+
       return NextResponse.json({
-        imageUrl: aiResult.imageUrl,
+        imageUrl: publicImageUrl,
         petAnalysis: aiResult.analysis,
         portraitId,
         saved: !!userId,
         generationTime: aiResult.generationTime,
-        localAI: true
+        localAI: true,
+        cloudUrl: publicImageUrl !== aiResult.imageUrl
       })
       
     } catch (aiError) {

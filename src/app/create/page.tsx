@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import './cartoon-styles.css'
 
 export default function CreatePage() {
   const { userId } = useAuth()
@@ -349,7 +350,16 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="min-h-screen premium-bg">
+    <div className="create-container">
+      {/* Floating cartoon elements */}
+      <div className="floating-elements">
+        <div className="floating-star" style={{top: '20%', left: '10%', animationDelay: '0s'}}></div>
+        <div className="floating-star" style={{top: '60%', left: '85%', animationDelay: '1s'}}></div>
+        <div className="floating-star" style={{top: '30%', left: '70%', animationDelay: '2s'}}></div>
+        <div className="floating-star" style={{top: '80%', left: '15%', animationDelay: '3s'}}></div>
+        <div className="floating-star" style={{top: '15%', left: '50%', animationDelay: '0.5s'}}></div>
+      </div>
+      
       <Navigation />
       
       <main className="max-w-6xl mx-auto px-4 py-8">

@@ -267,3 +267,86 @@ Optimized buffer size: 149375
 🚀 Starting FLUX generation request...
 ✅ Local AI generation successful in 10.1s
  POST /api/generate 200 in 10226ms
+ ✓ Compiled in 1924ms (1151 modules)
+ GET /create?_rsc=4ph3u 200 in 294ms
+ GET /create?_rsc=4ph3u 200 in 295ms
+ ✓ Compiled in 485ms (467 modules)
+ GET /create?_rsc=4ph3u 200 in 35ms
+ GET /create?_rsc=4ph3u 200 in 36ms
+ ✓ Compiled in 1928ms (1167 modules)
+ GET /create?_rsc=4ph3u 200 in 111ms
+ GET /create?_rsc=4ph3u 200 in 111ms
+ ✓ Compiled in 767ms (1154 modules)
+ GET /create?_rsc=4ph3u 200 in 67ms
+ GET /create?_rsc=4ph3u 200 in 66ms
+ ✓ Compiled in 1063ms (1154 modules)
+ GET /create?_rsc=4ph3u 200 in 46ms
+ GET /create?_rsc=4ph3u 200 in 48ms
+ GET /create 200 in 346ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1718ms (1143 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2014ms
+ ○ Compiling / ...
+ ✓ Compiled / in 654ms (1156 modules)
+ GET /?_rsc=1hfl5 200 in 863ms
+ ○ Compiling /api/generate ...
+ ✓ Compiled /api/generate in 918ms (705 modules)
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+ GET /create?_rsc=4ph3u 200 in 111ms
+ GET /create?_rsc=1ww0j 200 in 110ms
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 11.5s
+⚠️ Cloud upload failed, using base64: TypeError: Failed to parse URL from /api/uploadthing
+    at new Request (node:internal/deps/undici/undici:9588:19)
+    at dedupeFetch (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/dedupe-fetch.js:102:87)
+    ... 31 lines matching cause stack trace ...
+    at async Server.requestListener (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:818:25)
+      at new Request (node:internal/deps/undici/undici:9586:25)
+      at dedupeFetch (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/dedupe-fetch.js:102:87)
+      at doOriginalFetch (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/patch-fetch.js:442:24)
+      at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/patch-fetch.js:628:24)
+      at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:134:36)
+      at NoopContextManager.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+      at ContextAPI.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+      at NoopTracer.startActiveSpan (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+      at ProxyTracer.startActiveSpan (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+      at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:116:103)
+      at NoopContextManager.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+      at ContextAPI.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+      at NextTracerImpl.trace (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:116:28)
+      at patched (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/patch-fetch.js:235:41)
+      at POST (webpack-internal:///(rsc)/./src/app/api/generate/route.ts:205:50)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async /Users/James/Desktop/Pepmart/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+      at async eT.execute (/Users/James/Desktop/Pepmart/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+      at async eT.handle (/Users/James/Desktop/Pepmart/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+      at async doRender (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/base-server.js:1366:42)
+      at async cacheEntry.responseCache.get.routeKind (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/base-server.js:1588:28)
+      at async DevServer.renderToResponseWithComponentsImpl (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/base-server.js:1496:28)
+      at async DevServer.renderPageComponent (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/base-server.js:1924:24)
+      at async DevServer.renderToResponseImpl (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/base-server.js:1962:32)
+      at async DevServer.pipeImpl (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/base-server.js:922:25)
+      at async NextNodeServer.handleCatchallRenderRequest (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/next-server.js:272:17)
+      at async DevServer.handleRequestImpl (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/base-server.js:818:17)
+      at async /Users/James/Desktop/Pepmart/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+      at async Span.traceAsyncFn (/Users/James/Desktop/Pepmart/node_modules/next/dist/trace/trace.js:154:20)
+      at async DevServer.handleRequest (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+      at async invokeRender (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/lib/router-server.js:182:21)
+      at async handleRequest (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/lib/router-server.js:359:24)
+      at async requestHandlerImpl (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/lib/router-server.js:383:13)
+      at async Server.requestListener (/Users/James/Desktop/Pepmart/node_modules/next/dist/server/lib/start-server.js:141:13) {
+    code: 'ERR_INVALID_URL',
+    input: '/api/uploadthing'
+  }
+}
+ POST /api/generate 200 in 13046ms
