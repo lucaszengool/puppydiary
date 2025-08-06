@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs"
 import { Navigation } from "@/components/navigation"
 import Link from "next/link"
-import { Camera, Sparkles, Heart, PawPrint, Palette, BookOpen } from "lucide-react"
+import { Camera, Sparkles, Heart, PawPrint, Palette } from "lucide-react"
 
 export default async function Home() {
   const user = await currentUser()
@@ -62,34 +62,36 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {/* Features Section */}
+        <div className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="w-16 h-16 mx-auto rounded-xl bg-neutral-900 flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
               <Camera className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-neutral-800">照片导入</h3>
+            <h3 className="text-xl font-semibold text-neutral-800">智能识别</h3>
             <p className="text-neutral-600">
-              支持多种格式，智能预处理优化图像质量
+              AI自动识别宠物特征，确保每个细节都完美保留
             </p>
           </div>
 
           <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.4s' }}>
-            <div className="w-16 h-16 mx-auto rounded-xl bg-neutral-900 flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-pink-600 to-rose-600 flex items-center justify-center">
               <Palette className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-neutral-800">AI风格转换</h3>
+            <h3 className="text-xl font-semibold text-neutral-800">艺术转换</h3>
             <p className="text-neutral-600">
-              专业算法确保100%保留原始特征的基础上进行艺术化转换
+              多种艺术风格可选，从水彩到油画，打造独特视觉效果
             </p>
           </div>
 
           <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.6s' }}>
-            <div className="w-16 h-16 mx-auto rounded-xl bg-neutral-900 flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-green-600 to-teal-600 flex items-center justify-center">
               <Sparkles className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-neutral-800">视频制作</h3>
+            <h3 className="text-xl font-semibold text-neutral-800">专业品质</h3>
             <p className="text-neutral-600">
-              自动生成专业级宠物vlog，支持多种导出格式
+              高分辨率输出，支持打印级品质，永久保存美好回忆
             </p>
           </div>
         </div>

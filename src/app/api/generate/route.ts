@@ -205,7 +205,10 @@ export async function POST(request: NextRequest) {
           uploadFormData.append('files', blob, `generated-${Date.now()}.jpg`)
           
           // Upload to Uploadthing
-          const uploadResponse = await fetch('/api/uploadthing', {
+          const baseUrl = process.env.NODE_ENV === 'production' 
+            ? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://puppydiary-production.up.railway.app')
+            : 'http://localhost:3000'
+          const uploadResponse = await fetch(`${baseUrl}/api/uploadthing`, {
             method: 'POST',
             body: uploadFormData,
           })

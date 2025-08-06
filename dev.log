@@ -350,3 +350,361 @@ Optimized buffer size: 149375
   }
 }
  POST /api/generate 200 in 13046ms
+ GET /?_rsc=1hfl5 200 in 87ms
+ ✓ Compiled in 5.5s (1167 modules)
+ GET /create?_rsc=4ph3u 200 in 471ms
+ GET /?_rsc=r3yhw 200 in 172ms
+ ✓ Compiled in 6.7s (1169 modules)
+ GET /create?_rsc=4ph3u 200 in 4982ms
+ ⨯ src/app/page.tsx (80:14) @ GalleryItem
+ ⨯ ReferenceError: GalleryItem is not defined
+    at Home (./src/app/page.tsx:230:113)
+digest: "1407897003"
+[0m [90m 78 |[39m[0m
+[0m [90m 79 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"[39m[33m>[39m[0m
+[0m[31m[1m>[22m[39m[90m 80 |[39m             [33m<[39m[33mGalleryItem[39m [0m
+[0m [90m    |[39m              [31m[1m^[22m[39m[0m
+[0m [90m 81 |[39m               imageUrl[33m=[39m[32m"https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop&crop=center"[39m[0m
+[0m [90m 82 |[39m               title[33m=[39m[32m"温馨小柴犬"[39m[0m
+[0m [90m 83 |[39m               style[33m=[39m[32m"水彩风格"[39m[0m
+ GET /?_rsc=r3yhw 200 in 720ms
+ ✓ Compiled in 12.3s (1180 modules)
+ GET /create?_rsc=4ph3u 200 in 2503ms
+ GET /?_rsc=r3yhw 200 in 2578ms
+ ⨯ ./src/app/page.tsx
+Error: 
+  [31mx[0m the name `GalleryItem` is defined multiple times
+     ,-[[36;1;4m/Users/James/Desktop/Pepmart/src/app/page.tsx[0m:5:1]
+ [2m  5[0m | import { Camera, Sparkles, Heart, PawPrint, Palette, BookOpen, Star, ArrowRight } from "lucide-react"
+ [2m  6[0m | 
+ [2m  7[0m | // Gallery Item Component
+ [2m  8[0m | function GalleryItem({ 
+     : [31;1m         ^^^^^|^^^^^[0m
+     :               [31;1m`-- [31;1mprevious definition of `GalleryItem` here[0m[0m
+ [2m  9[0m |   imageUrl, 
+ [2m 10[0m |   title, 
+ [2m 11[0m |   style, 
+ [2m 12[0m |   description, 
+ [2m 13[0m |   tags 
+ [2m 14[0m | }: {
+ [2m 15[0m |   imageUrl: string
+ [2m 16[0m |   title: string
+ [2m 17[0m |   style: string
+ [2m 18[0m |   description: string
+ [2m 19[0m |   tags: string[]
+ [2m 20[0m | }) {
+ [2m 21[0m |   return (
+ [2m 22[0m |     <div className="group premium-card overflow-hidden hover:scale-105 transition-all duration-300 cursor-pointer">
+ [2m 23[0m |       <div className="relative h-64 overflow-hidden">
+ [2m 24[0m |         <Image
+ [2m 25[0m |           src={imageUrl}
+ [2m 26[0m |           alt={title}
+ [2m 27[0m |           fill
+ [2m 28[0m |           className="object-cover group-hover:scale-110 transition-transform duration-500"
+ [2m 29[0m |         />
+ [2m 30[0m |         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+ [2m 31[0m |         
+ [2m 32[0m |         {/* Floating style badge */}
+ [2m 33[0m |         <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm border border-white/20">
+ [2m 34[0m |           <span className="text-xs font-medium text-neutral-800">{style}</span>
+ [2m 35[0m |         </div>
+ [2m 36[0m |         
+ [2m 37[0m |         {/* Hover overlay with description */}
+ [2m 38[0m |         <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+ [2m 39[0m |           <p className="text-sm leading-relaxed">{description}</p>
+ [2m 40[0m |         </div>
+ [2m 41[0m |       </div>
+ [2m 42[0m |       
+ [2m 43[0m |       <div className="p-4 space-y-3">
+ [2m 44[0m |         <h3 className="font-semibold text-neutral-900">{title}</h3>
+ [2m 45[0m |         
+ [2m 46[0m |         <div className="flex flex-wrap gap-2">
+ [2m 47[0m |           {tags.map((tag, index) => (
+ [2m 48[0m |             <span 
+ [2m 49[0m |               key={index}
+ [2m 50[0m |               className="px-2 py-1 text-xs rounded-md bg-neutral-100 text-neutral-600 border border-neutral-200"
+ [2m 51[0m |             >
+ [2m 52[0m |               {tag}
+ [2m 53[0m |             </span>
+ [2m 54[0m |           ))}
+ [2m 55[0m |         </div>
+ [2m 56[0m |         
+ [2m 57[0m |         <div className="flex items-center justify-between pt-2">
+ [2m 58[0m |           <div className="flex items-center space-x-1 text-yellow-500">
+ [2m 59[0m |             {Array.from({ length: 5 }).map((_, i) => (
+ [2m 60[0m |               <Star key={i} className="h-3 w-3 fill-current" />
+ [2m 61[0m |             ))}
+ [2m 62[0m |           </div>
+ [2m 63[0m |           <span className="text-xs text-neutral-500">AI生成</span>
+ [2m 64[0m |         </div>
+ [2m 65[0m |       </div>
+ [2m 66[0m |     </div>
+ [2m 67[0m |   )
+ [2m 68[0m | }
+ [2m 69[0m | 
+ [2m 70[0m | export default async function Home() {
+ [2m 71[0m |   const user = await currentUser()
+ [2m 72[0m | 
+ [2m 73[0m |   return (
+ [2m 74[0m |     <div className="min-h-screen premium-bg">
+ [2m 75[0m |       {/* 漂浮的宠物元素 */}
+ [2m 76[0m |       <div className="floating-pets">
+ [2m 77[0m |         {Array.from({ length: 6 }).map((_, i) => (
+ [2m 78[0m |           <div 
+ [2m 79[0m |             key={`pet-${i}`}
+ [2m 80[0m |             className="floating-heart" 
+ [2m 81[0m |             style={{ 
+ [2m 82[0m |               left: `${Math.random() * 100}%`, 
+ [2m 83[0m |               animationDelay: `${i * 2}s`,
+ [2m 84[0m |               animationDuration: `${8 + Math.random() * 4}s`
+ [2m 85[0m |             }}
+ [2m 86[0m |           >
+ [2m 87[0m |             🐾
+ [2m 88[0m |           </div>
+ [2m 89[0m |         ))}
+ [2m 90[0m |       </div>
+ [2m 91[0m |       
+ [2m 92[0m |       <Navigation />
+ [2m 93[0m |       
+ [2m 94[0m |       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+ [2m 95[0m |         <div className="text-center space-y-8 fade-in">
+ [2m 96[0m |           <div className="space-y-6">
+ [2m 97[0m |             <div className="flex justify-center mb-6">
+ [2m 98[0m |               <div className="relative">
+ [2m 99[0m |                 <PawPrint className="h-16 w-16 text-neutral-900 subtle-float" />
+ [2m100[0m |                 <Heart className="h-6 w-6 text-red-500 absolute -top-2 -right-2 animate-pulse" />
+ [2m101[0m |               </div>
+ [2m102[0m |             </div>
+ [2m103[0m |             
+ [2m104[0m |             <h1 className="text-5xl sm:text-6xl font-bold text-neutral-900 tracking-tight">
+ [2m105[0m |               AI宠物漫画工作室
+ [2m106[0m |             </h1>
+ [2m107[0m |             <p className="text-xl text-neutral-600 max-w-2xl mx-auto leading-relaxed">
+ [2m108[0m |               专业级宠物影像创作平台，将您的爱宠照片转化为高质量漫画作品
+ [2m109[0m |             </p>
+ [2m110[0m |           </div>
+ [2m111[0m | 
+ [2m112[0m |           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+ [2m113[0m |             <Link href="/create">
+ [2m114[0m |               <button className="premium-button text-lg px-8 py-4 flex items-center space-x-2">
+ [2m115[0m |                 <Camera className="h-5 w-5" />
+ [2m116[0m |                 <span>开始创作</span>
+ [2m117[0m |               </button>
+ [2m118[0m |             </Link>
+ [2m119[0m |             {!user && (
+ [2m120[0m |               <Link href="/sign-in">
+ [2m121[0m |                 <button className="premium-button-secondary text-lg px-8 py-4">
+ [2m122[0m |                   登录账号
+ [2m123[0m |                 </button>
+ [2m124[0m |               </Link>
+ [2m125[0m |             )}
+ [2m126[0m |           </div>
+ [2m127[0m |         </div>
+ [2m128[0m | 
+ [2m129[0m |         {/* Premium Gallery Section */}
+ [2m130[0m |         <div className="mt-24 space-y-12">
+ [2m131[0m |           <div className="text-center space-y-4">
+ [2m132[0m |             <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200">
+ [2m133[0m |               <Star className="h-4 w-4 text-yellow-600" />
+ [2m134[0m |               <span className="text-sm font-medium text-yellow-800">精选作品集</span>
+ [2m135[0m |             </div>
+ [2m136[0m |             <h2 className="text-4xl font-bold text-neutral-900">水彩风格画廊</h2>
+ [2m137[0m |             <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+ [2m138[0m |               体验专业级AI创作效果，每一张都保留了宠物的独特个性与魅力
+ [2m139[0m |             </p>
+ [2m140[0m |           </div>
+ [2m141[0m | 
+ [2m142[0m |           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+ [2m143[0m |             <GalleryItem 
+ [2m144[0m |               imageUrl="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop&crop=center"
+ [2m145[0m |               title="温馨小柴犬"
+ [2m146[0m |               style="水彩风格"
+ [2m147[0m |               description="柔美的水彩笔触，温暖的色调"
+ [2m148[0m |               tags={["柴犬", "水彩", "温馨"]}
+ [2m149[0m |             />
+ [2m150[0m |             <GalleryItem 
+ [2m151[0m |               imageUrl="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=600&h=600&fit=crop&crop=center"
+ [2m152[0m |               title="梦幻小猫咪"
+ [2m153[0m |               style="水彩风格"
+ [2m154[0m |               description="梦幻般的水彩效果，清新自然"
+ [2m155[0m |               tags={["猫咪", "水彩", "梦幻"]}
+ [2m156[0m |             />
+ [2m157[0m |             <GalleryItem 
+ [2m158[0m |               imageUrl="https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&h=600&fit=crop&crop=center"
+ [2m159[0m |               title="可爱金毛"
+ [2m160[0m |               style="水彩风格"
+ [2m161[0m |               description="金黄色调的水彩艺术"
+ [2m162[0m |               tags={["金毛", "水彩", "可爱"]}
+ [2m163[0m |             />
+ [2m164[0m |             <GalleryItem 
+ [2m165[0m |               imageUrl="https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=600&h=600&fit=crop&crop=center"
+ [2m166[0m |               title="优雅波斯猫"
+ [2m167[0m |               style="水彩风格"
+ [2m168[0m |               description="细腻的水彩笔触表现优雅气质"
+ [2m169[0m |               tags={["波斯猫", "水彩", "优雅"]}
+ [2m170[0m |             />
+ [2m171[0m |             <GalleryItem 
+ [2m172[0m |               imageUrl="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop&crop=center"
+ [2m173[0m |               title="活泼小狗"
+ [2m174[0m |               style="水彩风格"
+ [2m175[0m |               description="充满活力的水彩表现"
+ [2m176[0m |               tags={["小狗", "水彩", "活泼"]}
+ [2m177[0m |             />
+ [2m178[0m |             <GalleryItem 
+ [2m179[0m |               imageUrl="https://images.unsplash.com/photo-1511044568932-338cba0ad803?w=600&h=600&fit=crop&crop=center"
+ [2m180[0m |               title="安静小猫"
+ [2m181[0m |               style="水彩风格"
+ [2m182[0m |               description="宁静致远的水彩意境"
+ [2m183[0m |               tags={["小猫", "水彩", "安静"]}
+ [2m184[0m |             />
+ [2m185[0m |           </div>
+ [2m186[0m |           
+ [2m187[0m |           <div className="text-center">
+ [2m188[0m |             <Link href="/create">
+ [2m189[0m |               <button className="premium-button inline-flex items-center space-x-2">
+ [2m190[0m |                 <Palette className="h-5 w-5" />
+ [2m191[0m |                 <span>创作您的专属作品</span>
+ [2m192[0m |                 <ArrowRight className="h-4 w-4" />
+ [2m193[0m |               </button>
+ [2m194[0m |             </Link>
+ [2m195[0m |           </div>
+ [2m196[0m |         </div>
+ [2m197[0m | 
+ [2m198[0m |         {/* Features Section */}
+ [2m199[0m |         <div className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8">
+ [2m200[0m |           <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.2s' }}>
+ [2m201[0m |             <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+ [2m202[0m |               <Camera className="h-8 w-8 text-white" />
+ [2m203[0m |             </div>
+ [2m204[0m |             <h3 className="text-xl font-semibold text-neutral-800">智能识别</h3>
+ [2m205[0m |             <p className="text-neutral-600">
+ [2m206[0m |               AI自动识别宠物特征，确保每个细节都完美保留
+ [2m207[0m |             </p>
+ [2m208[0m |           </div>
+ [2m209[0m | 
+ [2m210[0m |           <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.4s' }}>
+ [2m211[0m |             <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-pink-600 to-rose-600 flex items-center justify-center">
+ [2m212[0m |               <Palette className="h-8 w-8 text-white" />
+ [2m213[0m |             </div>
+ [2m214[0m |             <h3 className="text-xl font-semibold text-neutral-800">艺术转换</h3>
+ [2m215[0m |             <p className="text-neutral-600">
+ [2m216[0m |               多种艺术风格可选，从水彩到油画，打造独特视觉效果
+ [2m217[0m |             </p>
+ [2m218[0m |           </div>
+ [2m219[0m | 
+ [2m220[0m |           <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.6s' }}>
+ [2m221[0m |             <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-green-600 to-teal-600 flex items-center justify-center">
+ [2m222[0m |               <Sparkles className="h-8 w-8 text-white" />
+ [2m223[0m |             </div>
+ [2m224[0m |             <h3 className="text-xl font-semibold text-neutral-800">专业品质</h3>
+ [2m225[0m |             <p className="text-neutral-600">
+ [2m226[0m |               高分辨率输出，支持打印级品质，永久保存美好回忆
+ [2m227[0m |             </p>
+ [2m228[0m |           </div>
+ [2m229[0m |         </div>
+ [2m230[0m | 
+ [2m231[0m |         {/* 简洁的底部标语 */}
+ [2m232[0m |         <div className="mt-20 text-center">
+ [2m233[0m |           <div className="inline-flex items-center space-x-4 text-neutral-500">
+ [2m234[0m |             <PawPrint className="w-4 h-4" />
+ [2m235[0m |             <span className="text-sm font-medium tracking-wide">PROFESSIONAL PET PORTRAIT STUDIO</span>
+ [2m236[0m |             <PawPrint className="w-4 h-4" />
+ [2m237[0m |           </div>
+ [2m238[0m |         </div>
+ [2m239[0m |       </main>
+ [2m240[0m |     </div>
+ [2m241[0m |   )
+ [2m242[0m | }
+ [2m243[0m | 
+ [2m244[0m | // Gallery Item Component
+ [2m245[0m | function GalleryItem({ 
+     : [33;1m         ^^^^^|^^^^^[0m
+     :               [33;1m`-- [33;1m`GalleryItem` redefined here[0m[0m
+ [2m246[0m |   imageUrl, 
+ [2m247[0m |   title, 
+ [2m248[0m |   style, 
+     `----
+
+Import trace for requested module:
+./src/app/page.tsx
+ ○ Compiling /_error ...
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /_error in 131.4s (1405 modules)
+ GET / 200 in 63795ms
+ GET / 200 in 22277ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 13.8s (1393 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 15425ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/James/Desktop/Pepmart/.next/cache/webpack/client-development-fallback/0.pack.gz_' -> '/Users/James/Desktop/Pepmart/.next/cache/webpack/client-development-fallback/0.pack.gz'
+ ✓ Compiled in 2.3s (1402 modules)
+ ✓ Compiled in 1489ms (1390 modules)
+ ○ Compiling /api/generate ...
+ ✓ Compiled /api/generate in 537ms (745 modules)
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG100.jpg 145133 image/jpeg
+Image buffer size: 145133
+Optimized buffer size: 94405
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.5s
+INFO: Clerk: The request to /api/uploadthing is being protected (401) because there is no signed-in user, and the path is included in `apiRoutes`. To prevent this behavior, choose one of:
+
+1. To prevent Clerk authentication from protecting (401) the api route, remove the rule matching "/api/uploadthing" from the `apiRoutes` array passed to authMiddleware
+2. To make the route accessible to both signed in and signed out users, add "/api/uploadthing" to the `publicRoutes` array passed to authMiddleware
+3. To prevent Clerk authentication from running at all, pass `ignoredRoutes: ["/((?!api|trpc))(_next.*|.+\.[\w]+$)", "/api/uploadthing"]` to authMiddleware
+4. Pass a custom `afterAuth` to authMiddleware, and replace Clerk's default behavior of redirecting unless a route is included in publicRoutes
+
+For additional information about middleware, please visit https://clerk.com/docs/nextjs/middleware
+(This log only appears in development mode, or if `debug: true` is passed to authMiddleware)
+ POST /api/generate 200 in 11320ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.4s
+INFO: Clerk: The request to /api/uploadthing is being protected (401) because there is no signed-in user, and the path is included in `apiRoutes`. To prevent this behavior, choose one of:
+
+1. To prevent Clerk authentication from protecting (401) the api route, remove the rule matching "/api/uploadthing" from the `apiRoutes` array passed to authMiddleware
+2. To make the route accessible to both signed in and signed out users, add "/api/uploadthing" to the `publicRoutes` array passed to authMiddleware
+3. To prevent Clerk authentication from running at all, pass `ignoredRoutes: ["/((?!api|trpc))(_next.*|.+\.[\w]+$)", "/api/uploadthing"]` to authMiddleware
+4. Pass a custom `afterAuth` to authMiddleware, and replace Clerk's default behavior of redirecting unless a route is included in publicRoutes
+
+For additional information about middleware, please visit https://clerk.com/docs/nextjs/middleware
+(This log only appears in development mode, or if `debug: true` is passed to authMiddleware)
+ POST /api/generate 200 in 10593ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG100.jpg 145133 image/jpeg
+Image buffer size: 145133
+Optimized buffer size: 94405
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.1s
+INFO: Clerk: The request to /api/uploadthing is being protected (401) because there is no signed-in user, and the path is included in `apiRoutes`. To prevent this behavior, choose one of:
+
+1. To prevent Clerk authentication from protecting (401) the api route, remove the rule matching "/api/uploadthing" from the `apiRoutes` array passed to authMiddleware
+2. To make the route accessible to both signed in and signed out users, add "/api/uploadthing" to the `publicRoutes` array passed to authMiddleware
+3. To prevent Clerk authentication from running at all, pass `ignoredRoutes: ["/((?!api|trpc))(_next.*|.+\.[\w]+$)", "/api/uploadthing"]` to authMiddleware
+4. Pass a custom `afterAuth` to authMiddleware, and replace Clerk's default behavior of redirecting unless a route is included in publicRoutes
+
+For additional information about middleware, please visit https://clerk.com/docs/nextjs/middleware
+(This log only appears in development mode, or if `debug: true` is passed to authMiddleware)
+ POST /api/generate 200 in 10225ms
+ ○ Compiling /api/generate-video ...
+ ✓ Compiled /api/generate-video in 997ms (747 modules)
+ POST /api/generate-video 503 in 1148ms
+ GET /?_rsc=1epmq 200 in 56ms
