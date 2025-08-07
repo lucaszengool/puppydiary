@@ -13,7 +13,7 @@ export default function WechatLoginButton() {
     try {
       // Check if WeChat credentials are configured
       if (!process.env.NEXT_PUBLIC_WECHAT_CLIENT_ID) {
-        alert("微信登录需要配置开发者密钥\n\n开发设置说明：\n1. 在微信开放平台申请应用\n2. 获取 AppID 和 AppSecret\n3. 配置 .env.local 文件\n4. 设置回调域名\n\n请暂时使用其他方式登录")
+        alert("微信登录申请中，请各位小伙伴暂时使用其他方式登录")
         return
       }
 

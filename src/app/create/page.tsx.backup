@@ -143,7 +143,7 @@ export default function CreatePage() {
         setCurrentStep('upload')
       }
     }
-  }, [searchParams]) 
+  }, [searchParams])
 
   const handleFileSelect = (file: File) => {
     console.log("handleFileSelect called with:", file ? file.name : "no file")
@@ -562,13 +562,13 @@ export default function CreatePage() {
     } catch (error) {
       console.error("Publish error:", error)
       toast({
-        title: "Publish failed",
-        description: "Please try again",
+        title: "发布失败",
+        description: "请稍后重试",
         variant: "destructive",
       })
     }
   }
-
+  
   return (
     <div className="vsco-container">
       {/* Desktop VSCO Style Header */}
@@ -617,109 +617,6 @@ export default function CreatePage() {
               作品集
             </Link>
           </div>
-
-          {/* Saved Images Gallery - Desktop only */}
-          {savedImages.length > 0 && (
-            <div className="vsco-gallery-bottom hidden md:block">
-              <div className="vsco-gallery-container">
-                <div className="vsco-gallery-header">
-                  <h4 className="vsco-gallery-title">已保存作品 ({savedImages.length}/3)</h4>
-                  {savedImages.length >= 3 && (
-                    <button
-                      onClick={() => {
-                        // Generate video functionality
-                        toast({
-                          title: "视频生成",
-                          description: "视频生成功能即将推出",
-                        })
-                      }}
-                      className="vsco-btn small"
-                    >
-                      生成视频
-                    </button>
-                  )}
-                </div>
-                <div className="vsco-gallery-grid">
-                  {savedImages.map((image, index) => (
-                    <div 
-                      key={index} 
-                      className="vsco-gallery-item"
-                      onClick={() => {
-                        // Option to view saved image in modal or download
-                        const a = document.createElement('a')
-                        a.href = image
-                        a.download = `saved-artwork-${index + 1}-${Date.now()}.png`
-                        a.click()
-                      }}
-                      title="点击下载"
-                    >
-                      <img
-                        src={image}
-                        alt={`保存的作品 ${index + 1}`}
-                        className="vsco-gallery-thumbnail"
-                      />
-                      <div className="vsco-gallery-overlay">
-                        <span className="vsco-gallery-number">{index + 1}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {Array.from({ length: 3 - savedImages.length }).map((_, index) => (
-                    <div key={`empty-${index}`} className="vsco-gallery-item empty">
-                      <div className="vsco-gallery-empty">
-                        <Plus className="w-6 h-6 text-gray-400" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Video Modal */}
-          {videoUrl && (
-            <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-sm p-6 max-w-2xl w-full">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">艺术视频</h3>
-                  <button
-                    onClick={() => setVideoUrl(null)}
-                    className="text-gray-400 hover:text-black transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <video
-                  controls
-                  autoPlay
-                  className="w-full rounded-sm mb-4"
-                  poster={savedImages[0]}
-                >
-                  <source src={videoUrl} type="video/mp4" />
-                </video>
-                <div className="flex justify-center">
-                  <a
-                    href={videoUrl}
-                    download={`pet-art-video-${Date.now()}.mp4`}
-                    className="vsco-btn"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    下载视频
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Publish Dialog */}
-          <PublishDialog
-            isOpen={showPublishDialog}
-            onClose={() => {
-              console.log("🔄 Closing publish dialog")
-              setShowPublishDialog(false)
-            }}
-            onConfirm={handlePublishConfirm}
-            imageUrl={editedImage || generatedImage || ''}
-          />
 
           {/* Main upload area */}
           <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -801,7 +698,7 @@ export default function CreatePage() {
             </div>
           </div>
         </div>
-       )}
+      )}
 
       {/* Desktop Interface */}
       <div className={`hidden md:flex vsco-editor ${savedImages.length > 0 ? 'with-gallery' : ''}`}>
@@ -1004,9 +901,8 @@ export default function CreatePage() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* VSCO Mobile-Style Layout - Show only on mobile when image is generated */}
+        {/* VSCO Mobile-Style Layout - Show only on mobile when image is generated */}
       {generatedImage && (
         <div className="md:hidden fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden">
               {/* Header with reset button */}
@@ -1321,9 +1217,112 @@ export default function CreatePage() {
                 )}
               </div>
             </div>
-        )}
+        </div>
+      )}
 
+      {/* Saved Images Gallery - Desktop only */}
+      {savedImages.length > 0 && (
+        <div className="vsco-gallery-bottom hidden md:block">
+          <div className="vsco-gallery-container">
+            <div className="vsco-gallery-header">
+              <h4 className="vsco-gallery-title">已保存作品 ({savedImages.length}/3)</h4>
+              {savedImages.length >= 3 && (
+                <button
+                  onClick={() => {
+                    // Generate video functionality
+                    toast({
+                      title: "视频生成",
+                      description: "视频生成功能即将推出",
+                    })
+                  }}
+                  className="vsco-btn small"
+                >
+                  生成视频
+                </button>
+              )}
+            </div>
+            <div className="vsco-gallery-grid">
+              {savedImages.map((image, index) => (
+                <div 
+                  key={index} 
+                  className="vsco-gallery-item"
+                  onClick={() => {
+                    // Option to view saved image in modal or download
+                    const a = document.createElement('a')
+                    a.href = image
+                    a.download = `saved-artwork-${index + 1}-${Date.now()}.png`
+                    a.click()
+                  }}
+                  title="点击下载"
+                >
+                  <img
+                    src={image}
+                    alt={`保存的作品 ${index + 1}`}
+                    className="vsco-gallery-thumbnail"
+                  />
+                  <div className="vsco-gallery-overlay">
+                    <span className="vsco-gallery-number">{index + 1}</span>
+                  </div>
+                </div>
+              ))}
+              {Array.from({ length: 3 - savedImages.length }).map((_, index) => (
+                <div key={`empty-${index}`} className="vsco-gallery-item empty">
+                  <div className="vsco-gallery-empty">
+                    <Plus className="w-6 h-6 text-gray-400" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video Modal */}
+      {videoUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-sm p-6 max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">艺术视频</h3>
+              <button
+                onClick={() => setVideoUrl(null)}
+                className="text-gray-400 hover:text-black transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <video
+              controls
+              autoPlay
+              className="w-full rounded-sm mb-4"
+              poster={savedImages[0]}
+            >
+              <source src={videoUrl} type="video/mp4" />
+            </video>
+            <div className="flex justify-center">
+              <a
+                href={videoUrl}
+                download={`pet-art-video-${Date.now()}.mp4`}
+                className="vsco-btn"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                下载视频
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* Publish Dialog */}
+      <PublishDialog
+        isOpen={showPublishDialog}
+        onClose={() => {
+          console.log("🔄 Closing publish dialog")
+          setShowPublishDialog(false)
+        }}
+        onConfirm={handlePublishConfirm}
+        imageUrl={editedImage || generatedImage || ''}
+      />
     </div>
   )
 }
-
