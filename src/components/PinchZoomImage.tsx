@@ -7,9 +7,10 @@ interface PinchZoomImageProps {
   src: string
   alt: string
   className?: string
+  style?: React.CSSProperties
 }
 
-export default function PinchZoomImage({ src, alt, className = '' }: PinchZoomImageProps) {
+export default function PinchZoomImage({ src, alt, className = '', style }: PinchZoomImageProps) {
   return (
     <TransformWrapper
       initialScale={1}
@@ -54,6 +55,7 @@ export default function PinchZoomImage({ src, alt, className = '' }: PinchZoomIm
             maxHeight: '100%',
             objectFit: 'contain',
             userSelect: 'none',
+            ...style
           }}
           draggable={false}
         />

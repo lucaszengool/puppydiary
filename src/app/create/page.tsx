@@ -571,8 +571,8 @@ export default function CreatePage() {
 
   return (
     <div className="vsco-container">
-      {/* VSCO Style Header */}
-      <header className="vsco-header">
+      {/* Desktop VSCO Style Header */}
+      <header className="vsco-header hidden md:block">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="text-lg md:text-xl font-medium text-black tracking-wide">
             PETPO
@@ -599,7 +599,7 @@ export default function CreatePage() {
 
       {/* Mobile Upload Interface - Show when no image generated */}
       {!generatedImage && (
-        <div className="md:hidden min-h-screen bg-white flex flex-col">
+        <div className="md:hidden fixed inset-0 bg-white z-[100] flex flex-col overflow-y-auto">
           {/* Processing overlay */}
           {isProcessing && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -902,11 +902,9 @@ export default function CreatePage() {
           )}
         </div>
 
-        {/* VSCO Mobile-Style Layout */}
-        {generatedImage && (
-          <>
-            {/* Mobile VSCO Style Interface */}
-            <div className="md:hidden fixed inset-0 bg-white z-40 flex flex-col">
+        {/* VSCO Mobile-Style Layout - Show only on mobile when image is generated */}
+      {generatedImage && (
+        <div className="md:hidden fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden">
               {/* Header with reset button */}
               <div className="absolute top-4 right-4 z-50">
                 <button
@@ -918,12 +916,27 @@ export default function CreatePage() {
               </div>
 
               {/* Main content area - flex to center image */}
-              <div className="flex-1 flex items-center justify-center px-4 pt-16 pb-24">
-                <PinchZoomImage
-                  src={editedImage || generatedImage}
-                  alt="生成的艺术作品"
-                  className="max-w-full max-h-full object-contain"
-                />
+              <div className="flex-1 flex items-center justify-center px-2 pt-12 pb-28">
+                <div className="w-full h-full flex items-center justify-center">
+                  {/* Show ImageEditor when editing, otherwise show PinchZoom */}
+                  {(editingMode === 'adjustments' || editingMode === 'filters') ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageEditor
+                        originalImage={generatedImage}
+                        adjustments={imageAdjustments}
+                        onAdjustmentChange={handleAdjustmentChange}
+                        onImageUpdate={handleImageUpdate}
+                      />
+                    </div>
+                  ) : (
+                    <PinchZoomImage
+                      src={editedImage || generatedImage}
+                      alt="生成的艺术作品"
+                      className="w-full h-full object-contain"
+                      style={{ maxWidth: '100%', maxHeight: '100%' }}
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Mobile Operations Panel - Top Right Floating */}
@@ -1203,15 +1216,12 @@ export default function CreatePage() {
                   </div>
                 )}
               </div>
-            </div>
-          </>
-        )}
+        </div>
+      )}
 
-      </div>
-
-      {/* Saved Images Gallery */}
+      {/* Saved Images Gallery - Desktop only */}
       {savedImages.length > 0 && (
-        <div className="vsco-gallery-bottom">
+        <div className="vsco-gallery-bottom hidden md:block">
           <div className="vsco-gallery-container">
             <div className="vsco-gallery-header">
               <h4 className="vsco-gallery-title">已保存作品 ({savedImages.length}/3)</h4>

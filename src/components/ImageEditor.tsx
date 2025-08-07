@@ -192,12 +192,15 @@ export default function ImageEditor({
     <div className="image-editor">
       <canvas 
         ref={canvasRef} 
-        style={{ display: 'none' }} 
-        className="hidden"
+        style={{ 
+          maxWidth: '100%',
+          maxHeight: '100%',
+          objectFit: 'contain'
+        }}
       />
       
-      {/* Filter Presets */}
-      <div className="filter-presets mb-6">
+      {/* Filter Presets - Desktop only */}
+      <div className="filter-presets mb-6 hidden md:block">
         <h4 className="text-sm font-medium mb-3 uppercase tracking-wide">预设滤镜</h4>
         <div className="grid grid-cols-3 gap-2">
           {filterPresets.map((preset) => (
