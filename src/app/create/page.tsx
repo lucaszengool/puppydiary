@@ -808,7 +808,7 @@ export default function CreatePage() {
           )}
 
           {generatedImage && (
-            <div className="fade-in">
+            <div className="fade-in hidden md:block">
               <h3 className="adjustment-title">操作</h3>
               <div className="space-y-3">
                 <button
@@ -912,7 +912,7 @@ export default function CreatePage() {
               </div>
 
               {/* Main content area - flex to center image */}
-              <div className="flex-1 flex items-center justify-center px-4 pt-16 pb-40">
+              <div className="flex-1 flex items-center justify-center px-4 pt-16 pb-48">
                 <PinchZoomImage
                   src={editedImage || generatedImage}
                   alt="生成的艺术作品"
@@ -921,7 +921,7 @@ export default function CreatePage() {
               </div>
 
               {/* Fixed bottom action buttons */}
-              <div className="fixed bottom-32 left-4 right-4 z-60">
+              <div className="fixed bottom-24 left-4 right-4 z-60">
                 <div className="flex justify-center space-x-3">
                   <button
                     onClick={() => {
@@ -959,7 +959,7 @@ export default function CreatePage() {
               </div>
 
               {/* Bottom Tools - Only appear when clicked */}
-              <div className="absolute bottom-0 left-0 right-0">
+              <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Tool Icons Row */}
                 <div className="flex items-center justify-center space-x-8 p-6 bg-gradient-to-t from-gray-100/90 to-transparent">
                   <button

@@ -49,13 +49,8 @@ export default function GalleryPage() {
   }
 
   const handleArtworkClick = (artwork: Artwork) => {
-    if (!userId) {
-      // Require login to view details
-      sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
-      window.location.href = '/sign-in'
-    } else {
-      setSelectedArtwork(artwork)
-    }
+    // Allow everyone to view artwork details without login
+    setSelectedArtwork(artwork)
   }
 
   const formatDate = (dateString: string) => {
@@ -117,7 +112,7 @@ export default function GalleryPage() {
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light">
             探索由我们的用户创作的精美宠物艺术作品
-            {!userId && <span className="block text-sm mt-2 text-blue-600">点击作品需要登录查看详情</span>}
+            <span className="block text-sm mt-2 text-gray-500">点击作品查看详情</span>
           </p>
         </div>
 
