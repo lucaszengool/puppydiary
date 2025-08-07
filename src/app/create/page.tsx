@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { useAuth } from "@clerk/nextjs"
 import { Navigation } from "@/components/navigation"
 import { useToast } from "@/hooks/use-toast"
+import ImageEditor, { ImageAdjustments } from "@/components/ImageEditor"
 import { 
   Camera, 
   Upload, 
-  Loader2, 
   Download, 
   RefreshCw, 
   Heart,
@@ -17,37 +18,68 @@ import {
   Trees,
   Palette,
   Wand2,
-  PawPrint,
-  Video,
-  Play,
-  Check
+  RotateCcw,
+  ZoomIn,
+  User,
+  Plus
 } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
-import './cartoon-styles.css'
+import './vsco-style.css'
 
 export default function CreatePage() {
   const { userId } = useAuth()
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   
-  const [currentStep, setCurrentStep] = useState<'style' | 'upload' | 'processing' | 'result' | 'refine'>('style')
+  const [, setCurrentStep] = useState<'style' | 'upload' | 'processing' | 'result' | 'refine'>('style')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [customPrompt, setCustomPrompt] = useState<string>("")
-  const [generatedPrompt, setGeneratedPrompt] = useState<string>("")
+  const [, setGeneratedPrompt] = useState<string>("")
   const [savedImages, setSavedImages] = useState<string[]>([])
-  const [currentImageIndex, setCurrentImageIndex] = useState<number>(-1) // Track which saved image we're editing
-  const [showVideoOption, setShowVideoOption] = useState(false)
-  const [videoTaskId, setVideoTaskId] = useState<string | null>(null)
+  const [,] = useState<number>(-1) // Track which saved image we're editing
+  const [, setShowVideoOption] = useState(false)
+  const [, setVideoTaskId] = useState<string | null>(null)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
-  const [videoGenerating, setVideoGenerating] = useState(false)
+  const [, setVideoGenerating] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState<any>(null)
   const [originalPrompt, setOriginalPrompt] = useState<string>("")  // Store the original prompt for reuse
   const [isFirstGeneration, setIsFirstGeneration] = useState(true)  // Track if it's the first generation
+  
+  // Image editing states
+  const [editingMode, setEditingMode] = useState<'none' | 'basic' | 'filters' | 'beauty'>('none')
+  const [imageAdjustments, setImageAdjustments] = useState<ImageAdjustments>({
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    warmth: 0,
+    sharpness: 0,
+    exposure: 0,
+    highlights: 0,
+    shadows: 0,
+    whites: 0,
+    blacks: 0,
+    clarity: 0,
+    vibrance: 0,
+    // Beauty adjustments
+    skinSmooth: 0,
+    faceSlim: 0,
+    eyeEnlarge: 0,
+    skinBrighten: 0,
+    teethWhiten: 0,
+    // Body adjustments
+    bodySlim: 0,
+    legLengthen: 0,
+    shoulderBroaden: 0
+  })
+  const [editHistory, setEditHistory] = useState<string[]>([])
+  const [editedImage, setEditedImage] = useState<string | null>(null)
+  const [canUndo, setCanUndo] = useState(false)
+  const [isZoomed, setIsZoomed] = useState(false)
 
   // 主要艺术风格选项
   const mainStyleOptions = [
@@ -68,9 +100,9 @@ export default function CreatePage() {
     { 
       id: 'realistic', 
       icon: Camera, 
-      label: '写实油画', 
-      description: '经典油画肖像风格',
-      prompt: 'realistic oil painting style, classical portrait, detailed brushwork, rich textures, professional portrait painting, fine art style, museum quality'
+      label: '印象派油画', 
+      description: '浪漫印象派绘画风格',
+      prompt: 'impressionistic oil painting, romantic impressionist style, visible thick brushstrokes, impasto technique, warm golden tones, soft dreamy atmosphere, painterly texture, classical European oil painting, rich color palette, artistic brushwork, romantic lighting, pastoral beauty'
     },
     { 
       id: 'watercolor', 
@@ -97,13 +129,27 @@ export default function CreatePage() {
 
   // 场景风格选项（在选择主风格后显示）
   const sceneOptions = [
-    { id: 'sunny', icon: Sun, label: '阳光明媚', prompt: '在温暖的阳光下，金色阳光透过窗户，暖色调，舒适氛围' },
-    { id: 'dreamy', icon: Cloud, label: '梦幻云朵', prompt: '在梦幻的云朵中，天空般的柔和背景，粉蓝色调，漂浮的云朵装饰' },
-    { id: 'forest', icon: Trees, label: '森林自然', prompt: '在被绿植环绕的自然环境中，自然绿色调，木质纹理，植物装饰' },
-    { id: 'warm', icon: Heart, label: '温馨家庭', prompt: '在温馨的家庭环境中，舒适的沙发和暖色灯光，家庭般的温暖氛围' },
-    { id: 'playful', icon: Sparkles, label: '活泼欢乐', prompt: '在充满活力的环境中，鲜艳的色彩，玩具和装饰品，欢乐氛围' },
-    { id: 'artistic', icon: Palette, label: '艺术空间', prompt: '在艺术风格的空间中，创意装饰，艺术画作，独特的设计风格' },
+    { id: 'sunny', icon: Sun, label: '阳光明媚', prompt: 'bright sunny garden background, golden sunlight streaming through trees, warm yellow and orange lighting, cheerful outdoor setting with flowers and grass, natural sunbeams' },
+    { id: 'dreamy', icon: Cloud, label: '梦幻云朵', prompt: 'soft dreamy cloud background, pastel sky with fluffy white clouds, ethereal atmosphere, soft pink and blue gradient sky, floating in heavenly clouds' },
+    { id: 'forest', icon: Trees, label: '森林自然', prompt: 'lush forest background, green trees and foliage, natural woodland setting, dappled sunlight through leaves, moss and ferns, peaceful nature scene' },
+    { id: 'warm', icon: Heart, label: '温馨家庭', prompt: 'cozy living room background, warm fireplace, comfortable furniture, soft blankets and cushions, homey atmosphere with warm lighting' },
+    { id: 'playful', icon: Sparkles, label: '活泼欢乐', prompt: 'colorful playground background, bright toys and balloons, rainbow colors, fun carnival atmosphere, cheerful party decorations' },
+    { id: 'artistic', icon: Palette, label: '艺术空间', prompt: 'artist studio background, easels and paintbrushes, colorful paint palette, canvas and art supplies, creative workshop environment' },
   ]
+
+
+
+  // Handle pre-selected style from URL parameters
+  useEffect(() => {
+    const styleParam = searchParams.get('style')
+    if (styleParam) {
+      const preSelectedStyle = mainStyleOptions.find(style => style.id === styleParam)
+      if (preSelectedStyle) {
+        setSelectedStyle(preSelectedStyle)
+        setCurrentStep('upload')
+      }
+    }
+  }, [searchParams])
 
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -171,7 +217,13 @@ export default function CreatePage() {
       } else if (isFirstGeneration) {
         // First generation - apply the selected style transformation
         const stylePrompt = selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
-        fullPrompt = `${preservationPrompt} ${stylePrompt}`
+        
+        // For oil painting style, don't use preservation prompt on first generation
+        if (selectedStyle?.id === 'realistic') {
+          fullPrompt = stylePrompt
+        } else {
+          fullPrompt = `${preservationPrompt} ${stylePrompt}`
+        }
         
         // Store the original prompt with style for future use
         setOriginalPrompt(fullPrompt)
@@ -236,9 +288,10 @@ export default function CreatePage() {
   }
 
   const handleNextImage = () => {
-    // Save the current generated image before moving to next
-    if (generatedImage && savedImages.length < 3) {
-      const newSavedImages = [...savedImages, generatedImage]
+    // Save the current image (edited version if available, otherwise generated)
+    const imageToSave = editedImage || generatedImage
+    if (imageToSave && savedImages.length < 3) {
+      const newSavedImages = [...savedImages, imageToSave]
       setSavedImages(newSavedImages)
       
       // If we now have 3 images, show video option
@@ -251,11 +304,16 @@ export default function CreatePage() {
     setSelectedFile(null)
     setSelectedImageUrl(null)
     setGeneratedImage(null)
+    setEditedImage(null)
     setCustomPrompt("")
     setCurrentStep('upload')
     // Reset prompt-related state for new image
     setOriginalPrompt("")
     setIsFirstGeneration(true)
+    // Reset editing states
+    resetEditing()
+    setEditHistory([])
+    setCanUndo(false)
   }
 
   const handleCustomPrompt = async () => {
@@ -265,91 +323,66 @@ export default function CreatePage() {
     await generatePortrait(selectedFile, customPrompt, true)
   }
 
-  // 生成视频
-  const generateVideo = async () => {
-    if (savedImages.length < 3) {
-      toast({
-        title: "图片不足",
-        description: "需要至少3张图片才能生成视频",
-        variant: "destructive",
-      })
-      return
-    }
 
-    setVideoGenerating(true)
-    try {
-      const response = await fetch('/api/generate-video', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          images: savedImages,
-          prompt: `温馨的宠物日记视频，${selectedStyle?.label || '宫崎骏'}风格动画，保持原始特征，艺术化表现`
-        })
-      })
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        if (response.status === 401) {
-          throw new Error('视频生成服务认证失败，请联系技术支持')
-        } else if (response.status === 400) {
-          throw new Error(errorData.error || errorData.details || '视频生成参数错误')
-        }
-        throw new Error(errorData.error || errorData.details || '视频生成请求失败')
-      }
-
-      const data = await response.json()
-      setVideoTaskId(data.taskId)
-      
-      // 开始轮询视频生成状态
-      pollVideoStatus(data.taskId)
-      
-    } catch (error) {
-      console.error('Video generation error:', error)
-      toast({
-        title: "视频生成暂不可用",
-        description: error instanceof Error ? error.message : "请稍后重试或联系技术支持",
-        variant: "destructive",
-      })
-      setVideoGenerating(false)
+  // 图片编辑功能
+  const saveToHistory = () => {
+    const currentImage = editedImage || generatedImage
+    if (currentImage && editHistory.length < 10) {
+      setEditHistory([...editHistory, currentImage])
+      setCanUndo(true)
     }
   }
 
-  // 轮询视频状态
-  const pollVideoStatus = async (taskId: string) => {
-    const checkStatus = async () => {
-      try {
-        const response = await fetch(`/api/generate-video?taskId=${taskId}`)
-        const data = await response.json()
-        
-        if (data.status === 'succeeded') {
-          setVideoUrl(data.output?.[0]?.url || null)
-          setVideoGenerating(false)
-          toast({
-            title: "视频生成成功！",
-            description: "您的狗狗vlog已经准备好了",
-          })
-          return
-        } else if (data.status === 'failed') {
-          setVideoGenerating(false)
-          toast({
-            title: "视频生成失败",
-            description: data.error || "生成过程中出现错误",
-            variant: "destructive",
-          })
-          return
-        }
-        
-        // 如果还在处理中，3秒后再次检查
-        setTimeout(checkStatus, 3000)
-      } catch (error) {
-        console.error('Status check error:', error)
-        setVideoGenerating(false)
-      }
+  const handleUndo = () => {
+    if (editHistory.length > 0) {
+      const previousImage = editHistory[editHistory.length - 1]
+      setEditedImage(previousImage)
+      setEditHistory(editHistory.slice(0, -1))
+      setCanUndo(editHistory.length > 1)
     }
-    
-    checkStatus()
+  }
+
+  const handleAdjustmentChange = (newAdjustments: ImageAdjustments) => {
+    saveToHistory()
+    setImageAdjustments(newAdjustments)
+  }
+
+  const handleImageUpdate = (editedImageData: string) => {
+    setEditedImage(editedImageData)
+  }
+
+  const toggleZoom = () => {
+    setIsZoomed(!isZoomed)
+  }
+
+  const resetEditing = () => {
+    setImageAdjustments({
+      brightness: 0,
+      contrast: 0,
+      saturation: 0,
+      warmth: 0,
+      sharpness: 0,
+      exposure: 0,
+      highlights: 0,
+      shadows: 0,
+      whites: 0,
+      blacks: 0,
+      clarity: 0,
+      vibrance: 0,
+      // Beauty adjustments
+      skinSmooth: 0,
+      faceSlim: 0,
+      eyeEnlarge: 0,
+      skinBrighten: 0,
+      teethWhiten: 0,
+      // Body adjustments
+      bodySlim: 0,
+      legLengthen: 0,
+      shoulderBroaden: 0
+    })
+    setEditedImage(null)
+    setEditingMode('none')
   }
 
   const handleReset = () => {
@@ -365,480 +398,580 @@ export default function CreatePage() {
     setVideoGenerating(false)
     setSelectedStyle(null)
     setCurrentStep('style')
+    // Reset editing states
+    resetEditing()
+    setEditHistory([])
+    setEditedImage(null)
+    setCanUndo(false)
+    setIsZoomed(false)
   }
 
   return (
-    <div className="create-container">
-      {/* Floating cartoon elements */}
-      <div className="floating-elements">
-        <div className="floating-star" style={{top: '20%', left: '10%', animationDelay: '0s'}}></div>
-        <div className="floating-star" style={{top: '60%', left: '85%', animationDelay: '1s'}}></div>
-        <div className="floating-star" style={{top: '30%', left: '70%', animationDelay: '2s'}}></div>
-        <div className="floating-star" style={{top: '80%', left: '15%', animationDelay: '3s'}}></div>
-        <div className="floating-star" style={{top: '15%', left: '50%', animationDelay: '0.5s'}}></div>
-      </div>
-      
-      <Navigation />
-      
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* 步骤指示器 */}
-        <div className="step-indicator">
-          <div className="step">
-            <div className={`step-number ${currentStep === 'style' ? 'active' : selectedStyle ? 'completed' : 'inactive'}`}>
-              {selectedStyle ? <Check className="w-4 h-4" /> : '1'}
+    <div className="vsco-container">
+      {/* VSCO Style Header */}
+      <header className="vsco-header">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-8">
+            <Link href="/" className="text-lg font-medium text-black tracking-wide">
+              PETPO
+            </Link>
+            <div className="flex items-center space-x-6">
+              <span className="text-sm text-gray-500">
+                {selectedStyle ? selectedStyle.label : '选择风格'}
+              </span>
             </div>
-            <span className="text-sm font-medium">选择风格</span>
           </div>
-          <div className={`step-line ${selectedStyle ? 'completed' : ''}`}></div>
-          <div className="step">
-            <div className={`step-number ${currentStep === 'upload' ? 'active' : savedImages.length > 0 ? 'completed' : 'inactive'}`}>
-              {savedImages.length > 0 ? <Check className="w-4 h-4" /> : '2'}
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleReset}
+              className="text-sm text-gray-600 hover:text-black transition-colors"
+            >
+              重置
+            </button>
+            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-gray-600" />
             </div>
-            <span className="text-sm font-medium">上传照片</span>
-          </div>
-          <div className={`step-line ${savedImages.length > 0 ? 'completed' : ''}`}></div>
-          <div className="step">
-            <div className={`step-number ${currentStep === 'processing' || currentStep === 'result' ? 'active' : savedImages.length > 0 ? 'completed' : 'inactive'}`}>
-              {savedImages.length > 0 ? <Check className="w-4 h-4" /> : '3'}
-            </div>
-            <span className="text-sm font-medium">AI创作</span>
-          </div>
-          <div className={`step-line ${savedImages.length >= 3 ? 'completed' : ''}`}></div>
-          <div className="step">
-            <div className={`step-number ${savedImages.length >= 3 ? 'completed' : 'inactive'}`}>
-              {savedImages.length >= 3 ? <Check className="w-4 h-4" /> : '4'}
-            </div>
-            <span className="text-sm font-medium">制作视频</span>
           </div>
         </div>
+      </header>
 
-        {/* 保存的图片缩略图 - 始终显示 */}
-        {savedImages.length > 0 && (
-          <div className="mb-8 fade-in">
-            <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold text-neutral-700">
-                已保存的作品 ({savedImages.length}/3)
-              </h3>
-            </div>
-            <div className="thumbnail-grid max-w-md mx-auto">
-              {[0, 1, 2].map((index) => (
-                <div key={index} className={`thumbnail-item ${savedImages[index] ? 'has-image' : 'empty'}`}>
-                  {savedImages[index] ? (
-                    <Image
-                      src={savedImages[index]}
-                      alt={`保存的图片 ${index + 1}`}
-                      width={120}
-                      height={120}
-                      className="w-full h-full object-cover"
+      <div className={`vsco-editor ${savedImages.length > 0 ? 'with-gallery' : ''}`}>
+        {/* Left Panel - Style Selection & Upload */}
+        <div className="vsco-tools">
+          {!selectedStyle && (
+            <div className="fade-in">
+              <h3 className="adjustment-title">选择风格</h3>
+              <div className="style-grid">
+                {mainStyleOptions.map((style) => (
+                  <div
+                    key={style.id}
+                    onClick={() => handleStyleSelect(style)}
+                    className={`style-card ${selectedStyle?.id === style.id ? 'selected' : ''}`}
+                  >
+                    <img
+                      src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
+                      alt={style.label}
                     />
-                  ) : (
-                    <PawPrint className="w-8 h-8 text-neutral-400" />
-                  )}
-                </div>
-              ))}
+                    <div className="style-label">{style.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            
-            {/* 视频生成按钮 */}
-            {showVideoOption && (
-              <div className="text-center mt-6 fade-in">
+          )}
+
+          {selectedStyle && !selectedFile && (
+            <div className="fade-in">
+              <h3 className="adjustment-title">上传照片</h3>
+              <div
+                className="upload-zone"
+                onClick={handleUploadClick}
+              >
+                <Upload className="w-8 h-8 mx-auto mb-4 text-gray-400" />
+                <p className="text-sm font-medium mb-2">点击上传照片</p>
+                <p className="text-xs text-gray-500">支持 JPG, PNG 格式</p>
+              </div>
+              <button
+                onClick={handleCameraClick}
+                className="w-full vsco-btn secondary small"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                拍摄照片
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) handleFileSelect(file)
+                }}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) handleFileSelect(file)
+                }}
+              />
+            </div>
+          )}
+
+          {selectedFile && selectedImageUrl && !generatedImage && (
+            <div className="fade-in">
+              <h3 className="adjustment-title">预览</h3>
+              <div className="mb-4">
+                <img
+                  src={selectedImageUrl}
+                  alt="预览"
+                  className="w-full aspect-square object-cover rounded-sm"
+                />
+              </div>
+              <button
+                onClick={handleGenerate}
+                disabled={isProcessing}
+                className="w-full vsco-btn"
+              >
+                {isProcessing ? (
+                  <>
+                    <div className="vsco-spinner w-4 h-4 mr-2"></div>
+                    生成中...
+                  </>
+                ) : (
+                  '开始创作'
+                )}
+              </button>
+            </div>
+          )}
+
+          {generatedImage && (
+            <div className="fade-in">
+              <h3 className="adjustment-title">操作</h3>
+              <div className="space-y-3">
                 <button
-                  onClick={generateVideo}
-                  disabled={videoGenerating}
-                  className="video-button inline-flex items-center space-x-2 disabled:opacity-50"
+                  onClick={toggleZoom}
+                  className="w-full vsco-btn secondary small"
                 >
-                  {videoGenerating ? (
-                    <>
-                      <div className="loading-spinner"></div>
-                      <span>生成视频中...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Video className="w-5 h-5" />
-                      <span>制作狗狗vlog视频</span>
-                    </>
-                  )}
+                  <ZoomIn className="w-4 h-4 mr-2" />
+                  {isZoomed ? '缩小' : '放大'}
+                </button>
+                <button
+                  onClick={handleUndo}
+                  disabled={!canUndo}
+                  className="w-full vsco-btn secondary small disabled:opacity-50"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  撤销
+                </button>
+                <button
+                  onClick={() => {
+                    const a = document.createElement('a')
+                    // Export the edited version if available, otherwise the original generated image
+                    const imageToExport = editedImage || generatedImage
+                    a.href = imageToExport
+                    a.download = `pet-portrait-${selectedStyle?.id || 'artwork'}-${Date.now()}.png`
+                    a.click()
+                  }}
+                  className="w-full vsco-btn"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  导出
+                </button>
+                {savedImages.length < 3 ? (
+                  <button onClick={handleNextImage} className="w-full vsco-btn secondary">
+                    <Plus className="w-4 h-4 mr-2" />
+                    保存并继续
+                  </button>
+                ) : (
+                  <button onClick={handleReset} className="w-full vsco-btn secondary">
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    重新开始
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Center - Image Display */}
+        <div className="vsco-canvas">
+          {!selectedStyle && (
+            <div className="text-center">
+              <Palette className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-light text-gray-600 mb-2">选择艺术风格</h3>
+              <p className="text-sm text-gray-400">开始您的宠物肖像创作</p>
+            </div>
+          )}
+
+          {selectedStyle && !selectedFile && (
+            <div className="text-center">
+              <Upload className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-light text-gray-600 mb-2">上传宠物照片</h3>
+              <p className="text-sm text-gray-400">将转换为{selectedStyle.label}风格</p>
+            </div>
+          )}
+
+          {isProcessing && (
+            <div className="vsco-loading">
+              <div className="text-center">
+                <div className="vsco-spinner mb-4"></div>
+                <h3 className="text-lg font-light text-gray-600 mb-2">AI 创作中</h3>
+                <p className="text-sm text-gray-400">正在生成{selectedStyle?.label}风格作品</p>
+              </div>
+            </div>
+          )}
+
+          {generatedImage && (
+            <div className="vsco-image-container">
+              <img
+                src={editedImage || generatedImage}
+                alt="生成的艺术作品"
+                className={`vsco-image ${isZoomed ? 'scale-150 cursor-move' : ''} transition-transform duration-300`}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel - Adjustments */}
+        <div className="vsco-adjustments">
+          {generatedImage && (
+            <div className="fade-in">
+              {/* Adjustment Tabs */}
+              <div className="adjustment-section">
+                <div className="flex space-x-1 mb-6">
+                  <button
+                    onClick={() => setEditingMode('basic')}
+                    className={`flex-1 py-2 text-xs font-medium uppercase tracking-wide transition-colors ${
+                      editingMode === 'basic' ? 'text-black border-b-2 border-black' : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    调整
+                  </button>
+                  <button
+                    onClick={() => setEditingMode('filters')}
+                    className={`flex-1 py-2 text-xs font-medium uppercase tracking-wide transition-colors ${
+                      editingMode === 'filters' ? 'text-black border-b-2 border-black' : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    滤镜
+                  </button>
+                  <button
+                    onClick={() => setEditingMode('beauty')}
+                    className={`flex-1 py-2 text-xs font-medium uppercase tracking-wide transition-colors ${
+                      editingMode === 'beauty' ? 'text-black border-b-2 border-black' : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    美颜
+                  </button>
+                </div>
+
+                {/* Real-time Image Editor */}
+                {(editingMode === 'basic' || editingMode === 'filters' || editingMode === 'beauty') && (
+                  <>
+                    <ImageEditor
+                      originalImage={generatedImage}
+                      adjustments={imageAdjustments}
+                      onAdjustmentChange={handleAdjustmentChange}
+                      onImageUpdate={handleImageUpdate}
+                    />
+                    
+                    {editingMode === 'basic' && (
+                      <div className="space-y-4 mt-6">
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>曝光</span>
+                            <span className="adjustment-value">{imageAdjustments.brightness}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={imageAdjustments.brightness}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, brightness: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>对比度</span>
+                            <span className="adjustment-value">{imageAdjustments.contrast}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={imageAdjustments.contrast}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, contrast: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>饱和度</span>
+                            <span className="adjustment-value">{imageAdjustments.saturation}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={imageAdjustments.saturation}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, saturation: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>温度</span>
+                            <span className="adjustment-value">{imageAdjustments.warmth}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={imageAdjustments.warmth}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, warmth: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {editingMode === 'beauty' && (
+                      <div className="space-y-4 mt-6">
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>磨皮</span>
+                            <span className="adjustment-value">{imageAdjustments.skinSmooth}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={imageAdjustments.skinSmooth}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, skinSmooth: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>瘦脸</span>
+                            <span className="adjustment-value">{imageAdjustments.faceSlim}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={imageAdjustments.faceSlim}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, faceSlim: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>大眼</span>
+                            <span className="adjustment-value">{imageAdjustments.eyeEnlarge}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={imageAdjustments.eyeEnlarge}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, eyeEnlarge: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>瘦身</span>
+                            <span className="adjustment-value">{imageAdjustments.bodySlim}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={imageAdjustments.bodySlim}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, bodySlim: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+
+                        <div className="adjustment-item">
+                          <div className="adjustment-label">
+                            <span>长腿</span>
+                            <span className="adjustment-value">{imageAdjustments.legLengthen}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={imageAdjustments.legLengthen}
+                            onChange={(e) => {
+                              const newAdjustments = { ...imageAdjustments, legLengthen: parseInt(e.target.value) }
+                              handleAdjustmentChange(newAdjustments)
+                            }}
+                            className="vsco-slider"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <button
+                      onClick={resetEditing}
+                      className="w-full vsco-btn secondary small mt-6"
+                    >
+                      重置所有调整
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Scene adjustments when not editing */}
+          {generatedImage && editingMode === 'none' && (
+            <div className="adjustment-section fade-in">
+              <h3 className="adjustment-title">场景</h3>
+              <div className="space-y-3">
+                {sceneOptions.slice(0, 4).map((scene) => (
+                  <button
+                    key={scene.id}
+                    onClick={() => handleStyleChange(scene.prompt)}
+                    disabled={isProcessing}
+                    className="w-full vsco-btn secondary small text-left"
+                  >
+                    {scene.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-6">
+                <input
+                  type="text"
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                  placeholder="自定义场景..."
+                  className="w-full p-3 text-sm border border-gray-200 rounded-sm mb-3 focus:outline-none focus:border-black transition-colors"
+                  disabled={isProcessing}
+                />
+                <button
+                  onClick={handleCustomPrompt}
+                  disabled={isProcessing || !customPrompt.trim()}
+                  className="w-full vsco-btn small disabled:opacity-50"
+                >
+                  应用
                 </button>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* 视频播放器 */}
-        {videoUrl && (
-          <div className="mb-8 fade-in">
-            <div className="premium-card p-6">
-              <h3 className="text-lg font-semibold text-neutral-700 mb-4 text-center">
-                🎬 您的狗狗vlog视频
-              </h3>
-              <video
-                controls
-                className="w-full max-w-lg mx-auto rounded-xl"
-                poster={savedImages[0]}
-              >
-                <source src={videoUrl} type="video/mp4" />
-                您的浏览器不支持视频播放
-              </video>
-              <div className="text-center mt-4">
-                <a
-                  href={videoUrl}
-                  download={`puppy-diary-vlog-${Date.now()}.mp4`}
-                  className="premium-button inline-flex items-center space-x-2"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>下载视频</span>
-                </a>
-              </div>
             </div>
-          </div>
-        )}
-
-        {/* 视频编辑器风格布局 */}
-        <div className="editor-layout">
-          
-          {/* 左侧工具面板 */}
-          <div className="editor-sidebar-left">
-            {/* 风格选择面板 */}
-            {currentStep === 'style' && (
-              <div className="editor-panel">
-                <h3 className="panel-title">选择艺术风格</h3>
-                <div className="style-selection-grid">
-                  {mainStyleOptions.map((style) => {
-                    const Icon = style.icon
-                    return (
-                      <button
-                        key={style.id}
-                        onClick={() => handleStyleSelect(style)}
-                        className={`style-selection-card ${selectedStyle?.id === style.id ? 'selected' : ''}`}
-                      >
-                        <Icon className="w-8 h-8 mb-2" />
-                        <div className="font-medium text-sm">{style.label}</div>
-                        <div className="text-xs text-neutral-500 mt-1">{style.description}</div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* 素材导入面板 */}
-            {currentStep === 'upload' && (
-              <div className="editor-panel">
-                <h3 className="panel-title">素材导入</h3>
-                
-                {selectedStyle && (
-                  <div className="selected-style-info mb-4 p-3 bg-neutral-50 rounded-lg">
-                    <div className="text-sm font-medium">已选风格：{selectedStyle.label}</div>
-                    <div className="text-xs text-neutral-500">{selectedStyle.description}</div>
-                  </div>
-                )}
-                
-                <div className="upload-buttons-grid">
-                  <button
-                    onClick={handleCameraClick}
-                    className="tool-button"
-                  >
-                    <Camera className="w-6 h-6" />
-                    <span>拍照</span>
-                  </button>
-                  <button
-                    onClick={handleUploadClick}
-                    className="tool-button"
-                  >
-                    <Upload className="w-6 h-6" />
-                    <span>选择文件</span>
-                  </button>
-                </div>
-                
-                {selectedFile && selectedImageUrl && (
-                  <div className="mt-4">
-                    <div className="preview-thumbnail mb-3">
-                      <Image
-                        src={selectedImageUrl}
-                        alt="预览图片"
-                        width={200}
-                        height={200}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                    </div>
-                    <button
-                      onClick={handleGenerate}
-                      disabled={isProcessing}
-                      className="w-full premium-button disabled:opacity-50"
-                    >
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      开始创作
-                    </button>
-                  </div>
-                )}
-
-                {/* 隐藏的文件输入 */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) handleFileSelect(file)
-                  }}
-                />
-                <input
-                  ref={cameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) handleFileSelect(file)
-                  }}
-                />
-              </div>
-            )}
-
-            {/* 风格调整工具 */}
-            {(currentStep === 'result' || currentStep === 'refine') && (
-              <div className="editor-panel">
-                <h3 className="panel-title">场景调整</h3>
-                
-                <div className="style-tools">
-                  {sceneOptions.map((scene) => {
-                    const Icon = scene.icon
-                    return (
-                      <button
-                        key={scene.id}
-                        onClick={() => handleStyleChange(scene.prompt)}
-                        disabled={isProcessing}
-                        className="style-tool-button disabled:opacity-50"
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="text-xs">{scene.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-
-                <div className="mt-4">
-                  <label className="text-xs font-medium text-neutral-600 mb-2 block">
-                    自定义场景
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={customPrompt}
-                      onChange={(e) => setCustomPrompt(e.target.value)}
-                      placeholder="描述您想要的场景..."
-                      className="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-400"
-                      disabled={isProcessing}
-                    />
-                    <button
-                      onClick={handleCustomPrompt}
-                      disabled={isProcessing || !customPrompt.trim()}
-                      className="tool-button-small disabled:opacity-50"
-                    >
-                      <Wand2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* 继续创作按钮 */}
-                {savedImages.length < 3 && (
-                  <div className="mt-4 pt-4 border-t border-neutral-200">
-                    <button
-                      onClick={handleNextImage}
-                      className="w-full premium-button-secondary"
-                    >
-                      <Camera className="w-4 h-4 mr-2" />
-                      上传下一张图片
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* 中央主预览区 */}
-          <div className="editor-main-view">
-            {/* 风格选择状态 */}
-            {currentStep === 'style' && (
-              <div className="preview-empty">
-                <div className="text-center">
-                  <Palette className="w-20 h-20 mx-auto mb-4 text-neutral-300" />
-                  <h3 className="text-xl font-semibold text-neutral-600 mb-2">选择您喜爱的艺术风格</h3>
-                  <p className="text-sm text-neutral-500">每种风格都会保留宠物的原始特征，只改变艺术表现形式</p>
-                </div>
-              </div>
-            )}
-
-            {/* 处理中 */}
-            {currentStep === 'processing' && (
-              <div className="preview-loading">
-                <div className="loading-spinner mb-6"></div>
-                <h3 className="text-lg font-semibold text-neutral-700 mb-2">
-                  AI创作中...
-                </h3>
-                <p className="text-sm text-neutral-500">保留100%原始特征，转换为{selectedStyle?.label || '漫画'}风格</p>
-              </div>
-            )}
-
-            {/* 生成结果 */}
-            {(currentStep === 'result' || currentStep === 'refine') && generatedImage && (
-              <div className="preview-content">
-                <div className="preview-image-container">
-                  <Image
-                    src={generatedImage}
-                    alt="生成的宠物画作"
-                    width={500}
-                    height={500}
-                    className="preview-image"
-                  />
-                </div>
-                <div className="preview-actions">
-                  <button
-                    onClick={() => {
-                      const a = document.createElement('a')
-                      a.href = generatedImage
-                      a.download = `pet-portrait-${selectedStyle?.id || 'artwork'}-${Date.now()}.png`
-                      a.click()
-                    }}
-                    className="action-button primary"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>导出</span>
-                  </button>
-                  {savedImages.length >= 3 ? (
-                    <button
-                      onClick={handleReset}
-                      className="action-button secondary"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      <span>重新开始</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleNextImage}
-                      className="action-button secondary"
-                    >
-                      <Camera className="w-4 h-4" />
-                      <span>下一张</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 上传状态 */}
-            {currentStep === 'upload' && (
-              <div className="preview-empty">
-                <div className="text-center">
-                  <Upload className="w-20 h-20 mx-auto mb-4 text-neutral-300" />
-                  <h3 className="text-xl font-semibold text-neutral-600 mb-2">上传您宠物的照片</h3>
-                  <p className="text-sm text-neutral-500">支持 JPG、PNG 等图片格式，将转换为{selectedStyle?.label || '选定'}风格</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 右侧属性面板 */}
-          <div className="editor-sidebar-right">
-            {(currentStep === 'result' || currentStep === 'refine') && (
-              <div className="editor-panel">
-                <h3 className="panel-title">图像属性</h3>
-                <div className="property-list">
-                  <div className="property-item">
-                    <span className="property-label">尺寸</span>
-                    <span className="property-value">512×512</span>
-                  </div>
-                  <div className="property-item">
-                    <span className="property-label">风格</span>
-                    <span className="property-value">宫崎骏漫画</span>
-                  </div>
-                  <div className="property-item">
-                    <span className="property-label">特征保留</span>
-                    <span className="property-value">100%</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {!userId && (currentStep === 'result' || currentStep === 'refine') && (
-              <div className="editor-panel">
-                <h3 className="panel-title">账户升级</h3>
-                <div className="upgrade-content">
-                  <p className="text-xs text-neutral-600 mb-3">
-                    登录后可保存所有作品到云端相册
-                  </p>
-                  <div className="space-y-2">
-                    <Link href="/sign-up" className="block">
-                      <button className="w-full tool-button text-xs">
-                        免费注册
-                      </button>
-                    </Link>
-                    <Link href="/sign-in" className="block">
-                      <button className="w-full tool-button-outline text-xs">
-                        登录
-                      </button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* 底部时间轴（缩略图区域） */}
-        <div className="editor-timeline">
-          <div className="timeline-header">
-            <h4 className="text-sm font-semibold text-neutral-700">项目素材</h4>
-            <div className="timeline-controls">
-              <span className="text-xs text-neutral-500">{savedImages.length}/3 已生成</span>
-              {showVideoOption && (
+      {/* Saved Images Gallery */}
+      {savedImages.length > 0 && (
+        <div className="vsco-gallery-bottom">
+          <div className="vsco-gallery-container">
+            <div className="vsco-gallery-header">
+              <h4 className="vsco-gallery-title">已保存作品 ({savedImages.length}/3)</h4>
+              {savedImages.length >= 3 && (
                 <button
-                  onClick={generateVideo}
-                  disabled={videoGenerating}
-                  className="timeline-video-button disabled:opacity-50"
+                  onClick={() => {
+                    // Generate video functionality
+                    toast({
+                      title: "视频生成",
+                      description: "视频生成功能即将推出",
+                    })
+                  }}
+                  className="vsco-btn small"
                 >
-                  {videoGenerating ? (
-                    <>
-                      <div className="loading-spinner-small"></div>
-                      <span>制作中</span>
-                    </>
-                  ) : (
-                    <>
-                      <Video className="w-4 h-4" />
-                      <span>制作Vlog</span>
-                    </>
-                  )}
+                  生成视频
                 </button>
               )}
             </div>
-          </div>
-          
-          <div className="timeline-track">
-            {[0, 1, 2].map((index) => (
-              <div key={index} className={`timeline-item ${savedImages[index] ? 'has-content' : 'empty'}`}>
-                {savedImages[index] ? (
-                  <div className="timeline-thumbnail">
-                    <Image
-                      src={savedImages[index]}
-                      alt={`Frame ${index + 1}`}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="timeline-index">{index + 1}</div>
+            <div className="vsco-gallery-grid">
+              {savedImages.map((image, index) => (
+                <div 
+                  key={index} 
+                  className="vsco-gallery-item"
+                  onClick={() => {
+                    // Option to view saved image in modal or download
+                    const a = document.createElement('a')
+                    a.href = image
+                    a.download = `saved-artwork-${index + 1}-${Date.now()}.png`
+                    a.click()
+                  }}
+                  title="点击下载"
+                >
+                  <img
+                    src={image}
+                    alt={`保存的作品 ${index + 1}`}
+                    className="vsco-gallery-thumbnail"
+                  />
+                  <div className="vsco-gallery-overlay">
+                    <span className="vsco-gallery-number">{index + 1}</span>
                   </div>
-                ) : (
-                  <div className="timeline-placeholder">
-                    <PawPrint className="w-6 h-6 text-neutral-400" />
-                    <span className="timeline-index">{index + 1}</span>
+                </div>
+              ))}
+              {Array.from({ length: 3 - savedImages.length }).map((_, index) => (
+                <div key={`empty-${index}`} className="vsco-gallery-item empty">
+                  <div className="vsco-gallery-empty">
+                    <Plus className="w-6 h-6 text-gray-400" />
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </main>
+      )}
+
+      {/* Video Modal */}
+      {videoUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-sm p-6 max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">艺术视频</h3>
+              <button
+                onClick={() => setVideoUrl(null)}
+                className="text-gray-400 hover:text-black transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <video
+              controls
+              autoPlay
+              className="w-full rounded-sm mb-4"
+              poster={savedImages[0]}
+            >
+              <source src={videoUrl} type="video/mp4" />
+            </video>
+            <div className="flex justify-center">
+              <a
+                href={videoUrl}
+                download={`pet-art-video-${Date.now()}.mp4`}
+                className="vsco-btn"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                下载视频
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

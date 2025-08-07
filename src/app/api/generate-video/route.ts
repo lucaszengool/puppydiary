@@ -20,13 +20,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '需要至少3张图片生成视频' }, { status: 400 })
     }
 
-    // 从环境变量获取API密钥 - 使用与图像生成相同的key
-    const ARK_API_KEY = process.env.VOLCENGINE_API_KEY || process.env.ARK_API_KEY || ""
+    // 从环境变量获取API密钥 - 视频生成使用专门的ARK_API_KEY
+    const ARK_API_KEY = process.env.ARK_API_KEY || ""
     
     if (!ARK_API_KEY || ARK_API_KEY === "your-ark-api-key-here") {
       return NextResponse.json({ 
         error: '视频生成服务未配置', 
-        details: '需要在环境变量中配置有效的VOLCENGINE_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。'
+        details: '需要在环境变量中配置有效的ARK_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。'
       }, { status: 503 })
     }
 

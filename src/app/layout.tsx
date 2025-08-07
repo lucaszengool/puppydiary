@@ -16,8 +16,8 @@ const kalam = Kalam({
 })
 
 export const metadata = {
-  title: '小狗日记 - 记录毛孩子的漫画时光',
-  description: '用宫崎骏风格的手绘漫画记录您爱宠的每一个美好瞬间',
+  title: 'PETPO - AI宠物艺术肖像',
+  description: '专业级宠物影像创作平台，用AI技术将您的爱宠照片转化为高质量艺术作品',
 }
 
 export default function RootLayout({

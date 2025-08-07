@@ -1,109 +1,135 @@
 import { currentUser } from "@clerk/nextjs"
 import { Navigation } from "@/components/navigation"
 import Link from "next/link"
-import { Camera, Sparkles, Heart, PawPrint, Palette } from "lucide-react"
+import Image from "next/image"
+import { Camera, Plus, Grid, User } from "lucide-react"
 
 export default async function Home() {
   const user = await currentUser()
 
   return (
-    <div className="min-h-screen premium-bg">
-      {/* 漂浮的宠物元素 */}
-      <div className="floating-pets">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div 
-            key={`pet-${i}`}
-            className="floating-heart" 
-            style={{ 
-              left: `${Math.random() * 100}%`, 
-              animationDelay: `${i * 2}s`,
-              animationDuration: `${8 + Math.random() * 4}s`
-            }}
-          >
-            🐾
-          </div>
-        ))}
-      </div>
-      
-      <Navigation />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center space-y-8 fade-in">
-          <div className="space-y-6">
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <PawPrint className="h-16 w-16 text-neutral-900 subtle-float" />
-                <Heart className="h-6 w-6 text-red-500 absolute -top-2 -right-2 animate-pulse" />
-              </div>
-            </div>
-            
-            <h1 className="text-5xl sm:text-6xl font-bold text-neutral-900 tracking-tight">
-              AI宠物漫画工作室
-            </h1>
-            <p className="text-xl text-neutral-600 max-w-2xl mx-auto leading-relaxed">
-              专业级宠物影像创作平台，将您的爱宠照片转化为高质量漫画作品
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/create">
-              <button className="premium-button text-lg px-8 py-4 flex items-center space-x-2">
-                <Camera className="h-5 w-5" />
-                <span>开始创作</span>
-              </button>
+    <div className="min-h-screen bg-white">
+      {/* VSCO Style Header */}
+      <header className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-8">
+            <Link href="/" className="text-2xl font-light tracking-wide text-black">
+              PETPO
             </Link>
-            {!user && (
-              <Link href="/sign-in">
-                <button className="premium-button-secondary text-lg px-8 py-4">
-                  登录账号
-                </button>
+            <nav className="hidden md:flex space-x-6">
+              <Link href="/create" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                创作
+              </Link>
+              <Link href="/gallery" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                作品集
+              </Link>
+            </nav>
+          </div>
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-gray-600" />
+              </div>
+            ) : (
+              <Link href="/sign-in" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                登录
               </Link>
             )}
           </div>
         </div>
+      </header>
 
+      {/* Hero Section */}
+      <main className="max-w-6xl mx-auto px-6">
+        <div className="pt-16 pb-24 text-center">
+          <h1 className="text-4xl md:text-6xl font-light text-black mb-6 tracking-tight">
+            AI 宠物肖像
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
+            用专业级艺术风格重新诠释您的爱宠，每一个细节都被完美保留
+          </p>
+          
+          <Link href="/create" className="inline-flex items-center space-x-2 bg-black text-white px-8 py-3 text-sm font-medium tracking-wide hover:bg-gray-800 transition-colors">
+            <Plus className="w-4 h-4" />
+            <span>开始创作</span>
+          </Link>
+        </div>
 
-        {/* Features Section */}
-        <div className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-              <Camera className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold text-neutral-800">智能识别</h3>
-            <p className="text-neutral-600">
-              AI自动识别宠物特征，确保每个细节都完美保留
-            </p>
-          </div>
+        {/* Style Grid */}
+        <div className="pb-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1 md:gap-2">
+            {/* Realistic Oil Painting */}
+            <Link href="/create?style=realistic" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/disney-style.png"
+                alt="印象派油画"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  印象派油画
+                </div>
+              </div>
+            </Link>
 
-          <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.4s' }}>
-            <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-pink-600 to-rose-600 flex items-center justify-center">
-              <Palette className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold text-neutral-800">艺术转换</h3>
-            <p className="text-neutral-600">
-              多种艺术风格可选，从水彩到油画，打造独特视觉效果
-            </p>
-          </div>
+            {/* Ghibli Style */}
+            <Link href="/create?style=ghibli" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/ghibli-style.png"
+                alt="宫崎骏动漫"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  宫崎骏动漫
+                </div>
+              </div>
+            </Link>
 
-          <div className="premium-card text-center space-y-4 fade-in" style={{ animationDelay: '0.6s' }}>
-            <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-green-600 to-teal-600 flex items-center justify-center">
-              <Sparkles className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold text-neutral-800">专业品质</h3>
-            <p className="text-neutral-600">
-              高分辨率输出，支持打印级品质，永久保存美好回忆
-            </p>
+            {/* Watercolor Style */}
+            <Link href="/create?style=watercolor" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/watercolor-style.png"
+                alt="水彩插画"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  水彩插画
+                </div>
+              </div>
+            </Link>
+
+            {/* Modern Style */}
+            <Link href="/create?style=modern" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/modern-style.png"
+                alt="现代艺术"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  现代艺术
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
 
-        {/* 简洁的底部标语 */}
-        <div className="mt-20 text-center">
-          <div className="inline-flex items-center space-x-4 text-neutral-500">
-            <PawPrint className="w-4 h-4" />
-            <span className="text-sm font-medium tracking-wide">PROFESSIONAL PET PORTRAIT STUDIO</span>
-            <PawPrint className="w-4 h-4" />
-          </div>
-        </div>
+        {/* Footer */}
+        <footer className="border-t border-gray-100 py-16 text-center">
+          <p className="text-sm text-gray-400 font-light tracking-wide">
+            PETPO - PROFESSIONAL PET PORTRAIT STUDIO
+          </p>
+        </footer>
       </main>
     </div>
   )
