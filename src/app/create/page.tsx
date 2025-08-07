@@ -807,6 +807,7 @@ export default function CreatePage() {
             </div>
           )}
 
+          {/* Desktop Operations Panel */}
           {generatedImage && (
             <div className="fade-in hidden md:block">
               <h3 className="adjustment-title">操作</h3>
@@ -912,7 +913,7 @@ export default function CreatePage() {
               </div>
 
               {/* Main content area - flex to center image */}
-              <div className="flex-1 flex items-center justify-center px-4 pt-16 pb-48">
+              <div className="flex-1 flex items-center justify-center px-4 pt-16 pb-24">
                 <PinchZoomImage
                   src={editedImage || generatedImage}
                   alt="生成的艺术作品"
@@ -920,80 +921,97 @@ export default function CreatePage() {
                 />
               </div>
 
-              {/* Fixed bottom action buttons */}
-              <div className="fixed bottom-24 left-4 right-4 z-60">
-                <div className="flex justify-center space-x-3">
-                  <button
-                    onClick={() => {
-                      // Save to history and next image functionality
-                      const imageToSave = editedImage || generatedImage
-                      if (imageToSave && savedImages.length < 3) {
-                        const newSavedImages = [...savedImages, imageToSave]
-                        setSavedImages(newSavedImages)
-                        handleNextImage()
-                      }
-                    }}
-                    className="flex-1 px-4 py-3 bg-white/80 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
-                  >
-                    下一张
-                  </button>
+              {/* Mobile Operations Panel - Top Right Floating */}
+              <div className="fixed top-16 right-4 z-60 space-y-2">
+                <button
+                  onClick={handleUndo}
+                  disabled={!canUndo}
+                  className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm disabled:opacity-50"
+                >
+                  <RotateCcw className="w-5 h-5 text-gray-700" />
+                </button>
+                <button
+                  onClick={() => {
+                    const a = document.createElement('a')
+                    const imageToExport = editedImage || generatedImage
+                    a.href = imageToExport!
+                    a.download = `petpo-art-${Date.now()}.png`
+                    a.click()
+                  }}
+                  className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
+                >
+                  <Download className="w-5 h-5 text-gray-700" />
+                </button>
+                <button
+                  onClick={handlePublishClick}
+                  disabled={publishLoading}
+                  className="w-12 h-12 bg-black/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/90 transition-all shadow-sm disabled:opacity-50"
+                >
+                  <Heart className="w-5 h-5 text-white" />
+                </button>
+                {savedImages.length < 3 ? (
                   <button 
-                    className="flex-1 px-4 py-3 bg-white/80 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
-                    onClick={() => {
-                      const link = document.createElement('a')
-                      link.download = `petpo-art-${Date.now()}.png`
-                      link.href = editedImage || generatedImage!
-                      link.click()
-                    }}
+                    onClick={handleNextImage} 
+                    className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
                   >
-                    保存
+                    <Plus className="w-5 h-5 text-gray-700" />
                   </button>
+                ) : (
                   <button 
-                    className="flex-1 px-4 py-3 bg-black/80 backdrop-blur-md rounded-full text-white text-sm font-medium hover:bg-black/90 transition-all shadow-sm disabled:opacity-50"
-                    onClick={handlePublishClick}
-                    disabled={publishLoading}
+                    onClick={handleReset} 
+                    className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
                   >
-                    {publishLoading ? '准备中...' : '发布'}
+                    <RefreshCw className="w-5 h-5 text-gray-700" />
                   </button>
-                </div>
+                )}
               </div>
+
 
               {/* Bottom Tools - Only appear when clicked */}
               <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Tool Icons Row */}
-                <div className="flex items-center justify-center space-x-8 p-6 bg-gradient-to-t from-gray-100/90 to-transparent">
-                  <button
-                    onClick={() => setEditingMode(editingMode === 'adjustments' ? 'none' : 'adjustments')}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                      editingMode === 'adjustments' 
-                        ? 'bg-black text-white' 
-                        : 'bg-gray-200 backdrop-blur-sm text-gray-700 border'
-                    }`}
-                  >
-                    <div className="w-6 h-6 rounded border-2 border-current" />
-                  </button>
+                <div className="flex items-center justify-center space-x-8 px-4 py-3 bg-white/95 backdrop-blur-md border-t border-gray-200">
+                  <div className="flex flex-col items-center space-y-1">
+                    <button
+                      onClick={() => setEditingMode(editingMode === 'adjustments' ? 'none' : 'adjustments')}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                        editingMode === 'adjustments' 
+                          ? 'bg-black text-white' 
+                          : 'bg-gray-100 text-gray-700 border border-gray-300'
+                      }`}
+                    >
+                      <div className="w-6 h-6 rounded border-2 border-current" />
+                    </button>
+                    <span className="text-xs text-gray-600">调整</span>
+                  </div>
                   
-                  <button
-                    onClick={() => setEditingMode(editingMode === 'filters' ? 'none' : 'filters')}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                      editingMode === 'filters' 
-                        ? 'bg-black text-white' 
-                        : 'bg-gray-200 backdrop-blur-sm text-gray-700 border'
-                    }`}
-                  >
-                    <Palette className="w-6 h-6" />
-                  </button>
+                  <div className="flex flex-col items-center space-y-1">
+                    <button
+                      onClick={() => setEditingMode(editingMode === 'filters' ? 'none' : 'filters')}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                        editingMode === 'filters' 
+                          ? 'bg-black text-white' 
+                          : 'bg-gray-100 text-gray-700 border border-gray-300'
+                      }`}
+                    >
+                      <Palette className="w-6 h-6" />
+                    </button>
+                    <span className="text-xs text-gray-600">滤镜</span>
+                  </div>
 
-                  <button
-                    onClick={() => setEditingMode(editingMode === 'ai-prompt' ? 'none' : 'ai-prompt')}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                      editingMode === 'ai-prompt' 
-                        ? 'bg-black text-white' 
-                        : 'bg-gray-200 backdrop-blur-sm text-gray-700 border'
-                    }`}
-                  >
-                    <Wand2 className="w-6 h-6" />
-                  </button>
+                  <div className="flex flex-col items-center space-y-1">
+                    <button
+                      onClick={() => setEditingMode(editingMode === 'ai-prompt' ? 'none' : 'ai-prompt')}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                        editingMode === 'ai-prompt' 
+                          ? 'bg-black text-white' 
+                          : 'bg-gray-100 text-gray-700 border border-gray-300'
+                      }`}
+                    >
+                      <Wand2 className="w-6 h-6" />
+                    </button>
+                    <span className="text-xs text-gray-600">AI</span>
+                  </div>
                 </div>
 
                 {/* Tool Panels - Show only when active */}
