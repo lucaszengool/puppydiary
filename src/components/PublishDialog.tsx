@@ -13,9 +13,18 @@ interface PublishDialogProps {
 export default function PublishDialog({ isOpen, onClose, onConfirm, imageUrl }: PublishDialogProps) {
   const [description, setDescription] = useState("")
 
-  if (!isOpen) return null
+  console.log("📋 PublishDialog render - isOpen:", isOpen, "imageUrl:", imageUrl ? "exists" : "missing")
+
+  if (!isOpen) {
+    console.log("❌ Dialog not open, returning null")
+    return null
+  }
+
+  console.log("✅ Dialog is open, rendering...")
 
   const handlePublish = () => {
+    console.log("🚀 Dialog: Publish button clicked in dialog!")
+    console.log("📝 Dialog: Description:", description)
     onConfirm(description.trim() || undefined)
     onClose()
     setDescription("")

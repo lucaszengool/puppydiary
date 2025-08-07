@@ -72,6 +72,7 @@ export default function CreatePage() {
   const [editedImage, setEditedImage] = useState<string | null>(null)
   const [canUndo, setCanUndo] = useState(false)
   const [showPublishDialog, setShowPublishDialog] = useState(false)
+  const [publishLoading, setPublishLoading] = useState(false)
 
   // 主要艺术风格选项
   const mainStyleOptions = [
@@ -144,18 +145,49 @@ export default function CreatePage() {
   }, [searchParams])
 
   const handleFileSelect = (file: File) => {
-    if (file && file.type.startsWith('image/')) {
-      setSelectedFile(file)
-      const url = URL.createObjectURL(file)
-      setSelectedImageUrl(url)
-      setCurrentStep('upload')
-    } else {
+    console.log("handleFileSelect called with:", file ? file.name : "no file")
+    
+    if (!file) {
       toast({
-        title: "文件格式错误",
-        description: "请选择图片文件",
+        title: "选择文件失败",
+        description: "请重新选择图片",
         variant: "destructive",
       })
+      return
     }
+
+    // Check file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024
+    if (file.size > maxSize) {
+      toast({
+        title: "文件过大",
+        description: "图片大小不能超过 10MB",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "文件格式不支持",
+        description: "请选择 JPG、PNG 或 WebP 格式的图片",
+        variant: "destructive",
+      })
+      return
+    }
+
+    console.log("File validation passed, creating URL...")
+    setSelectedFile(file)
+    const url = URL.createObjectURL(file)
+    setSelectedImageUrl(url)
+    setCurrentStep('upload')
+    
+    toast({
+      title: "图片上传成功",
+      description: "点击开始创作生成艺术作品",
+    })
   }
 
   const handleStyleSelect = (style: any) => {
@@ -176,6 +208,26 @@ export default function CreatePage() {
 
   const handleCameraClick = () => {
     cameraInputRef.current?.click()
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const files = e.dataTransfer.files
+    if (files && files[0]) {
+      handleFileSelect(files[0])
+    }
   }
 
   const generatePortrait = async (file: File, additionalPrompt?: string, isBackgroundChange: boolean = false) => {
@@ -439,20 +491,52 @@ export default function CreatePage() {
   }
 
   const handlePublishClick = () => {
-    if (!userId) {
-      // Store current URL and redirect to login
-      sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
-      window.location.href = '/sign-in'
-    } else {
-      setShowPublishDialog(true)
-    }
+    console.log("🔥 Publish button clicked!")
+    console.log("userId:", userId)
+    console.log("generatedImage:", generatedImage ? "exists" : "missing")
+    console.log("editedImage:", editedImage ? "exists" : "missing")
+    
+    setPublishLoading(true)
+    
+    // Add visual feedback with toast
+    toast({
+      title: "正在准备发布...",
+      description: "请稍候",
+    })
+    
+    setTimeout(() => {
+      setPublishLoading(false)
+      
+      if (!userId) {
+        console.log("No user, redirecting to login")
+        toast({
+          title: "需要登录",
+          description: "正在跳转到登录页面",
+        })
+        // Store current URL and redirect to login
+        sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
+        window.location.href = '/sign-in'
+      } else {
+        console.log("User exists, showing dialog")
+        console.log("Current showPublishDialog state:", showPublishDialog)
+        setShowPublishDialog(true)
+        console.log("Set showPublishDialog to true")
+      }
+    }, 500)
   }
 
   const handlePublishConfirm = async (description?: string) => {
+    console.log("🚀 Publish confirm called!")
     const imageToPublish = editedImage || generatedImage
-    if (!imageToPublish) return
+    console.log("📸 Image to publish:", imageToPublish ? "exists" : "missing")
+    
+    if (!imageToPublish) {
+      console.log("❌ No image to publish")
+      return
+    }
 
     try {
+      console.log("📤 Sending publish request...")
       const response = await fetch('/api/publish', {
         method: 'POST',
         headers: {
@@ -464,12 +548,18 @@ export default function CreatePage() {
         })
       })
 
+      console.log("📡 Publish response status:", response.status)
+
       if (response.ok) {
+        const result = await response.json()
+        console.log("✅ Publish successful:", result)
         toast({
           title: "发布成功！",
           description: "您的作品已发布到作品集社区",
         })
       } else {
+        const errorData = await response.json()
+        console.error("❌ Publish failed:", errorData)
         throw new Error('发布失败')
       }
     } catch (error) {
@@ -541,14 +631,19 @@ export default function CreatePage() {
               <div
                 className="upload-zone"
                 onClick={handleUploadClick}
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragEnter}
+                onDrop={handleDrop}
+                style={{ minHeight: '120px', padding: '20px', cursor: 'pointer' }}
               >
                 <Upload className="w-8 h-8 mx-auto mb-4 text-gray-400" />
-                <p className="text-sm font-medium mb-2">点击上传照片</p>
-                <p className="text-xs text-gray-500">支持 JPG, PNG 格式</p>
+                <p className="text-sm font-medium mb-2">点击选择照片</p>
+                <p className="text-xs text-gray-500">支持 JPG, PNG, WebP 格式</p>
               </div>
               <button
                 onClick={handleCameraClick}
                 className="w-full vsco-btn secondary small"
+                style={{ minHeight: '44px', padding: '12px', fontSize: '16px' }}
               >
                 <Camera className="w-4 h-4 mr-2" />
                 拍摄照片
@@ -557,22 +652,34 @@ export default function CreatePage() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 className="hidden"
+                multiple={false}
                 onChange={(e) => {
                   const file = e.target.files?.[0]
-                  if (file) handleFileSelect(file)
+                  if (file) {
+                    console.log("File selected:", file.name, file.type, file.size)
+                    handleFileSelect(file)
+                  }
+                  // Clear the input to allow selecting the same file again
+                  e.target.value = ''
                 }}
               />
               <input
                 ref={cameraInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 capture="environment"
                 className="hidden"
+                multiple={false}
                 onChange={(e) => {
                   const file = e.target.files?.[0]
-                  if (file) handleFileSelect(file)
+                  if (file) {
+                    console.log("Camera file selected:", file.name, file.type, file.size)
+                    handleFileSelect(file)
+                  }
+                  // Clear the input to allow taking another photo
+                  e.target.value = ''
                 }}
               />
             </div>
@@ -633,10 +740,11 @@ export default function CreatePage() {
                 </button>
                 <button
                   onClick={handlePublishClick}
-                  className="w-full vsco-btn secondary"
+                  disabled={publishLoading}
+                  className="w-full vsco-btn secondary disabled:opacity-50"
                 >
                   <Heart className="w-4 h-4 mr-2" />
-                  发布作品
+                  {publishLoading ? '准备中...' : '发布作品'}
                 </button>
                 {savedImages.length < 3 ? (
                   <button onClick={handleNextImage} className="w-full vsco-btn secondary">
@@ -708,8 +816,8 @@ export default function CreatePage() {
                 </button>
               </div>
 
-              {/* Bottom-left action buttons */}
-              <div className="absolute bottom-32 left-0 z-60 p-4 pointer-events-auto">
+              {/* Bottom-left action buttons - follow scroll */}
+              <div className="fixed bottom-32 left-0 z-60 p-4 pointer-events-auto">
                 <div className="flex flex-col space-y-3">
                   <button
                     onClick={() => {
@@ -737,10 +845,11 @@ export default function CreatePage() {
                     保存
                   </button>
                   <button 
-                    className="px-5 py-2.5 bg-white/70 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/80 transition-all shadow-sm"
+                    className="px-5 py-2.5 bg-white/70 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/80 transition-all shadow-sm disabled:opacity-50"
                     onClick={handlePublishClick}
+                    disabled={publishLoading}
                   >
-                    发布
+                    {publishLoading ? '准备中...' : '发布'}
                   </button>
                 </div>
               </div>
@@ -958,8 +1067,12 @@ export default function CreatePage() {
                             {sceneOptions.map((scene) => (
                               <button
                                 key={scene.id}
-                                onClick={() => {
+                                onClick={async () => {
                                   setCustomPrompt(scene.prompt)
+                                  // Automatically trigger generation when scene is selected
+                                  if (!selectedFile) return
+                                  setCurrentStep('processing')
+                                  await generatePortrait(selectedFile, scene.prompt, true)
                                 }}
                                 className="p-3 bg-gray-100 backdrop-blur-sm rounded text-gray-800 text-xs hover:bg-gray-200 transition-colors"
                               >
@@ -1072,10 +1185,33 @@ export default function CreatePage() {
         </div>
       )}
 
+      {/* Debug indicator */}
+      {showPublishDialog && (
+        <div className="fixed top-4 left-4 bg-red-500 text-white p-2 rounded z-80 text-xs">
+          DEBUG: Dialog should be showing
+        </div>
+      )}
+
+      {/* DEBUG: Test publish button */}
+      {generatedImage && (
+        <button
+          onClick={() => {
+            console.log("🧪 DEBUG TEST BUTTON CLICKED!")
+            handlePublishClick()
+          }}
+          className="fixed top-4 right-4 bg-green-500 text-white p-3 rounded-full z-80 text-sm font-bold shadow-lg"
+        >
+          TEST 发布
+        </button>
+      )}
+
       {/* Publish Dialog */}
       <PublishDialog
         isOpen={showPublishDialog}
-        onClose={() => setShowPublishDialog(false)}
+        onClose={() => {
+          console.log("🔄 Closing publish dialog")
+          setShowPublishDialog(false)
+        }}
         onConfirm={handlePublishConfirm}
         imageUrl={editedImage || generatedImage || ''}
       />

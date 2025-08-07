@@ -29,10 +29,17 @@ export default function GalleryPage() {
 
   const fetchArtworks = async () => {
     try {
+      console.log("🔍 Gallery: Fetching artworks...")
       const response = await fetch('/api/publish')
+      console.log("📡 Gallery: Response status:", response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log("📦 Gallery: Received data:", data)
+        console.log("🎨 Gallery: Artworks count:", data.artworks?.length || 0)
         setArtworks(data.artworks || [])
+      } else {
+        console.error("❌ Gallery: Failed to fetch artworks:", response.status)
       }
     } catch (error) {
       console.error("Failed to fetch artworks:", error)
