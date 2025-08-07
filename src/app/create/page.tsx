@@ -23,7 +23,8 @@ import {
   RotateCcw,
   ZoomIn,
   User,
-  Plus
+  Plus,
+  ArrowLeft
 } from "lucide-react"
 import Link from "next/link"
 import './vsco-style.css'
@@ -596,7 +597,106 @@ export default function CreatePage() {
         </div>
       </header>
 
-      <div className={`vsco-editor ${savedImages.length > 0 ? 'with-gallery' : ''}`}>
+      {/* Mobile Upload Interface - Show when no image generated */}
+      {!generatedImage && (
+        <div className="md:hidden min-h-screen bg-white flex flex-col">
+          {/* Processing overlay */}
+          {isProcessing && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="bg-white rounded-lg p-8 mx-4 max-w-sm w-full text-center">
+                <div className="w-16 h-16 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+                <h3 className="text-lg font-medium mb-2">生成中</h3>
+                <p className="text-gray-600 text-sm">AI 正在为您的宠物创作艺术作品...</p>
+              </div>
+            </div>
+          )}
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-100">
+            <h1 className="text-lg font-light">PETPO</h1>
+            <Link href="/gallery" className="text-sm text-gray-600">
+              作品集
+            </Link>
+          </div>
+
+          {/* Main upload area */}
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
+            <div className="w-full max-w-sm space-y-6">
+              
+              {/* Style selection */}
+              {!selectedStyle && (
+                <div className="space-y-4">
+                  <h2 className="text-center text-xl font-light text-gray-900 mb-8">选择艺术风格</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {styles.map((style) => (
+                      <button
+                        key={style.id}
+                        onClick={() => {
+                          setSelectedStyle(style)
+                          setCurrentStep('upload')
+                        }}
+                        className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 hover:scale-105 transition-transform"
+                      >
+                        <img
+                          src={style.image}
+                          alt={style.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-center">
+                            {style.name}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upload area */}
+              {selectedStyle && (
+                <div className="space-y-4">
+                  <button 
+                    onClick={() => {
+                      setSelectedStyle(null)
+                      setCurrentStep('style')
+                    }}
+                    className="flex items-center text-gray-600 text-sm mb-4"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    更换风格
+                  </button>
+                  
+                  <div className="text-center mb-6">
+                    <h3 className="text-lg font-light text-gray-900 mb-2">上传宠物照片</h3>
+                    <p className="text-sm text-gray-600">选择了 {selectedStyle.name} 风格</p>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                  >
+                    <Camera className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-600">点击上传照片</p>
+                    <p className="text-xs text-gray-500 mt-2">支持 JPG, PNG 格式</p>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Interface */}
+      <div className={`hidden md:flex vsco-editor ${savedImages.length > 0 ? 'with-gallery' : ''}`}>
         {/* Left Panel - Style Selection & Upload */}
         <div className="vsco-tools">
           {!selectedStyle && (
@@ -800,9 +900,9 @@ export default function CreatePage() {
         {generatedImage && (
           <>
             {/* Mobile VSCO Style Interface */}
-            <div className="fixed inset-0 bg-white z-40">
+            <div className="md:hidden fixed inset-0 bg-white z-40 flex flex-col">
               {/* Header with reset button */}
-              <div className="absolute top-0 right-0 z-50 p-4">
+              <div className="absolute top-4 right-4 z-50">
                 <button
                   onClick={handleReset}
                   className="w-10 h-10 rounded-full bg-white/70 backdrop-blur-md flex items-center justify-center border border-gray-200/50 hover:bg-white/80 transition-all shadow-sm"
@@ -811,9 +911,18 @@ export default function CreatePage() {
                 </button>
               </div>
 
-              {/* Bottom-left action buttons - follow scroll */}
-              <div className="fixed bottom-32 left-0 z-60 p-4 pointer-events-auto">
-                <div className="flex flex-col space-y-3">
+              {/* Main content area - flex to center image */}
+              <div className="flex-1 flex items-center justify-center px-4 pt-16 pb-40">
+                <PinchZoomImage
+                  src={editedImage || generatedImage}
+                  alt="生成的艺术作品"
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+
+              {/* Fixed bottom action buttons */}
+              <div className="fixed bottom-32 left-4 right-4 z-60">
+                <div className="flex justify-center space-x-3">
                   <button
                     onClick={() => {
                       // Save to history and next image functionality
@@ -824,12 +933,12 @@ export default function CreatePage() {
                         handleNextImage()
                       }
                     }}
-                    className="px-5 py-2.5 bg-white/70 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/80 transition-all shadow-sm"
+                    className="flex-1 px-4 py-3 bg-white/80 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
                   >
                     下一张
                   </button>
                   <button 
-                    className="px-5 py-2.5 bg-white/70 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/80 transition-all shadow-sm"
+                    className="flex-1 px-4 py-3 bg-white/80 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
                     onClick={() => {
                       const link = document.createElement('a')
                       link.download = `petpo-art-${Date.now()}.png`
@@ -840,23 +949,12 @@ export default function CreatePage() {
                     保存
                   </button>
                   <button 
-                    className="px-5 py-2.5 bg-white/70 backdrop-blur-md rounded-full text-gray-800 text-sm font-medium border border-gray-200/50 hover:bg-white/80 transition-all shadow-sm disabled:opacity-50"
+                    className="flex-1 px-4 py-3 bg-black/80 backdrop-blur-md rounded-full text-white text-sm font-medium hover:bg-black/90 transition-all shadow-sm disabled:opacity-50"
                     onClick={handlePublishClick}
                     disabled={publishLoading}
                   >
                     {publishLoading ? '准备中...' : '发布'}
                   </button>
-                </div>
-              </div>
-
-              {/* Image Display Area */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="pointer-events-auto">
-                  <PinchZoomImage
-                    src={editedImage || generatedImage}
-                    alt="生成的艺术作品"
-                    className="max-w-full max-h-full object-contain"
-                  />
                 </div>
               </div>
 
