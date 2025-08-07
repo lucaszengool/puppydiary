@@ -708,3 +708,8 @@ For additional information about middleware, please visit https://clerk.com/docs
  ✓ Compiled /api/generate-video in 997ms (747 modules)
  POST /api/generate-video 503 in 1148ms
  GET /?_rsc=1epmq 200 in 56ms
+ GET / 200 in 486ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1348ms (1379 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1793ms
+ ✓ Compiled in 372ms (293 modules)
