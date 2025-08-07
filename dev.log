@@ -798,3 +798,4 @@ Optimized buffer size: 149375
  ✓ Compiled in 998ms (653 modules)
  GET /create?_rsc=4ph3u 200 in 126ms
  GET /?_rsc=r3yhw 200 in 135ms
+ ✓ Compiled in 29.9s (1390 modules)

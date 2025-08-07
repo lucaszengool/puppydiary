@@ -129,7 +129,7 @@ export default function CreatePage() {
     if (!selectedFile || !selectedStyle) return
     setCurrentStep('processing')
     // First generation with selected style
-    generatePortrait(selectedFile, null, false)
+    generatePortrait(selectedFile, undefined, false)
   }
 
   const handleUploadClick = () => {
