@@ -627,7 +627,7 @@ export default function CreatePage() {
                 <div className="space-y-4">
                   <h2 className="text-center text-xl font-light text-gray-900 mb-8">选择艺术风格</h2>
                   <div className="grid grid-cols-2 gap-3">
-                    {styles.map((style) => (
+                    {mainStyleOptions.map((style) => (
                       <button
                         key={style.id}
                         onClick={() => {
@@ -637,13 +637,13 @@ export default function CreatePage() {
                         className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 hover:scale-105 transition-transform"
                       >
                         <img
-                          src={style.image}
-                          alt={style.name}
+                          src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
+                          alt={style.label}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute bottom-2 left-2 right-2">
                           <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-center">
-                            {style.name}
+                            {style.label}
                           </div>
                         </div>
                       </button>
@@ -668,14 +668,19 @@ export default function CreatePage() {
                   
                   <div className="text-center mb-6">
                     <h3 className="text-lg font-light text-gray-900 mb-2">上传宠物照片</h3>
-                    <p className="text-sm text-gray-600">选择了 {selectedStyle.name} 风格</p>
+                    <p className="text-sm text-gray-600">选择了 {selectedStyle.label} 风格</p>
                   </div>
 
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleFileChange}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        handleFileSelect(file)
+                      }
+                    }}
                     className="hidden"
                   />
                   
