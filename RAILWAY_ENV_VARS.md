@@ -36,11 +36,9 @@ OPENAI_API_KEY=your-openai-key-here
 # Hugging Face Token (for FLUX model - optional)
 HF_TOKEN=your-huggingface-token-here
 
-# 豆包视频生成 API Key (for video generation - optional)
-ARK_API_KEY=your-ark-api-key-here
-
-# 豆包图片生成 API Key (for image generation - optional)
-DOUBAO_API_KEY=your-doubao-api-key-here
+# 火山引擎豆包 API Key (for both image and video generation)
+VOLCENGINE_API_KEY=d02d7827-d0c9-4e86-b99b-ba1952eeb25d
+DOUBAO_ENDPOINT_ID=ep-20250806185345-cvg4w
 ```
 
 ### 5. Node.js Configuration (Optional but recommended)

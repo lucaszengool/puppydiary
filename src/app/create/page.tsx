@@ -40,6 +40,7 @@ export default function CreatePage() {
   const [customPrompt, setCustomPrompt] = useState<string>("")
   const [generatedPrompt, setGeneratedPrompt] = useState<string>("")
   const [savedImages, setSavedImages] = useState<string[]>([])
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(-1) // Track which saved image we're editing
   const [showVideoOption, setShowVideoOption] = useState(false)
   const [videoTaskId, setVideoTaskId] = useState<string | null>(null)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
@@ -127,7 +128,8 @@ export default function CreatePage() {
   const handleGenerate = () => {
     if (!selectedFile || !selectedStyle) return
     setCurrentStep('processing')
-    generatePortrait(selectedFile, selectedStyle.prompt)
+    // First generation with selected style
+    generatePortrait(selectedFile, null, false)
   }
 
   const handleUploadClick = () => {
@@ -138,7 +140,7 @@ export default function CreatePage() {
     cameraInputRef.current?.click()
   }
 
-  const generatePortrait = async (file: File, additionalPrompt?: string) => {
+  const generatePortrait = async (file: File, additionalPrompt?: string, isBackgroundChange: boolean = false) => {
     setIsProcessing(true)
     try {
       const formData = new FormData()
@@ -148,31 +150,38 @@ export default function CreatePage() {
       }
       
       // 铁的定义：100%保留原有特征的基础提示词
-      const preservationPrompt = "IMPORTANT: Preserve 100% of original subject's physical features, facial expression, pose, gesture, body position, size, biological characteristics, and anatomical details exactly as shown in the reference image. Maintain identical facial structure, eye shape, nose, mouth, ears, fur patterns, markings, and any distinctive features."
+      const preservationPrompt = "重要：必须100%保留原始图片中的人物或宠物的所有特征：面部表情、姿势、动作、身体大小、生物特征、解剖细节，包括眼睛形状、鼻子、嘴巴、耳朵、毛发图案、标记和任何独特特征都要完全一致。"
       
       let fullPrompt: string
       
-      // If this is not the first generation and we have an original prompt, reuse it
-      if (!isFirstGeneration && originalPrompt) {
-        // Preserve the complete original prompt and just append the new style
+      // If this is a background change (user clicked scene option after generating)
+      if (isBackgroundChange && originalPrompt) {
+        // Keep the original style but change only the background/scene
         fullPrompt = originalPrompt
         if (additionalPrompt) {
           // Replace only the background/scene part of the prompt
-          const scenePattern = /(在[^，。]+的环境中|在[^，。]+空间中|在[^，。]+氛围中|在[^，。]+场景中)/
+          const scenePattern = /(在[^，。]+的环境中|在[^，。]+空间中|在[^，。]+氛围中|在[^，。]+场景中|in\s+[^,]+\s+environment|in\s+[^,]+\s+setting|with\s+[^,]+\s+background)/i
           if (scenePattern.test(fullPrompt)) {
             fullPrompt = fullPrompt.replace(scenePattern, additionalPrompt)
           } else {
+            // Add the scene description if not present
             fullPrompt = `${fullPrompt}, ${additionalPrompt}`
           }
         }
-      } else {
-        // First generation - create the full prompt
-        const basePrompt = additionalPrompt || selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
-        fullPrompt = `${preservationPrompt} ${basePrompt}`
+      } else if (isFirstGeneration) {
+        // First generation - apply the selected style transformation
+        const stylePrompt = selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
+        fullPrompt = `${preservationPrompt} ${stylePrompt}`
         
-        // Store the original prompt for future use
+        // Store the original prompt with style for future use
         setOriginalPrompt(fullPrompt)
         setIsFirstGeneration(false)
+      } else {
+        // Subsequent generations with the same style
+        fullPrompt = originalPrompt || `${preservationPrompt} ${selectedStyle?.prompt}`
+        if (additionalPrompt) {
+          fullPrompt = `${fullPrompt}, ${additionalPrompt}`
+        }
       }
       
       formData.append("prompt", fullPrompt)
@@ -195,15 +204,11 @@ export default function CreatePage() {
       setGeneratedPrompt(fullPrompt)
       setCurrentStep('result')
       
-      // 自动保存生成的图片
-      if (data.imageUrl) {
-        const newSavedImages = [...savedImages, data.imageUrl]
-        setSavedImages(newSavedImages)
-        
-        // 如果已经生成了3张图片，显示视频生成选项
-        if (newSavedImages.length >= 3) {
-          setShowVideoOption(true)
-        }
+      // Don't auto-save if this is a background change - replace current image instead
+      // Only save when user explicitly moves to next image
+      if (!isBackgroundChange) {
+        // This is called after user clicks "下一张"
+        // Will be handled in handleNextImage
       }
       
       toast({
@@ -226,10 +231,22 @@ export default function CreatePage() {
   const handleStyleChange = async (stylePrompt: string) => {
     if (!selectedFile) return
     setCurrentStep('processing')
-    await generatePortrait(selectedFile, stylePrompt)
+    // This is a background change, not a new image
+    await generatePortrait(selectedFile, stylePrompt, true)
   }
 
   const handleNextImage = () => {
+    // Save the current generated image before moving to next
+    if (generatedImage && savedImages.length < 3) {
+      const newSavedImages = [...savedImages, generatedImage]
+      setSavedImages(newSavedImages)
+      
+      // If we now have 3 images, show video option
+      if (newSavedImages.length >= 3) {
+        setShowVideoOption(true)
+      }
+    }
+    
     // 重置当前图片状态，准备上传下一张
     setSelectedFile(null)
     setSelectedImageUrl(null)
@@ -244,7 +261,8 @@ export default function CreatePage() {
   const handleCustomPrompt = async () => {
     if (!selectedFile || !customPrompt.trim()) return
     setCurrentStep('processing')
-    await generatePortrait(selectedFile, customPrompt)
+    // Custom prompt is also a background/scene change
+    await generatePortrait(selectedFile, customPrompt, true)
   }
 
   // 生成视频
