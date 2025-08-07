@@ -496,33 +496,29 @@ export default function CreatePage() {
     console.log("generatedImage:", generatedImage ? "exists" : "missing")
     console.log("editedImage:", editedImage ? "exists" : "missing")
     
-    setPublishLoading(true)
-    
-    // Add visual feedback with toast
-    toast({
-      title: "正在准备发布...",
-      description: "请稍候",
-    })
-    
-    setTimeout(() => {
-      setPublishLoading(false)
-      
-      if (!userId) {
-        console.log("No user, redirecting to login")
-        toast({
-          title: "需要登录",
-          description: "正在跳转到登录页面",
-        })
-        // Store current URL and redirect to login
-        sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
-        window.location.href = '/sign-in'
-      } else {
-        console.log("User exists, showing dialog")
-        console.log("Current showPublishDialog state:", showPublishDialog)
-        setShowPublishDialog(true)
-        console.log("Set showPublishDialog to true")
-      }
-    }, 500)
+    if (!userId) {
+      console.log("No user, redirecting to login")
+      toast({
+        title: "需要登录",
+        description: "正在跳转到登录页面",
+      })
+      // Store current URL and redirect to login
+      sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
+      window.location.href = '/sign-in'
+      return
+    }
+
+    if (!generatedImage && !editedImage) {
+      toast({
+        title: "没有图片",
+        description: "请先生成一张图片",
+        variant: "destructive",
+      })
+      return
+    }
+
+    console.log("✅ All checks passed, showing dialog")
+    setShowPublishDialog(true)
   }
 
   const handlePublishConfirm = async (description?: string) => {
@@ -576,18 +572,17 @@ export default function CreatePage() {
     <div className="vsco-container">
       {/* VSCO Style Header */}
       <header className="vsco-header">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="text-lg font-medium text-black tracking-wide">
-              PETPO
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="text-lg md:text-xl font-medium text-black tracking-wide">
+            PETPO
+          </Link>
+          <nav className="flex items-center space-x-3 md:space-x-4">
+            <Link href="/gallery" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+              作品集
             </Link>
-            <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-500">
-                {selectedStyle ? selectedStyle.label : '选择风格'}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
+            <span className="hidden md:inline text-sm text-gray-500">
+              {selectedStyle ? selectedStyle.label : '选择风格'}
+            </span>
             <button
               onClick={handleReset}
               className="text-sm text-gray-600 hover:text-black transition-colors"
@@ -597,7 +592,7 @@ export default function CreatePage() {
             <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-gray-600" />
             </div>
-          </div>
+          </nav>
         </div>
       </header>
 
@@ -1185,25 +1180,6 @@ export default function CreatePage() {
         </div>
       )}
 
-      {/* Debug indicator */}
-      {showPublishDialog && (
-        <div className="fixed top-4 left-4 bg-red-500 text-white p-2 rounded z-80 text-xs">
-          DEBUG: Dialog should be showing
-        </div>
-      )}
-
-      {/* DEBUG: Test publish button */}
-      {generatedImage && (
-        <button
-          onClick={() => {
-            console.log("🧪 DEBUG TEST BUTTON CLICKED!")
-            handlePublishClick()
-          }}
-          className="fixed top-4 right-4 bg-green-500 text-white p-3 rounded-full z-80 text-sm font-bold shadow-lg"
-        >
-          TEST 发布
-        </button>
-      )}
 
       {/* Publish Dialog */}
       <PublishDialog

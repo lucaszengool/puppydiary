@@ -31,7 +31,7 @@ export default function PublishDialog({ isOpen, onClose, onConfirm, imageUrl }: 
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-70 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-md w-full shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -85,17 +85,35 @@ export default function PublishDialog({ isOpen, onClose, onConfirm, imageUrl }: 
           </div>
         </div>
 
+        {/* Make publish super obvious */}
+        <div className="p-4 bg-yellow-50 border border-yellow-200">
+          <p className="text-center text-sm text-gray-600 mb-3">点击下面的按钮确认发布到社区</p>
+          <button
+            onClick={() => {
+              console.log("🧪 BIG PUBLISH BUTTON CLICKED!")
+              handlePublish()
+            }}
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            ✨ 立即发布到作品集 ✨
+          </button>
+        </div>
+
         {/* Actions */}
         <div className="flex space-x-3 p-4 border-t border-gray-200">
           <button
-            onClick={onClose}
+            onClick={() => {
+              console.log("❌ Cancel button clicked in dialog")
+              onClose()
+            }}
             className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium"
           >
             取消
           </button>
           <button
             onClick={handlePublish}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center space-x-2"
+            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center space-x-2 touch-action-manipulation"
+            style={{ minHeight: '44px', fontSize: '16px' }}
           >
             <Heart className="w-4 h-4" />
             <span>发布作品</span>

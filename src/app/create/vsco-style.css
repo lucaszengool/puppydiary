@@ -39,16 +39,42 @@
 /* Responsive mobile layout */
 @media (max-width: 768px) {
   .vsco-editor {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
   }
   
-  .vsco-tools, .vsco-adjustments {
+  .vsco-tools {
+    display: block;
+    position: relative;
+    border: none;
+    background: transparent;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    order: 1;
+  }
+  
+  .vsco-adjustments {
     display: none;
   }
   
   .vsco-canvas {
-    padding: 0;
+    padding: 20px;
+    order: 2;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  /* Hide the mobile VSCO interface on small screens to show desktop layout */
+  .fixed.inset-0.bg-white.z-40 {
+    position: relative !important;
+    inset: auto !important;
+    background: transparent !important;
+    z-index: auto !important;
   }
 }
 

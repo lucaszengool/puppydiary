@@ -80,24 +80,20 @@ export default function GalleryPage() {
     <div className="min-h-screen bg-white">
       {/* VSCO Style Header */}
       <header className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="text-2xl font-light tracking-wide text-black">
-              PETPO
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="text-xl md:text-2xl font-light tracking-wide text-black">
+            PETPO
+          </Link>
+          <nav className="flex space-x-3 md:space-x-6">
+            <Link href="/create" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+              创作
             </Link>
-            <nav className="hidden md:flex space-x-6">
-              <Link href="/create" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
-                创作
-              </Link>
-              <Link href="/gallery" className="text-sm font-medium text-black border-b-2 border-black">
-                作品集
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center space-x-4">
+            <Link href="/gallery" className="text-sm font-medium text-black border-b-2 border-black">
+              作品集
+            </Link>
             {userId ? (
               <>
-                <Link href="/dashboard" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                <Link href="/dashboard" className="hidden md:inline text-sm font-medium text-gray-600 hover:text-black transition-colors">
                   我的作品
                 </Link>
                 <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
@@ -109,7 +105,7 @@ export default function GalleryPage() {
                 登录
               </Link>
             )}
-          </div>
+          </nav>
         </div>
       </header>
 
