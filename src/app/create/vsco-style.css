@@ -1,5 +1,57 @@
 /* VSCO Style Editor - Clean and Minimal */
 
+/* Mobile VSCO Style Overrides */
+.vsco-slider-mobile {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  border-radius: 1px;
+}
+
+.vsco-slider-mobile::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: white;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.vsco-slider-mobile::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: white;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: none;
+}
+
+.adjustment-item-mobile {
+  margin-bottom: 1rem;
+}
+
+/* Responsive mobile layout */
+@media (max-width: 768px) {
+  .vsco-editor {
+    grid-template-columns: 1fr;
+    min-height: 100vh;
+  }
+  
+  .vsco-tools, .vsco-adjustments {
+    display: none;
+  }
+  
+  .vsco-canvas {
+    padding: 0;
+  }
+}
+
 .vsco-container {
   background: #ffffff;
   min-height: 100vh;
@@ -42,18 +94,26 @@
 }
 
 .vsco-image-container {
-  max-width: 100%;
-  max-height: 70vh;
+  width: 100%;
+  height: 100%;
+  max-width: 800px;
+  max-height: 600px;
   position: relative;
   border-radius: 2px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .vsco-image {
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: auto;
   display: block;
+  object-fit: contain;
 }
 
 /* Right Panel - Adjustments */
@@ -415,6 +475,25 @@
   opacity: 0.5;
 }
 
+/* Pinch Zoom Styles */
+.zoom-wrapper {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.zoom-wrapper:active {
+  cursor: grabbing;
+}
+
+.zoom-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
 /* Bottom Gallery */
 .vsco-gallery-bottom {
   position: fixed;
@@ -534,4 +613,14 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Hide scrollbars for horizontal scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }

@@ -1,9 +1,11 @@
 import { SignUp } from "@clerk/nextjs"
 import Link from "next/link"
 import { Dog, Heart } from "lucide-react"
+import AuthRedirect from "@/components/AuthRedirect"
 
 export default function Page() {
   return (
+    <AuthRedirect>
     <div className="min-h-screen sky-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
@@ -41,5 +43,6 @@ export default function Page() {
         </div>
       </div>
     </div>
+    </AuthRedirect>
   )
 }

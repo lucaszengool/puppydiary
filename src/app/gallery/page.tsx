@@ -1,165 +1,206 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useAuth } from "@clerk/nextjs"
-import { Navigation } from "@/components/navigation"
-import { useEffect, useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
-import { BookOpen, Download, Share2, Plus, Heart } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"
+import { Camera, Plus, Grid, User, Heart } from "lucide-react"
+import ArtworkModal from "@/components/ArtworkModal"
 
-interface Portrait {
+interface Artwork {
   id: string
-  generatedImageUrl: string
+  userId: string
+  imageUrl: string
+  description?: string
   createdAt: string
+  likes: number
+  likedBy: string[]
 }
 
 export default function GalleryPage() {
   const { userId } = useAuth()
-  const { toast } = useToast()
-  const [portraits, setPortraits] = useState<Portrait[]>([])
+  const [artworks, setArtworks] = useState<Artwork[]>([])
+  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (userId) {
-      // In production, fetch from API
-      // For demo, we'll use a mock data
-      setPortraits([])
+    fetchArtworks()
+  }, [])
+
+  const fetchArtworks = async () => {
+    try {
+      const response = await fetch('/api/publish')
+      if (response.ok) {
+        const data = await response.json()
+        setArtworks(data.artworks || [])
+      }
+    } catch (error) {
+      console.error("Failed to fetch artworks:", error)
+    } finally {
       setLoading(false)
     }
-  }, [userId])
-  
-  if (!userId) {
+  }
+
+  const handleArtworkClick = (artwork: Artwork) => {
+    if (!userId) {
+      // Require login to view details
+      sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
+      window.location.href = '/sign-in'
+    } else {
+      setSelectedArtwork(artwork)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('zh-CN', {
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  if (loading) {
     return (
-      <div className="min-h-screen cafe-bg">
-        <Navigation />
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <div className="ghibli-card">
-            <BookOpen className="h-16 w-16 mx-auto text-forest mb-4" />
-            <p className="text-forest-dark text-lg">请登录查看您的相册</p>
-            <Link href="/sign-in">
-              <button className="mt-4 ghibli-button">
-                立即登录
-              </button>
-            </Link>
-          </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">加载中...</p>
         </div>
       </div>
     )
   }
 
-  const handleDownload = (url: string, id: string) => {
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `puppy-diary-${id}.png`
-    a.click()
-  }
-
-  const handleShare = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url)
-      toast({
-        title: "链接已复制！",
-        description: "图片链接已复制到剪贴板",
-      })
-    } catch (error) {
-      toast({
-        title: "复制失败",
-        description: "请重试",
-        variant: "destructive",
-      })
-    }
-  }
-
   return (
-    <div className="min-h-screen cafe-bg">
-      <Navigation />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-white">
+      {/* VSCO Style Header */}
+      <header className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-8">
+            <Link href="/" className="text-2xl font-light tracking-wide text-black">
+              PETPO
+            </Link>
+            <nav className="hidden md:flex space-x-6">
+              <Link href="/create" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                创作
+              </Link>
+              <Link href="/gallery" className="text-sm font-medium text-black border-b-2 border-black">
+                作品集
+              </Link>
+            </nav>
+          </div>
+          <div className="flex items-center space-x-4">
+            {userId ? (
+              <>
+                <Link href="/dashboard" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                  我的作品
+                </Link>
+                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-gray-600" />
+                </div>
+              </>
+            ) : (
+              <Link href="/sign-in" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                登录
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Gallery Content */}
+      <main className="max-w-6xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-forest-dark handwriting mb-4">
-            我的狗狗相册
+          <h1 className="text-3xl md:text-4xl font-light text-black mb-4 tracking-tight">
+            社区作品集
           </h1>
-          <p className="text-forest text-lg">
-            珍藏每一个美好瞬间，记录狗狗的成长故事
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light">
+            探索由我们的用户创作的精美宠物艺术作品
+            {!userId && <span className="block text-sm mt-2 text-blue-600">点击作品需要登录查看详情</span>}
           </p>
         </div>
 
-        {portraits.length === 0 ? (
-          <div className="max-w-md mx-auto">
-            <div className="ghibli-card text-center py-12">
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full forest-gradient flex items-center justify-center animate-gentle-float">
-                <BookOpen className="h-12 w-12 text-white" />
-              </div>
-              <p className="text-forest-dark mb-2 text-lg">相册还是空的</p>
-              <p className="text-forest mb-6">快去记录第一个美好瞬间吧！</p>
-              <Link href="/create">
-                <button className="ghibli-button flex items-center space-x-2 mx-auto">
-                  <Plus className="h-5 w-5" />
-                  <span>创建第一幅作品</span>
-                </button>
-              </Link>
-            </div>
+        {/* Gallery Grid */}
+        {artworks.length === 0 ? (
+          <div className="text-center py-20">
+            <Camera className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-light text-gray-600 mb-2">还没有作品</h3>
+            <p className="text-gray-400 mb-6">成为第一个发布作品的用户吧！</p>
+            <Link
+              href="/create"
+              className="inline-flex items-center space-x-2 bg-black text-white px-6 py-3 text-sm font-medium tracking-wide hover:bg-gray-800 transition-colors rounded-sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>开始创作</span>
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {portraits.map((portrait, index) => (
-              <div 
-                key={portrait.id} 
-                className="ghibli-card hover:scale-105 transition-all duration-300 animate-float"
-                style={{ animationDelay: `${index * 0.1}s` }}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {artworks.map((artwork) => (
+              <div
+                key={artwork.id}
+                onClick={() => handleArtworkClick(artwork)}
+                className="group relative aspect-square overflow-hidden bg-gray-50 rounded-sm cursor-pointer transition-transform hover:scale-[1.02]"
               >
-                <div className="aspect-square relative rounded-xl overflow-hidden mb-4">
-                  <Image
-                    src={portrait.generatedImageUrl}
-                    alt="狗狗漫画"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute top-2 right-2">
-                    <Heart className="h-6 w-6 text-rose fill-rose drop-shadow-md" />
+                <img
+                  src={artwork.imageUrl}
+                  alt="艺术作品"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                
+                {/* Info Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                        <User className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-white/90 text-xs">作品</span>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1 text-white/80 text-xs">
+                        <Heart className="w-3 h-3" />
+                        <span>{artwork.likes}</span>
+                      </div>
+                      <span className="text-white/70 text-xs">{formatDate(artwork.createdAt)}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-3">
-                  <p className="text-sm text-forest">
-                    创建于 {new Date(portrait.createdAt).toLocaleDateString('zh-CN')}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleDownload(portrait.generatedImageUrl, portrait.id)}
-                      className="flex-1 px-3 py-2 rounded-full border-2 border-forest hover:bg-forest-light transition-all flex items-center justify-center space-x-1"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span className="text-sm">下载</span>
-                    </button>
-                    <button
-                      onClick={() => handleShare(portrait.generatedImageUrl)}
-                      className="flex-1 px-3 py-2 rounded-full bg-forest text-white hover:bg-forest-dark transition-all flex items-center justify-center space-x-1"
-                    >
-                      <Share2 className="h-4 w-4" />
-                      <span className="text-sm">分享</span>
-                    </button>
-                  </div>
+                  {artwork.description && (
+                    <p className="text-white/90 text-xs mt-2 line-clamp-2">
+                      {artwork.description}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
-            
-            {/* 添加新作品卡片 */}
-            <Link href="/create">
-              <div className="ghibli-card hover:scale-105 transition-all duration-300 cursor-pointer border-2 border-dashed border-forest-light">
-                <div className="aspect-square flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-forest-light flex items-center justify-center">
-                      <Plus className="h-8 w-8 text-forest" />
-                    </div>
-                    <p className="text-forest-dark font-medium">添加新作品</p>
-                  </div>
-                </div>
-              </div>
-            </Link>
           </div>
         )}
+
+        {/* Call to Action */}
+        <div className="text-center mt-16 py-16 border-t border-gray-100">
+          <h2 className="text-2xl font-light text-black mb-4">
+            创作您自己的宠物艺术作品
+          </h2>
+          <p className="text-gray-600 mb-8 font-light">
+            使用 AI 技术将您的爱宠转换为艺术杰作
+          </p>
+          <Link
+            href="/create"
+            className="inline-flex items-center space-x-2 bg-black text-white px-8 py-3 text-sm font-medium tracking-wide hover:bg-gray-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>开始创作</span>
+          </Link>
+        </div>
       </main>
+
+      {/* Artwork Detail Modal */}
+      <ArtworkModal
+        isOpen={!!selectedArtwork}
+        onClose={() => setSelectedArtwork(null)}
+        artwork={selectedArtwork}
+      />
     </div>
   )
 }

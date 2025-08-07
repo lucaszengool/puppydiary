@@ -1,19 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs'
-import { Noto_Sans_SC, Kalam } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
-
-const notoSansSC = Noto_Sans_SC({ 
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
-  variable: '--font-noto'
-})
-
-const kalam = Kalam({
-  subsets: ['latin'],
-  weight: ['300', '400', '700'],
-  variable: '--font-kalam'
-})
 
 export const metadata = {
   title: 'PETPO - AI宠物艺术肖像',
@@ -28,7 +15,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="zh-CN">
-        <body className={`${notoSansSC.variable} ${kalam.variable} font-sans`}>
+        <body className="font-sans">
           {children}
           <Toaster />
         </body>
