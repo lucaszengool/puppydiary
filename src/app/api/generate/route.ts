@@ -4,6 +4,7 @@ import sharp from "sharp"
 import { portraitStorage } from "@/lib/storage"
 import { rateLimiter } from "@/lib/rate-limit"
 import { localAnimalDetection } from "@/lib/animal-detection"
+import { UTApi, UTFile } from "uploadthing/server"
 
 // Configure API route for long-running operations
 export const runtime = 'nodejs'
@@ -191,38 +192,35 @@ export async function POST(request: NextRequest) {
         portraitId = portrait.id
       }
 
-      // Upload generated image to Uploadthing for public URL
+      // Upload to Uploadthing for public URL (needed for video generation)
       let publicImageUrl = aiResult.imageUrl
+      
       try {
         if (aiResult.imageUrl.startsWith('data:image/')) {
-          // Convert base64 to blob and upload
+          // Convert base64 to buffer for upload
           const base64Data = aiResult.imageUrl.split(',')[1]
           const imageBuffer = Buffer.from(base64Data, 'base64')
           
-          // Create a form for upload
-          const uploadFormData = new FormData()
-          const blob = new Blob([imageBuffer], { type: 'image/jpeg' })
-          uploadFormData.append('files', blob, `generated-${Date.now()}.jpg`)
-          
-          // Upload to Uploadthing
-          const baseUrl = process.env.NODE_ENV === 'production' 
-            ? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://puppydiary-production.up.railway.app')
-            : 'http://localhost:3000'
-          const uploadResponse = await fetch(`${baseUrl}/api/uploadthing`, {
-            method: 'POST',
-            body: uploadFormData,
+          // Create a UTFile from buffer
+          const fileName = `pet-portrait-${Date.now()}.jpg`
+          const file = new UTFile([imageBuffer], fileName, {
+            type: 'image/jpeg'
           })
           
-          if (uploadResponse.ok) {
-            const uploadResult = await uploadResponse.json()
-            if (uploadResult?.[0]?.url) {
-              publicImageUrl = uploadResult[0].url
-              console.log('✅ Uploaded to cloud storage:', publicImageUrl)
-            }
+          // Use UTApi for server-side upload
+          const utapi = new UTApi()
+          const uploadResponse = await utapi.uploadFiles([file])
+          
+          if (uploadResponse && uploadResponse.length > 0 && uploadResponse[0].data?.url) {
+            publicImageUrl = uploadResponse[0].data.url
+            console.log('✅ Uploaded to Uploadthing:', publicImageUrl)
+          } else {
+            console.log('⚠️ Upload response missing URL, using base64')
           }
         }
       } catch (uploadError) {
-        console.log('⚠️ Cloud upload failed, using base64:', uploadError)
+        console.error('⚠️ Uploadthing upload failed:', uploadError)
+        // Fall back to base64 if upload fails
       }
 
       return NextResponse.json({
@@ -232,7 +230,7 @@ export async function POST(request: NextRequest) {
         saved: !!userId,
         generationTime: aiResult.generationTime,
         localAI: true,
-        cloudUrl: publicImageUrl !== aiResult.imageUrl
+        isCloudUrl: !publicImageUrl.startsWith('data:')
       })
       
     } catch (aiError) {

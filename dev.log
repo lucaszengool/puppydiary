@@ -713,3 +713,82 @@ For additional information about middleware, please visit https://clerk.com/docs
  ✓ Compiled /_not-found in 1348ms (1379 modules)
  GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1793ms
  ✓ Compiled in 372ms (293 modules)
+ GET / 200 in 542ms
+ GET / 200 in 79ms
+ ○ Compiling /api/generate ...
+ ✓ Compiled /api/generate in 1247ms (745 modules)
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 12.9s
+ ○ Compiling /api/uploadthing ...
+ ✓ Compiled /api/uploadthing in 5.3s (1172 modules)
+[41m[30m ⨯ UPLOADTHING 12:58:30 [0m [
+[41m[30m ⨯ UPLOADTHING 12:58:30 [0m     "No slug provided in params:",
+[41m[30m ⨯ UPLOADTHING 12:58:30 [0m     {}
+[41m[30m ⨯ UPLOADTHING 12:58:30 [0m ]
+[41m[30m ⨯ UPLOADTHING 12:58:30 [0m No slug provided in params
+ POST /api/uploadthing 400 in 6286ms
+ POST /api/generate 200 in 20877ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG100.jpg 145133 image/jpeg
+Image buffer size: 145133
+Optimized buffer size: 94405
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 10.4s
+[41m[30m ⨯ UPLOADTHING 12:58:57 [0m [
+[41m[30m ⨯ UPLOADTHING 12:58:57 [0m     "No slug provided in params:",
+[41m[30m ⨯ UPLOADTHING 12:58:57 [0m     {}
+[41m[30m ⨯ UPLOADTHING 12:58:57 [0m ]
+[41m[30m ⨯ UPLOADTHING 12:58:57 [0m No slug provided in params
+ POST /api/uploadthing 400 in 41ms
+ POST /api/generate 200 in 10752ms
+🔍 Checking AI backend at: http://localhost:8003/health
+📊 Health check response: 200 OK
+✅ Local AI backend is ready: { status: 'healthy', models_loaded: true, provider: '豆包 (Doubao)' }
+Processing image: WechatIMG14.jpg 190314 image/jpeg
+Image buffer size: 190314
+Optimized buffer size: 149375
+🔍 Quick pet detection with local models...
+✅ Local pet detection result: pet detected - generating PopMart figure
+🎨 Starting PopMart figure generation with local AI...
+🚀 Starting FLUX generation request...
+✅ Local AI generation successful in 11.8s
+[41m[30m ⨯ UPLOADTHING 12:59:32 [0m [
+[41m[30m ⨯ UPLOADTHING 12:59:32 [0m     "No slug provided in params:",
+[41m[30m ⨯ UPLOADTHING 12:59:32 [0m     {}
+[41m[30m ⨯ UPLOADTHING 12:59:32 [0m ]
+[41m[30m ⨯ UPLOADTHING 12:59:32 [0m No slug provided in params
+ POST /api/uploadthing 400 in 51ms
+ POST /api/generate 200 in 12434ms
+ ○ Compiling /api/generate-video ...
+ ✓ Compiled /api/generate-video in 1037ms (1174 modules)
+ POST /api/generate-video 503 in 1269ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1550ms (1816 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1873ms
+ GET /client.js.map 404 in 169ms
+ ✓ Compiled in 14.4s (1390 modules)
+ GET /create?_rsc=1ww0j 200 in 897ms
+ GET /?_rsc=r3yhw 200 in 913ms
+ ✓ Compiled in 5s (653 modules)
+ GET /create?_rsc=4ph3u 200 in 258ms
+ GET /?_rsc=r3yhw 200 in 272ms
+ ✓ Compiled in 7.6s (653 modules)
+ GET /create?_rsc=4ph3u 200 in 496ms
+ GET /?_rsc=r3yhw 200 in 543ms
+ ✓ Compiled in 5.3s (653 modules)
+ GET /create?_rsc=4ph3u 200 in 539ms
+ GET /?_rsc=r3yhw 200 in 599ms
