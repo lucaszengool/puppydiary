@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import torch
@@ -130,6 +130,50 @@ def detect_pose(image: Image.Image) -> Image.Image:
         # Return a blank pose image if detection fails
         return Image.new('RGB', image.size, (0, 0, 0))
 
+def generate_styled_image(prompt: str, pose_image: Optional[Image.Image] = None, style: str = "default") -> Image.Image:
+    """Generate image with specific art style"""
+    
+    # Style-specific prompt enhancements
+    style_enhancements = {
+        "oil_painting": "oil painting, classical art, renaissance style, rich textures, detailed brushwork",
+        "watercolor": "watercolor painting, soft washes, delicate brushstrokes, artistic illustration",
+        "anime": "anime art style, Studio Ghibli inspired, hand-drawn animation, soft colors",
+        "cartoon": "3D cartoon style, Disney Pixar animation, smooth surfaces, vibrant lighting",
+        "photography": "vintage photography style, film grain, warm lighting, nostalgic mood",
+        "minimalist": "minimalist art style, clean composition, simple forms, modern design"
+    }
+    
+    enhancement = style_enhancements.get(style, "")
+    enhanced_prompt = f"{prompt}, {enhancement}" if enhancement else prompt
+    
+    logger.info(f"Generating {style} style image with prompt: {enhanced_prompt[:100]}...")
+    
+    try:
+        if pose_image is not None and controlnet_pipeline is not None:
+            # Use ControlNet for pose-guided generation
+            result = controlnet_pipeline(
+                prompt=enhanced_prompt,
+                image=pose_image,
+                num_inference_steps=20,
+                guidance_scale=7.5,
+                controlnet_conditioning_scale=1.0
+            ).images[0]
+        else:
+            # Use regular pipeline
+            result = pipeline(
+                prompt=enhanced_prompt,
+                num_inference_steps=20,
+                guidance_scale=7.5
+            ).images[0]
+            
+        logger.info(f"Successfully generated {style} style image")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error generating {style} style image: {e}")
+        # Fallback to a simple colored image
+        return Image.new('RGB', (512, 512), (200, 200, 200))
+
 def generate_popmart_image(prompt: str, pose_image: Optional[Image.Image] = None) -> Image.Image:
     """Generate PopMart-style image"""
     
@@ -199,9 +243,19 @@ async def health_check():
 @app.post("/generate")
 async def generate_pet_portrait(
     image: UploadFile = File(...),
-    style: str = "sleeping_popmart_poodle"
+    style: str = Form("sleeping_popmart_poodle"),
+    art_style: str = Form("popmart"),
+    cuteness_level: str = Form("high"), 
+    color_palette: str = Form("vibrant"),
+    prompt: str = Form(None)
 ):
-    """Generate PopMart-style pet portrait"""
+    """Generate pet portrait with various art styles"""
+    
+    logger.info(f"🎨 Received generation request:")
+    logger.info(f"   art_style: {art_style}")
+    logger.info(f"   cuteness_level: {cuteness_level}")
+    logger.info(f"   color_palette: {color_palette}")
+    logger.info(f"   prompt: {prompt[:50] if prompt else 'None'}...")
     
     if not ai_models.models_loaded:
         raise HTTPException(status_code=503, detail="AI models are still loading. Please wait...")
@@ -223,16 +277,51 @@ async def generate_pet_portrait(
             # Detect pose from input image
             pose_image = detect_pose(input_image)
             
-            # Generate based on style
-            if style == "sleeping_popmart_poodle":
-                prompt = "adorable small poodle dog curled up sleeping, reddish brown curly fur, peaceful expression"
-            elif style == "sitting_popmart_cat":
-                prompt = "cute cat sitting upright, fluffy fur, sweet expression"
+            # Use custom prompt if provided, otherwise generate based on art_style
+            if prompt:
+                final_prompt = prompt
             else:
-                prompt = "adorable pet, cute and cuddly"
+                # Generate style-specific prompt
+                base_prompt = "adorable pet, cute and cuddly"
+                
+                # Add art style modifiers
+                style_modifiers = {
+                    "oil_painting": "classical oil painting style, rich paint texture, masterpiece",
+                    "watercolor": "watercolor painting, soft brushstrokes, delicate colors",
+                    "anime": "anime illustration style, Studio Ghibli inspired",
+                    "cartoon": "Disney Pixar 3D animation style, vibrant colors",
+                    "photography": "vintage photography style, warm tones, film grain",
+                    "minimalist": "modern minimalist art style, clean lines, simple composition"
+                }
+                
+                # Add cuteness level modifiers
+                cuteness_modifiers = {
+                    "maximum": "extremely cute, kawaii, adorable",
+                    "high": "very cute, charming",
+                    "medium": "pleasant, appealing"
+                }
+                
+                # Add color palette modifiers
+                color_modifiers = {
+                    "warm": "warm colors, golden tones",
+                    "pastel": "soft pastel colors",
+                    "vibrant": "vibrant saturated colors",
+                    "soft": "soft muted colors",
+                    "sepia": "sepia tones, vintage colors",
+                    "clean": "clean neutral colors"
+                }
+                
+                final_prompt = f"{base_prompt}, {style_modifiers.get(art_style, '')}, {cuteness_modifiers.get(cuteness_level, '')}, {color_modifiers.get(color_palette, '')}"
             
-            # Generate PopMart-style image
-            generated_image = generate_popmart_image(prompt, pose_image)
+            # Generate image with appropriate style
+            if art_style == "oil_painting":
+                generated_image = generate_styled_image(final_prompt, pose_image, "oil_painting")
+            elif art_style in ["anime", "cartoon", "watercolor", "photography", "minimalist"]:
+                generated_image = generate_styled_image(final_prompt, pose_image, art_style)
+            else:
+                # Fallback to PopMart style for unknown styles
+                generated_image = generate_popmart_image(final_prompt, pose_image)
+            
             return generated_image, pose_image
         
         start_time = time.time()

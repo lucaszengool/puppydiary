@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Style Parameter Verification</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .style-test { margin: 15px 0; padding: 10px; border: 1px solid #ddd; }
+        .params { background: #f5f5f5; padding: 5px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h2>🎨 Frontend Style Parameter Mapping Test</h2>
+    <p>This page simulates the frontend style parameter mapping logic:</p>
+    
+    <div id="results"></div>
+    
+    <script>
+        // Copy the exact logic from create page
+        function getStyleParameters(styleId) {
+            let artStyle = "anime"
+            let colorPalette = "pastel" 
+            let cutenessLevel = "maximum"
+            
+            switch(styleId) {
+                case 'ghibli':
+                    artStyle = "anime"
+                    colorPalette = "pastel"
+                    cutenessLevel = "maximum"
+                    break
+                case 'disney':
+                    artStyle = "cartoon"
+                    colorPalette = "vibrant"
+                    cutenessLevel = "maximum"
+                    break
+                case 'realistic':
+                    artStyle = "oil_painting"
+                    colorPalette = "warm"
+                    cutenessLevel = "medium"
+                    break
+                case 'watercolor':
+                    artStyle = "watercolor"
+                    colorPalette = "soft"
+                    cutenessLevel = "high"
+                    break
+                case 'vintage':
+                    artStyle = "photography"
+                    colorPalette = "sepia"
+                    cutenessLevel = "medium"
+                    break
+                case 'modern':
+                    artStyle = "minimalist"
+                    colorPalette = "clean"
+                    cutenessLevel = "medium"
+                    break
+            }
+            
+            return { artStyle, colorPalette, cutenessLevel }
+        }
+        
+        const styles = [
+            { id: 'ghibli', label: '宫崎骏动漫' },
+            { id: 'disney', label: '迪士尼卡通' },
+            { id: 'realistic', label: '古典油画' },
+            { id: 'watercolor', label: '水彩插画' },
+            { id: 'vintage', label: '复古怀旧' },
+            { id: 'modern', label: '现代简约' }
+        ];
+        
+        const resultsDiv = document.getElementById('results');
+        
+        styles.forEach(style => {
+            const params = getStyleParameters(style.id);
+            
+            const div = document.createElement('div');
+            div.className = 'style-test';
+            div.innerHTML = `
+                <strong>${style.label} (${style.id})</strong>
+                <div class="params">
+                    art_style: ${params.artStyle}<br>
+                    color_palette: ${params.colorPalette}<br>
+                    cuteness_level: ${params.cutenessLevel}
+                </div>
+            `;
+            resultsDiv.appendChild(div);
+        });
+    </script>
+</body>
+</html>
