@@ -26,7 +26,14 @@ app = FastAPI(title="Pepmart AI Backend", version="1.0.0")
 # CORS middleware for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://localhost:3001",
+        "https://puppydiary-production.up.railway.app",
+        "https://petpoofficial.org",
+        "https://gleaming-truth-production.up.railway.app",
+        "*"  # Allow all origins for testing
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
