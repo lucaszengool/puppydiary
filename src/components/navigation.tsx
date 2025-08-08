@@ -17,7 +17,7 @@ export function Navigation() {
             </div>
             <div>
               <span className="text-xl font-bold text-neutral-900">
-                小狗日记
+                Petpo
               </span>
               <div className="text-xs text-neutral-500">AI宠物漫画</div>
             </div>

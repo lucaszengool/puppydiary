@@ -17,7 +17,7 @@ export default function Page() {
           </div>
           <div>
             <span className="text-3xl font-bold text-forest-dark handwriting">
-              小狗日记
+              Petpo
             </span>
           </div>
         </Link>

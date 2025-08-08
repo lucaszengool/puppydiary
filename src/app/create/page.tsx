@@ -522,9 +522,11 @@ export default function CreatePage() {
       
       if (result.success && result.videoUrl) {
         console.log("🎥 [VLOG DEBUG] Video generation successful!")
+        console.log("🔗 [VLOG DEBUG] Setting video URL:", result.videoUrl)
         setVideoUrl(result.videoUrl)
         setVideoTaskId(result.taskId)
         setShowVideoOption(true)
+        console.log("🎥 [VLOG DEBUG] Video state updated - modal should appear")
         
         toast({
           title: "Vlog制作完成！",
@@ -931,40 +933,6 @@ export default function CreatePage() {
             </div>
           )}
 
-          {/* Video Modal */}
-          {videoUrl && (
-            <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-sm p-6 max-w-2xl w-full">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">艺术视频</h3>
-                  <button
-                    onClick={() => setVideoUrl(null)}
-                    className="text-gray-400 hover:text-black transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <video
-                  controls
-                  autoPlay
-                  className="w-full rounded-sm mb-4"
-                  poster={savedImages[0]}
-                >
-                  <source src={videoUrl} type="video/mp4" />
-                </video>
-                <div className="flex justify-center">
-                  <a
-                    href={videoUrl}
-                    download={`pet-art-video-${Date.now()}.mp4`}
-                    className="vsco-btn"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    下载视频
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Publish Dialog */}
           {showPublishDialog && (editedImage || generatedImage) && (
@@ -1816,6 +1784,61 @@ export default function CreatePage() {
                   className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition-colors disabled:opacity-50"
                 >
                   {videoGenerating ? '制作中...' : '制作'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Global Video Modal */}
+        {videoUrl && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-[9999] flex items-center justify-center p-4">
+            <div className="bg-white rounded-sm p-6 max-w-2xl w-full max-h-[90vh] overflow-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">艺术视频</h3>
+                <button
+                  onClick={() => {
+                    console.log("📺 [VLOG DEBUG] Closing video modal")
+                    setVideoUrl(null)
+                  }}
+                  className="text-gray-400 hover:text-black transition-colors text-2xl font-bold p-2"
+                >
+                  ×
+                </button>
+              </div>
+              <video
+                controls
+                autoPlay
+                className="w-full rounded-sm mb-4"
+                poster={savedImages[0]}
+                onLoadStart={() => console.log("📺 [VLOG DEBUG] Video loading started")}
+                onError={(e) => console.error("📺 [VLOG DEBUG] Video error:", e)}
+              >
+                <source src={videoUrl} type="video/mp4" />
+                您的浏览器不支持视频标签。
+              </video>
+              <div className="flex justify-center space-x-4">
+                <a
+                  href={videoUrl}
+                  download={`pet-art-video-${Date.now()}.mp4`}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded transition-colors flex items-center space-x-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>下载视频</span>
+                </a>
+                <button
+                  onClick={() => {
+                    console.log("📺 [VLOG DEBUG] Share button clicked")
+                    if (navigator.share) {
+                      navigator.share({
+                        title: '我的宠物艺术 Vlog',
+                        url: videoUrl
+                      })
+                    }
+                  }}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded transition-colors"
+                >
+                  分享
                 </button>
               </div>
             </div>
