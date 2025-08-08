@@ -101,21 +101,21 @@ export default function CreatePage() {
       icon: Heart, 
       label: '宫崎骏动漫', 
       description: '温暖治愈的手绘风格',
-      prompt: 'Studio Ghibli style anime illustration, 宫崎骏风格动漫插画, hand-drawn 2D animation, soft watercolor technique, warm pastel color palette, gentle magical atmosphere, detailed character design with large expressive eyes, rounded cute features, soft shading, whimsical charm, preserve exact pose and facial expression, maintain all original fur patterns and markings, keep identical body proportions, same eye color and shape, 高质量手绘动漫风格, masterpiece quality'
+      prompt: 'Studio Ghibli style anime illustration, 宫崎骏风格动漫插画, hand-drawn 2D animation, soft watercolor technique, warm pastel color palette, gentle magical atmosphere, detailed character design with large expressive eyes, rounded cute features, soft shading, whimsical charm, preserve original background and setting, preserve exact pose and facial expression, maintain all original fur patterns and markings, keep identical body proportions, same eye color and shape, 高质量手绘动漫风格, masterpiece quality'
     },
     { 
       id: 'disney', 
       icon: Sparkles, 
       label: '迪士尼卡通', 
       description: '可爱生动的卡通风格',
-      prompt: 'Disney Pixar 3D animation style, 迪士尼风格卡通, high-quality 3D rendering, vibrant saturated colors, smooth clean surfaces, cute anthropomorphic design, large expressive cartoon eyes, exaggerated cute features, professional CGI quality, Pixar-style lighting and shading, maintain exact pose and expression, preserve all distinctive markings and patterns, identical proportions, same eye color, 精美卡通风格, animation masterpiece'
+      prompt: 'Disney Pixar 3D animation style, 迪士尼风格卡通, high-quality 3D rendering, vibrant saturated colors, smooth clean surfaces, cute anthropomorphic design, large expressive cartoon eyes, exaggerated cute features, professional CGI quality, Pixar-style lighting and shading, preserve original background and environment, maintain exact pose and expression, preserve all distinctive markings and patterns, identical proportions, same eye color, 精美卡通风格, animation masterpiece'
     },
     { 
       id: 'realistic', 
       icon: Camera, 
-      label: '印象派油画', 
-      description: '浪漫印象派绘画风格',  
-      prompt: 'French Impressionist oil painting, 印象派油画风格, Monet-inspired brushwork, thick impasto paint texture, visible expressive brushstrokes, dappled natural lighting, warm golden hour colors, soft atmospheric effects, post-impressionist technique, plein air painting style, artistic loose brushwork, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 印象派大师风格, oil painting masterpiece'
+      label: '古典油画', 
+      description: '经典写实油画风格',  
+      prompt: 'Classical oil painting, 古典写实油画风格, Renaissance-style portraiture, rich oil paint texture, detailed realistic brushwork, dramatic chiaroscuro lighting, deep warm colors, traditional oil painting technique, museum-quality artwork, baroque painting style, detailed realistic rendering, classical composition, preserve original background with oil painting treatment, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 古典大师油画风格, masterpiece oil painting'
     },
     { 
       id: 'watercolor', 
@@ -129,14 +129,14 @@ export default function CreatePage() {
       icon: Sun, 
       label: '复古怀旧', 
       description: '温暖的复古摄影风格',
-      prompt: 'vintage portrait photography, 复古摄影风格, retro 1950s aesthetic, warm sepia and amber tones, soft film grain texture, classic portrait lighting, nostalgic warm filter, aged photograph look, golden hour lighting, vintage color grading, old-fashioned charm, maintain exact pose and facial expression, preserve all distinctive features and markings, identical proportions, same eye detail, 复古摄影大师风格, timeless portrait quality'
+      prompt: 'vintage portrait photography, 复古摄影风格, retro 1950s aesthetic, warm sepia and amber tones, soft film grain texture, classic portrait lighting, nostalgic warm filter, aged photograph look, golden hour lighting, vintage color grading, old-fashioned charm, preserve original background with vintage treatment, maintain exact pose and facial expression, preserve all distinctive features and markings, identical proportions, same eye detail, 复古摄影大师风格, timeless portrait quality'
     },
     { 
       id: 'modern', 
       icon: Wand2, 
       label: '现代简约', 
       description: '简约现代的艺术风格',
-      prompt: 'modern minimalist art style, 现代简约风格, contemporary digital illustration, clean geometric lines, simplified color palette, minimalist design principles, modern graphic design, stylized vector art, clean composition, modern art aesthetic, sophisticated simplicity, preserve exact facial structure and expression, maintain all distinctive features, identical pose and proportions, same characteristic details, 现代艺术风格, contemporary masterpiece'
+      prompt: 'modern minimalist art style, 现代简约风格, contemporary digital illustration, clean geometric lines, simplified color palette, minimalist design principles, modern graphic design, stylized vector art, clean composition, modern art aesthetic, sophisticated simplicity, preserve original background with minimalist treatment, preserve exact facial structure and expression, maintain all distinctive features, identical pose and proportions, same characteristic details, 现代艺术风格, contemporary masterpiece'
     },
   ]
 
@@ -1799,8 +1799,19 @@ export default function CreatePage() {
       {/* VSCO Mobile-Style Layout - Show only on mobile when image is generated */}
       {generatedImage && (
         <div className="md:hidden fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden">
-              {/* Header with reset button */}
-              <div className="absolute top-4 right-4 z-50">
+              {/* Header with bones counter and reset button */}
+              <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-50">
+                {/* Bones counter */}
+                {userId && (
+                  <div className="flex items-center space-x-1 px-3 py-2 bg-white/70 backdrop-blur-md rounded-full border border-gray-200/50">
+                    <BoneIcon className="w-4 h-4 text-yellow-600" />
+                    <span className="text-sm font-medium text-yellow-700">
+                      {loadingBones ? '...' : userBones}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Reset button */}
                 <button
                   onClick={handleReset}
                   className="w-10 h-10 rounded-full bg-white/70 backdrop-blur-md flex items-center justify-center border border-gray-200/50 hover:bg-white/80 transition-all shadow-sm"
