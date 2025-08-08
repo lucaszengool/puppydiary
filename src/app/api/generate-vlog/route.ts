@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       console.log("🔍 [VLOG API DEBUG] Image validation results:", {
         hasValidUrls,
         imageCount: imageUrls.length,
-        imageDetails: imageUrls.map((url, i) => ({
+        imageDetails: imageUrls.map((url: string, i: number) => ({
           index: i,
           isHttp: url.startsWith('http'),
           isData: url.startsWith('data:'),
