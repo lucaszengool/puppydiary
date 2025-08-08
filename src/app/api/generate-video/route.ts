@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
 
 // Specify Node.js runtime to avoid Edge Runtime issues
 export const runtime = 'nodejs'
@@ -23,10 +23,21 @@ export async function POST(req: NextRequest) {
     // 从环境变量获取API密钥 - 视频生成使用专门的ARK_API_KEY
     const ARK_API_KEY = process.env.ARK_API_KEY || ""
     
+    console.log('🔑 [VIDEO API DEBUG] ARK_API_KEY status:', {
+      hasKey: !!ARK_API_KEY,
+      isPlaceholder: ARK_API_KEY === "your-ark-api-key-here",
+      keyLength: ARK_API_KEY?.length || 0,
+      keyPreview: ARK_API_KEY?.substring(0, 10) + '...'
+    })
+    
     if (!ARK_API_KEY || ARK_API_KEY === "your-ark-api-key-here") {
       return NextResponse.json({ 
         error: '视频生成服务未配置', 
-        details: '需要在环境变量中配置有效的ARK_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。'
+        details: '需要在环境变量中配置有效的ARK_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。',
+        debug: {
+          hasKey: !!ARK_API_KEY,
+          isPlaceholder: ARK_API_KEY === "your-ark-api-key-here"
+        }
       }, { status: 503 })
     }
 
@@ -46,7 +57,7 @@ export async function POST(req: NextRequest) {
     console.log('Using first image:', images[0])
     
     const requestBody = {
-      model: 'doubao-seedance-1-0-pro-250528', // 使用正确的模型ID
+      model: 'seedance-1-0-lite-i2v-250428', // 使用正确的Seedance模型ID
       content: [
         {
           type: 'text',
@@ -63,7 +74,14 @@ export async function POST(req: NextRequest) {
     
     console.log('Request body:', JSON.stringify(requestBody, null, 2))
     
-    const createResponse = await fetch('https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks', {
+    console.log('🎬 [VIDEO API DEBUG] Making request to Volcengine:', {
+      endpoint: 'https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks',
+      model: requestBody.model,
+      hasAuthHeader: !!ARK_API_KEY,
+      imageUrl: images[0]?.substring(0, 100) + '...'
+    })
+    
+    const createResponse = await fetch('https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -74,15 +92,30 @@ export async function POST(req: NextRequest) {
 
     if (!createResponse.ok) {
       const errorText = await createResponse.text()
-      console.error('Video generation error:', createResponse.status, errorText)
+      console.error('🚨 [VIDEO API DEBUG] Video generation error:', {
+        status: createResponse.status,
+        statusText: createResponse.statusText,
+        errorText,
+        headers: Object.fromEntries(createResponse.headers.entries())
+      })
       return NextResponse.json({ 
         error: `视频生成请求失败: ${createResponse.status}`, 
-        details: errorText 
+        details: errorText,
+        debug: {
+          status: createResponse.status,
+          statusText: createResponse.statusText,
+          endpoint: 'https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks',
+          model: 'seedance-1-0-lite-i2v-250428'
+        }
       }, { status: createResponse.status })
     }
 
     const createResult = await createResponse.json()
-    console.log('Video creation result:', createResult)
+    console.log('✅ [VIDEO API DEBUG] Video creation result:', {
+      hasId: !!createResult.id,
+      status: createResult.status,
+      fullResponse: createResult
+    })
     
     const taskId = createResult.id
 
@@ -118,11 +151,15 @@ export async function GET(req: NextRequest) {
     if (!ARK_API_KEY || ARK_API_KEY === "your-ark-api-key-here") {
       return NextResponse.json({ 
         error: '视频生成服务未配置', 
-        details: '需要在环境变量中配置有效的ARK_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。'
+        details: '需要在环境变量中配置有效的ARK_API_KEY才能使用视频生成功能。请联系管理员配置火山引擎API密钥。',
+        debug: {
+          hasKey: !!ARK_API_KEY,
+          isPlaceholder: ARK_API_KEY === "your-ark-api-key-here"
+        }
       }, { status: 503 })
     }
 
-    const response = await fetch(`https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks/${taskId}`, {
+    const response = await fetch(`https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/${taskId}`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${ARK_API_KEY}`,
