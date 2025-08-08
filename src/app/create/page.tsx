@@ -26,8 +26,12 @@ import {
   Plus,
   ArrowLeft,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  Share2,
+  Video,
+  Copy
 } from "lucide-react"
+import BoneIcon from "@/components/BoneIcon"
 import Link from "next/link"
 import './vsco-style.css'
 
@@ -85,6 +89,10 @@ export default function CreatePage() {
   const [publishLoading, setPublishLoading] = useState(false)
   const [showImagePreview, setShowImagePreview] = useState(false)
   const [previewImageUrl, setPreviewImageUrl] = useState<string>("")
+  
+  // Bones system state
+  const [userBones, setUserBones] = useState<number>(0)
+  const [loadingBones, setLoadingBones] = useState(false)
 
   // 主要艺术风格选项
   const mainStyleOptions = [
@@ -192,6 +200,28 @@ export default function CreatePage() {
       setStateRestored(true)
     }
   }, [userId, stateRestored]) 
+
+  // Fetch user bones when logged in
+  useEffect(() => {
+    const fetchUserBones = async () => {
+      if (!userId) return
+      
+      setLoadingBones(true)
+      try {
+        const response = await fetch('/api/bones')
+        if (response.ok) {
+          const data = await response.json()
+          setUserBones(data.bones || 0)
+        }
+      } catch (error) {
+        console.error('Error fetching bones:', error)
+      } finally {
+        setLoadingBones(false)
+      }
+    }
+    
+    fetchUserBones()
+  }, [userId])
 
   const handleFileSelect = async (file: File) => {
     console.log("handleFileSelect called with:", file ? file.name : "no file")
@@ -516,6 +546,162 @@ export default function CreatePage() {
     // Timeout
     console.error("⏰ [VLOG DEBUG] Task polling timeout")
     throw new Error("Video generation timeout - please try again")
+  }
+
+  // Share single image
+  const handleShareImage = async (imageUrl: string) => {
+    if (!userId) {
+      toast({
+        title: "需要登录",
+        description: "请先登录以分享作品",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrl,
+          title: `${selectedStyle?.label || '艺术'}风格宠物肖像`,
+          style: selectedStyle?.label || '艺术',
+          description: `由AI生成的专属宠物艺术肖像`
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('分享失败')
+      }
+
+      const data = await response.json()
+      
+      // Copy share link to clipboard
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(data.shareLink)
+      }
+
+      toast({
+        title: "分享成功！",
+        description: data.boneReward.awarded 
+          ? `分享链接已复制！获得1个骨头奖励 🦴 (${data.boneReward.bones}个)`
+          : `分享链接已复制！今日骨头奖励已获取`,
+      })
+
+      // Update bones count if rewarded
+      if (data.boneReward.awarded) {
+        setUserBones(data.boneReward.bones)
+      }
+    } catch (error) {
+      console.error('Share error:', error)
+      toast({
+        title: "分享失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Generate video for single image (requires bones)
+  const handleSingleVideoGeneration = async (imageUrl: string) => {
+    if (!userId) {
+      toast({
+        title: "需要登录",
+        description: "请先登录以生成视频",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check if user has enough bones
+    if (userBones < 1) {
+      toast({
+        title: "骨头不足 🦴",
+        description: "生成视频需要消耗1个骨头。通过分享作品可获得骨头奖励！",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      // Consume bones first
+      const bonesResponse = await fetch('/api/bones', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'consume',
+          amount: 1
+        })
+      })
+
+      if (!bonesResponse.ok) {
+        const errorData = await bonesResponse.json()
+        if (errorData.code === 'INSUFFICIENT_BONES') {
+          toast({
+            title: "骨头不足 🦴",
+            description: "生成视频需要消耗1个骨头",
+            variant: "destructive",
+          })
+          return
+        }
+        throw new Error('骨头消耗失败')
+      }
+
+      const bonesData = await bonesResponse.json()
+      setUserBones(bonesData.bones) // Update bones count
+
+      // Generate video
+      setVideoGenerating(true)
+      const videoResponse = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          images: [imageUrl],
+          prompt: `${selectedStyle?.label || '艺术'} style pet portrait video with gentle transitions`
+        })
+      })
+
+      if (!videoResponse.ok) {
+        throw new Error('视频生成失败')
+      }
+
+      const videoData = await videoResponse.json()
+      
+      if (videoData.taskId) {
+        toast({
+          title: "视频生成中...",
+          description: "视频正在生成，请稍候片刻 🎬",
+        })
+        
+        // Poll for completion
+        await pollVideoTaskStatus(videoData.taskId)
+      } else if (videoData.videoUrl) {
+        setVideoUrl(videoData.videoUrl)
+        setVideoTaskId(videoData.taskId)
+        
+        toast({
+          title: "视频生成完成！",
+          description: "您的专属宠物视频已准备就绪 🎥",
+        })
+      }
+
+    } catch (error) {
+      console.error('Single video generation error:', error)
+      toast({
+        title: "视频生成失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      })
+    } finally {
+      setVideoGenerating(false)
+    }
   }
 
   const handleGenerateVlog = async () => {
@@ -949,6 +1135,14 @@ export default function CreatePage() {
             <Link href="/gallery" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
               作品集
             </Link>
+            {userId && (
+              <div className="flex items-center space-x-1 px-2 py-1 bg-yellow-50 rounded-full border border-yellow-200">
+                <BoneIcon className="w-4 h-4 text-yellow-600" />
+                <span className="text-sm font-medium text-yellow-700">
+                  {loadingBones ? '...' : userBones}
+                </span>
+              </div>
+            )}
             <span className="hidden md:inline text-sm text-gray-500">
               {selectedStyle ? selectedStyle.label : '选择风格'}
             </span>
@@ -981,9 +1175,19 @@ export default function CreatePage() {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-100">
             <h1 className="text-lg font-light">PETPO</h1>
-            <Link href="/gallery" className="text-sm text-gray-600">
-              作品集
-            </Link>
+            <div className="flex items-center space-x-3">
+              {userId && (
+                <div className="flex items-center space-x-1 px-2 py-1 bg-yellow-50 rounded-full border border-yellow-200">
+                  <BoneIcon className="w-4 h-4 text-yellow-600" />
+                  <span className="text-sm font-medium text-yellow-700">
+                    {loadingBones ? '...' : userBones}
+                  </span>
+                </div>
+              )}
+              <Link href="/gallery" className="text-sm text-gray-600">
+                作品集
+              </Link>
+            </div>
           </div>
 
           {/* Saved Images Gallery - Desktop only */}
@@ -1436,6 +1640,33 @@ export default function CreatePage() {
               <div className="absolute bottom-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
                 {savedImages.length + 1}/3
               </div>
+              
+              {/* Action buttons overlay */}
+              <div className="absolute bottom-4 left-4 flex space-x-2">
+                <button
+                  onClick={() => handleShareImage(editedImage || generatedImage!)}
+                  className="flex items-center px-3 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
+                  title="分享图片获得骨头"
+                >
+                  <Share2 className="w-4 h-4 mr-1" />
+                  分享
+                </button>
+                <button
+                  onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
+                  disabled={videoGenerating || userBones < 1}
+                  className="flex items-center px-3 py-2 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={userBones < 1 ? "需要1个骨头" : "生成视频"}
+                >
+                  <Video className="w-4 h-4 mr-1" />
+                  {videoGenerating ? '生成中...' : '视频'}
+                  {!videoGenerating && (
+                    <div className="flex items-center ml-1">
+                      <BoneIcon className="w-3 h-3 text-white/80" />
+                      <span className="text-xs ml-0.5">1</span>
+                    </div>
+                  )}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1478,6 +1709,33 @@ export default function CreatePage() {
                       }}
                     />
                   </div>
+                </div>
+                
+                {/* Mobile Action Buttons - Bottom Overlay */}
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between">
+                  <button
+                    onClick={() => handleShareImage(editedImage || generatedImage!)}
+                    className="flex items-center px-4 py-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
+                    title="分享图片获得骨头"
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    分享获得骨头
+                  </button>
+                  <button
+                    onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
+                    disabled={videoGenerating || userBones < 1}
+                    className="flex items-center px-4 py-3 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={userBones < 1 ? "需要1个骨头" : "生成视频"}
+                  >
+                    <Video className="w-4 h-4 mr-2" />
+                    {videoGenerating ? '生成中...' : '生成视频'}
+                    {!videoGenerating && (
+                      <div className="flex items-center ml-2">
+                        <BoneIcon className="w-3 h-3 text-white/80" />
+                        <span className="text-xs ml-1">1</span>
+                      </div>
+                    )}
+                  </button>
                 </div>
               </div>
 
