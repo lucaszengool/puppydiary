@@ -132,7 +132,8 @@ Authorization: Bearer ${ARK_API_KEY}
 ## 完成后的期待结果 / Expected Results After Fix
 
 - ✅ 视频生成API将正常工作
-- ✅ 用户可以从3张图片创建视频
+- 
+✅ 用户可以从3张图片创建视频
 - ✅ 详细的调试日志帮助监控状态
 - ✅ 错误处理提供清晰的问题描述
 

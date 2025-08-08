@@ -11,7 +11,7 @@ export const runtime = 'nodejs'
 export const maxDuration = 900 // 15 minutes
 
 // Local AI Backend Configuration
-const AI_BACKEND_URL = process.env.AI_BACKEND_URL || "http://localhost:8003"
+const AI_BACKEND_URL = process.env.AI_BACKEND_URL || "http://localhost:8000"
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
@@ -81,6 +81,15 @@ export async function POST(request: NextRequest) {
     const cutenessLevel = formData.get("cuteness_level") as string || "high"
     const colorPalette = formData.get("color_palette") as string || "vibrant"
     
+    console.log("🔍 [API RECEIVE] Received parameters:", {
+      art_style: artStyle,
+      cuteness_level: cutenessLevel,  
+      color_palette: colorPalette,
+      prompt_length: customPrompt?.length || 0,
+      has_image: !!image,
+      all_form_keys: Array.from(formData.keys())
+    })
+    
     if (!image) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 })
     }
@@ -149,16 +158,37 @@ export async function POST(request: NextRequest) {
       aiFormData.append('cuteness_level', cutenessLevel)
       aiFormData.append('color_palette', colorPalette)
       
+      console.log("📤 [SENDING TO AI] Parameters being sent to AI backend:", {
+        art_style: artStyle,
+        cuteness_level: cutenessLevel,
+        color_palette: colorPalette,
+        style: 'sleeping_popmart_poodle',
+        ai_backend_url: AI_BACKEND_URL
+      })
+      
       // Add custom prompts if provided
-      if (customPrompt && customPrompt.trim()) {
-        aiFormData.append('prompt', customPrompt.trim())
-      }
+      console.log("🔍 [PROMPT CHECK] customPrompt:", {
+        value: customPrompt,
+        type: typeof customPrompt,
+        length: customPrompt?.length || 0,
+        trimmed: customPrompt?.trim() || 'empty'
+      })
+      
+      // Always send a prompt - use customPrompt if available, otherwise use a basic prompt
+      const promptToSend = (customPrompt && customPrompt.trim()) 
+        ? customPrompt.trim() 
+        : "adorable pet, high quality artwork"
+        
+      console.log("📤 [PROMPT SEND] Sending prompt to AI backend:", promptToSend.substring(0, 100) + "...")
+      aiFormData.append('prompt', promptToSend)
+      
       if (customNegativePrompt && customNegativePrompt.trim()) {
         aiFormData.append('negative_prompt', customNegativePrompt.trim())
       }
 
       // Call local AI backend with extended timeout for FLUX
       console.log("🚀 Starting FLUX generation request...")
+      console.log(`🔗 Calling: ${AI_BACKEND_URL}/generate`)
       
       const aiResponse = await fetch(`${AI_BACKEND_URL}/generate`, {
         method: 'POST',
@@ -173,6 +203,14 @@ export async function POST(request: NextRequest) {
       }
 
       const aiResult = await aiResponse.json()
+      
+      console.log("🎯 AI Backend Response:", {
+        success: aiResult.success,
+        hasImageUrl: !!aiResult.imageUrl,
+        analysis: aiResult.analysis,
+        art_style_used: aiResult.art_style_used,
+        generationTime: aiResult.generationTime
+      })
       
       if (!aiResult.success || !aiResult.imageUrl) {
         throw new Error("AI backend did not return a valid image")

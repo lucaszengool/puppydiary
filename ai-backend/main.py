@@ -251,11 +251,23 @@ async def generate_pet_portrait(
 ):
     """Generate pet portrait with various art styles"""
     
-    logger.info(f"🎨 Received generation request:")
-    logger.info(f"   art_style: {art_style}")
-    logger.info(f"   cuteness_level: {cuteness_level}")
-    logger.info(f"   color_palette: {color_palette}")
-    logger.info(f"   prompt: {prompt[:50] if prompt else 'None'}...")
+    # Force debug output to file
+    debug_info = f"""
+🎨 ===== GENERATION REQUEST =====
+   art_style: {art_style}
+   cuteness_level: {cuteness_level}
+   color_palette: {color_palette}
+   prompt: {prompt[:50] if prompt else 'None'}...
+================================
+"""
+    
+    logger.info(debug_info)
+    print(debug_info, flush=True)  # Force console output
+    
+    # Write to debug file
+    with open('/Users/James/Desktop/Pepmart/debug_log.txt', 'a') as f:
+        f.write(f"{debug_info}\n")
+        f.flush()
     
     if not ai_models.models_loaded:
         raise HTTPException(status_code=503, detail="AI models are still loading. Please wait...")
@@ -340,13 +352,32 @@ async def generate_pet_portrait(
         
         logger.info(f"Generation completed in {generation_time:.2f} seconds")
         
+        # Create style-specific analysis message
+        style_names = {
+            "oil_painting": "古典油画风格",
+            "watercolor": "水彩插画风格", 
+            "anime": "宫崎骏动漫风格",
+            "cartoon": "迪士尼卡通风格",
+            "photography": "复古摄影风格",
+            "minimalist": "现代简约风格"
+        }
+        
+        style_display = style_names.get(art_style, art_style)
+        analysis_message = f"已生成{style_display}图像，耗时 {generation_time:.1f}秒。您可以继续微调或尝试其他风格。"
+        
+        # Log the final result
+        with open('/Users/James/Desktop/Pepmart/debug_log.txt', 'a') as f:
+            f.write(f"📋 Generated: {style_display} (art_style={art_style})\n")
+            f.flush()
+        
         return JSONResponse({
             "success": True,
             "imageUrl": f"data:image/png;base64,{img_base64}",
             "poseImage": f"data:image/png;base64,{pose_base64}",
             "generationTime": round(generation_time, 2),
             "style": style,
-            "analysis": f"Generated PopMart-style {style.replace('_', ' ')} in {generation_time:.1f}s using local AI models (no API costs!)"
+            "art_style_used": art_style,
+            "analysis": analysis_message
         })
         
     except Exception as e:

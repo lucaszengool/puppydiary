@@ -410,49 +410,66 @@ export default function CreatePage() {
       let colorPalette = "pastel"
       let cutenessLevel = "maximum"
       
+      console.log("🔍 [BEFORE SWITCH] selectedStyle:", selectedStyle)
+      
       if (selectedStyle) {
+        console.log(`🔍 [SWITCH CASE] Processing style ID: "${selectedStyle.id}"`)
         switch(selectedStyle.id) {
           case 'ghibli':
             artStyle = "anime"
             colorPalette = "pastel"
             cutenessLevel = "maximum"
+            console.log("✅ [GHIBLI] Applied parameters")
             break
           case 'disney':
             artStyle = "cartoon"
             colorPalette = "vibrant"
             cutenessLevel = "maximum"
+            console.log("✅ [DISNEY] Applied parameters")
             break
           case 'realistic':
             artStyle = "oil_painting"
             colorPalette = "warm"
             cutenessLevel = "medium"
+            console.log("✅ [REALISTIC] Applied oil_painting parameters")
             break
           case 'watercolor':
             artStyle = "watercolor"
             colorPalette = "soft"
             cutenessLevel = "high"
+            console.log("✅ [WATERCOLOR] Applied parameters")
             break
           case 'vintage':
             artStyle = "photography"
             colorPalette = "sepia"
             cutenessLevel = "medium"
+            console.log("✅ [VINTAGE] Applied parameters")
             break
           case 'modern':
             artStyle = "minimalist"
             colorPalette = "clean"
             cutenessLevel = "medium"
+            console.log("✅ [MODERN] Applied parameters")
             break
+          default:
+            console.log(`❌ [UNKNOWN STYLE] "${selectedStyle.id}" - using defaults`)
         }
+      } else {
+        console.log("❌ [NO STYLE] selectedStyle is null/undefined")
       }
       
       formData.append("art_style", artStyle)
       formData.append("cuteness_level", cutenessLevel)
       formData.append("color_palette", colorPalette)
       
-      console.log("🎨 [STYLE DEBUG] API parameters:", {
+      console.log("📤 [SENDING TO API] Final parameters:", {
         art_style: artStyle,
         cuteness_level: cutenessLevel,
-        color_palette: colorPalette
+        color_palette: colorPalette,
+        prompt_length: fullPrompt.length,
+        formData_entries: Array.from(formData.entries()).map(([key, value]) => 
+          key === 'image' ? [key, 'File object'] : [key, String(value).substring(0, 50)]
+        )
       })
 
       const response = await fetch("/api/generate", {

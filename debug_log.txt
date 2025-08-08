@@ -1,0 +1,35 @@
+
+🎨 ===== GENERATION REQUEST =====
+   art_style: oil_painting
+   cuteness_level: medium
+   color_palette: warm
+   prompt: None...
+================================
+
+
+🎨 ===== GENERATION REQUEST =====
+   art_style: oil_painting
+   cuteness_level: medium
+   color_palette: warm
+   prompt: test oil painting...
+================================
+
+📋 Generated: 古典油画风格 (art_style=oil_painting)
+
+🎨 ===== GENERATION REQUEST =====
+   art_style: oil_painting
+   cuteness_level: medium
+   color_palette: warm
+   prompt: FRESH TEST 1754684332 - Classical oil painting, 古典...
+================================
+
+📋 Generated: 古典油画风格 (art_style=oil_painting)
+
+🎨 ===== GENERATION REQUEST =====
+   art_style: oil_painting
+   cuteness_level: medium
+   color_palette: warm
+   prompt: 重要规则：必须100%保留原始图片中的人物或宠物的所有外貌特征和身体特征 Classical oil...
+================================
+
+📋 Generated: 古典油画风格 (art_style=oil_painting)
