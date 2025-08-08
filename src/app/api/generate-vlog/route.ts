@@ -15,11 +15,19 @@ export async function POST(request: NextRequest) {
 
     const { images, style, transitions, music } = await request.json()
     
-    console.log("🎬 Vlog generation request:", {
+    console.log("🎥 [VLOG API DEBUG] Vlog generation request received:", {
       imageCount: images?.length,
       style,
       transitions,
-      music
+      music,
+      userId,
+      firstImagePreview: images?.[0]?.substring(0, 100) + '...',
+      allImagesTypes: images?.map((img: string, i: number) => ({
+        index: i,
+        isDataUrl: img.startsWith('data:'),
+        isHttpUrl: img.startsWith('http'),
+        length: img.length
+      }))
     })
 
     if (!images || images.length < 3) {
@@ -39,14 +47,27 @@ export async function POST(request: NextRequest) {
       })
       
       // Check if we have valid image URLs (not base64)
-      const hasValidUrls = imageUrls.every(url => url.startsWith('http'))
+      const hasValidUrls = imageUrls.every((url: string) => url.startsWith('http'))
+      
+      console.log("🔍 [VLOG API DEBUG] Image validation results:", {
+        hasValidUrls,
+        imageCount: imageUrls.length,
+        imageDetails: imageUrls.map((url, i) => ({
+          index: i,
+          isHttp: url.startsWith('http'),
+          isData: url.startsWith('data:'),
+          length: url.length,
+          preview: url.substring(0, 80) + '...'
+        }))
+      })
       
       if (!hasValidUrls) {
-        console.log("⚠️ Using demo video due to base64 images")
+        console.log("⚠️ [VLOG API DEBUG] Using demo video due to base64/invalid images")
         // Fallback to demo video for base64 images
         await new Promise(resolve => setTimeout(resolve, 2000))
         const demoVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
         
+        console.log("📺 [VLOG API DEBUG] Returning demo video response")
         return NextResponse.json({
           success: true,
           videoUrl: demoVideoUrl,
@@ -58,13 +79,15 @@ export async function POST(request: NextRequest) {
             music,
             imageCount: images.length,
             duration: "30s",
-            note: "Demo video - image processing in development"
+            note: "Demo video - image processing in development",
+            reason: "base64_images_detected"
           }
         })
       }
       
       // Call the real video generation API
-      console.log("🎥 Calling video generation service...")
+      console.log("🎥 [VLOG API DEBUG] Calling video generation service with valid URLs...")
+      console.log("🔗 [VLOG API DEBUG] Video service endpoint:", `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/generate-video`)
       const videoResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/generate-video`, {
         method: 'POST',
         headers: {
@@ -76,11 +99,18 @@ export async function POST(request: NextRequest) {
         })
       })
       
+      console.log("📝 [VLOG API DEBUG] Video service response status:", videoResponse.status, videoResponse.statusText)
+      
       if (!videoResponse.ok) {
-        const errorData = await videoResponse.json()
-        console.error("🚨 Video service error:", errorData)
+        const errorData = await videoResponse.json().catch(() => ({ error: 'Failed to parse error response' }))
+        console.error("🚨 [VLOG API DEBUG] Video service error:", {
+          status: videoResponse.status,
+          statusText: videoResponse.statusText,
+          errorData
+        })
         
         // Fallback to demo video if service fails
+        console.log("🔄 [VLOG API DEBUG] Falling back to demo video due to service error")
         const demoVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
         
         return NextResponse.json({
@@ -94,13 +124,20 @@ export async function POST(request: NextRequest) {
             music,
             imageCount: images.length,
             duration: "30s",
-            note: "Demo video - real service temporarily unavailable"
+            note: "Demo video - real service temporarily unavailable",
+            reason: "video_service_error",
+            originalError: errorData
           }
         })
       }
       
       const videoData = await videoResponse.json()
-      console.log("✅ Video service response:", videoData)
+      console.log("✅ [VLOG API DEBUG] Video service success response:", {
+        hasTaskId: !!videoData.taskId,
+        status: videoData.status,
+        message: videoData.message,
+        fullResponse: videoData
+      })
       
       if (videoData.taskId) {
         // Return the task ID for polling

@@ -43,6 +43,8 @@ export default function CreatePage() {
   const [, setCurrentStep] = useState<'style' | 'upload' | 'processing' | 'result' | 'refine'>('style')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+  const [originalFile, setOriginalFile] = useState<File | null>(null)  // Store original file for reset
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null)  // Store original URL
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [customPrompt, setCustomPrompt] = useState<string>("")
@@ -91,21 +93,21 @@ export default function CreatePage() {
       icon: Heart, 
       label: '宫崎骏动漫', 
       description: '温暖治愈的手绘风格',
-      prompt: 'Studio Ghibli anime style, hand-drawn illustration, warm colors, soft lighting, whimsical and heartwarming, preserve all facial features and body proportions, keep same pose and expression, maintain all unique characteristics'
+      prompt: 'Studio Ghibli anime style, hand-drawn cel animation, soft watercolor backgrounds, warm pastel colors, magical atmosphere, detailed character design, preserve all facial features and body proportions, keep same pose and expression, maintain all unique characteristics'
     },
     { 
       id: 'disney', 
       icon: Sparkles, 
       label: '迪士尼卡通', 
       description: '可爱生动的卡通风格',
-      prompt: 'Disney animation style, cartoon illustration, bright colors, cute and charming, maintain facial features and body proportions, preserve unique markings, keep same pose and expression'
+      prompt: 'Disney 3D animation style, Pixar quality rendering, vibrant colors, cute and expressive character design, smooth clean lines, maintain facial features and body proportions, preserve unique markings, keep same pose and expression'
     },
     { 
       id: 'realistic', 
       icon: Camera, 
       label: '印象派油画', 
       description: '浪漫印象派绘画风格',
-      prompt: 'Impressionist oil painting style, visible brushstrokes, warm colors, soft lighting, artistic painting, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
+      prompt: 'French Impressionist oil painting, thick paint texture, visible brushstrokes, dappled sunlight, warm earth tones, artistic masterpiece style, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
     },
     { 
       id: 'watercolor', 
@@ -119,7 +121,7 @@ export default function CreatePage() {
       icon: Sun, 
       label: '复古怀旧', 
       description: '温暖的复古摄影风格',
-      prompt: 'vintage style, retro aesthetic, warm sepia tones, nostalgic atmosphere, classic portrait, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
+      prompt: 'vintage film photography, retro 1950s style, warm sepia filter, soft focus, classic portrait photography, nostalgic mood, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
     },
     { 
       id: 'modern', 
@@ -242,6 +244,15 @@ export default function CreatePage() {
 
     console.log("File validation passed, creating URL...")
     setIsProcessingFile(true)  // Set processing flag
+    
+    // Save original file and URL for reset functionality
+    if (!originalFile) {
+      setOriginalFile(file)
+      const originalUrl = URL.createObjectURL(file)
+      setOriginalImageUrl(originalUrl)
+      console.log("Original file saved for reset:", file.name)
+    }
+    
     setSelectedFile(file)
     const url = URL.createObjectURL(file)
     setSelectedImageUrl(url)
@@ -715,23 +726,57 @@ export default function CreatePage() {
   }
 
   const handleReset = () => {
-    setSelectedFile(null)
-    setSelectedImageUrl(null)
-    setGeneratedImage(null)
-    setCustomPrompt("")
-    setGeneratedPrompt("")
-    setSavedImages([])
-    setShowVideoOption(false)
-    setVideoTaskId(null)
-    setVideoUrl(null)
-    setVideoGenerating(false)
-    setSelectedStyle(null)
-    setCurrentStep('style')
-    // Reset editing states
-    resetEditing()
-    setEditHistory([])
-    setEditedImage(null)
-    setCanUndo(false)
+    // If we have an original file, offer to restart with it, otherwise full reset
+    if (originalFile && originalImageUrl) {
+      console.log("Resetting to original file:", originalFile.name)
+      setSelectedFile(originalFile)
+      setSelectedImageUrl(originalImageUrl)
+      setGeneratedImage(null)
+      setCustomPrompt("")
+      setGeneratedPrompt("")
+      // Keep saved images for continued workflow
+      // setSavedImages([])  // Don't reset saved images
+      setShowVideoOption(false)
+      setVideoTaskId(null)
+      setVideoUrl(null)
+      setVideoGenerating(false)
+      // Keep selected style for convenience
+      // setSelectedStyle(null)  // Don't reset style
+      setCurrentStep('result')
+      // Reset editing states
+      resetEditing()
+      setEditHistory([])
+      setEditedImage(null)
+      setCanUndo(false)
+      
+      // Regenerate with original file
+      if (selectedStyle) {
+        setIsFirstGeneration(true)
+        generatePortrait(originalFile, undefined, false)
+      }
+    } else {
+      // Full reset if no original file
+      console.log("Full reset - no original file")
+      setSelectedFile(null)
+      setSelectedImageUrl(null)
+      setOriginalFile(null)
+      setOriginalImageUrl(null)
+      setGeneratedImage(null)
+      setCustomPrompt("")
+      setGeneratedPrompt("")
+      setSavedImages([])
+      setShowVideoOption(false)
+      setVideoTaskId(null)
+      setVideoUrl(null)
+      setVideoGenerating(false)
+      setSelectedStyle(null)
+      setCurrentStep('style')
+      // Reset editing states
+      resetEditing()
+      setEditHistory([])
+      setEditedImage(null)
+      setCanUndo(false)
+    }
   }
 
   const handlePublishClick = () => {
