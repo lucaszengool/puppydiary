@@ -1063,16 +1063,16 @@ export default function CreatePage() {
 
               {/* Mobile Thumbnail Gallery - Show saved images */}
               {savedImages.length > 0 && (
-                <div className="fixed bottom-20 left-4 right-4 z-40">
-                  <div className="bg-white/90 backdrop-blur-md rounded-lg p-3 border border-gray-200/50 shadow-lg">
-                    <div className="text-center text-xs text-gray-600 mb-2">
+                <div className={`fixed left-4 right-4 z-60 transition-all duration-300 ${editingMode !== 'none' ? 'bottom-96' : 'bottom-20'}`}>
+                  <div className="bg-white/95 backdrop-blur-md rounded-lg p-3 border border-gray-200/50 shadow-lg">
+                    <div className="text-center text-xs text-gray-600 mb-2 font-medium">
                       已保存 {savedImages.length}/3
                     </div>
                     <div className="flex justify-center space-x-2">
                       {savedImages.map((image, index) => (
                         <div 
                           key={index} 
-                          className="w-12 h-12 rounded border-2 border-gray-200 overflow-hidden cursor-pointer hover:border-black transition-colors"
+                          className="w-12 h-12 rounded border-2 border-gray-200 overflow-hidden cursor-pointer hover:border-black transition-colors shadow-sm"
                           onClick={() => {
                             // Download image on click
                             const a = document.createElement('a')
@@ -1167,12 +1167,12 @@ export default function CreatePage() {
                               value={imageAdjustments.exposure}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, exposure: parseInt(e.target.value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               onInput={(e) => {
                                 // Real-time preview during drag
                                 const newAdjustments = { ...imageAdjustments, exposure: parseInt((e.target as HTMLInputElement).value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1190,11 +1190,11 @@ export default function CreatePage() {
                               value={imageAdjustments.highlights}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, highlights: parseInt(e.target.value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               onInput={(e) => {
                                 const newAdjustments = { ...imageAdjustments, highlights: parseInt((e.target as HTMLInputElement).value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1212,11 +1212,11 @@ export default function CreatePage() {
                               value={imageAdjustments.shadows}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, shadows: parseInt(e.target.value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               onInput={(e) => {
                                 const newAdjustments = { ...imageAdjustments, shadows: parseInt((e.target as HTMLInputElement).value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1234,11 +1234,11 @@ export default function CreatePage() {
                               value={imageAdjustments.contrast}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, contrast: parseInt(e.target.value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               onInput={(e) => {
                                 const newAdjustments = { ...imageAdjustments, contrast: parseInt((e.target as HTMLInputElement).value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1256,11 +1256,11 @@ export default function CreatePage() {
                               value={imageAdjustments.saturation}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, saturation: parseInt(e.target.value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               onInput={(e) => {
                                 const newAdjustments = { ...imageAdjustments, saturation: parseInt((e.target as HTMLInputElement).value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1278,11 +1278,11 @@ export default function CreatePage() {
                               value={imageAdjustments.warmth}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, warmth: parseInt(e.target.value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               onInput={(e) => {
                                 const newAdjustments = { ...imageAdjustments, warmth: parseInt((e.target as HTMLInputElement).value) }
-                                setImageAdjustments(newAdjustments)
+                                handleAdjustmentChange(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1337,10 +1337,10 @@ export default function CreatePage() {
                               <button
                                 key={scene.id}
                                 onClick={async () => {
-                                  setCustomPrompt(scene.prompt)
-                                  // Automatically trigger generation when scene is selected
+                                  // Don't show prompt, directly generate with new scene
                                   if (!selectedFile) return
                                   setCurrentStep('processing')
+                                  setEditingMode('none') // Close the panel
                                   await generatePortrait(selectedFile, scene.prompt, true)
                                 }}
                                 className="p-3 bg-gray-100 backdrop-blur-sm rounded text-gray-800 text-xs hover:bg-gray-200 transition-colors"
