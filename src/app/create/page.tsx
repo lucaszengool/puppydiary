@@ -32,7 +32,9 @@ import Link from "next/link"
 import './vsco-style.css'
 
 export default function CreatePage() {
-  const { userId } = useAuth()
+  const { userId, isSignedIn, isLoaded } = useAuth()
+  
+  console.log("[AUTH DEBUG] Auth state:", { userId, isSignedIn, isLoaded })
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -47,13 +49,15 @@ export default function CreatePage() {
   const [, setGeneratedPrompt] = useState<string>("")
   const [savedImages, setSavedImages] = useState<string[]>([])
   // const [editingImageIndex, setEditingImageIndex] = useState<number>(-1) // Track which saved image we're editing
-  const [, setShowVideoOption] = useState(false)
-  const [, setVideoTaskId] = useState<string | null>(null)
+  const [showVideoOption, setShowVideoOption] = useState(false)
+  const [videoTaskId, setVideoTaskId] = useState<string | null>(null)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
-  const [, setVideoGenerating] = useState(false)
+  const [videoGenerating, setVideoGenerating] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState<any>(null)
   const [originalPrompt, setOriginalPrompt] = useState<string>("")  // Store the original prompt for reuse
   const [isFirstGeneration, setIsFirstGeneration] = useState(true)  // Track if it's the first generation
+  const [stateRestored, setStateRestored] = useState(false)  // Track if state has been restored from login
+  const [isProcessingFile, setIsProcessingFile] = useState(false)  // Prevent multiple file selections
   
   // Image editing states
   const [editingMode, setEditingMode] = useState<'none' | 'adjustments' | 'filters' | 'ai-prompt'>('none')
@@ -72,6 +76,7 @@ export default function CreatePage() {
     vibrance: 0,
   })
   const [editHistory, setEditHistory] = useState<string[]>([])
+  const [adjustmentHistory, setAdjustmentHistory] = useState<ImageAdjustments[]>([])
   const [editedImage, setEditedImage] = useState<string | null>(null)
   const [canUndo, setCanUndo] = useState(false)
   const [showPublishDialog, setShowPublishDialog] = useState(false)
@@ -93,14 +98,14 @@ export default function CreatePage() {
       icon: Sparkles, 
       label: '迪士尼卡通', 
       description: '可爱生动的卡通风格',
-      prompt: 'Disney animation style, cute cartoon, vibrant colors, expressive characters, playful, colorful, animated movie style, Disney Pixar art style, maintain exact facial features and body proportions, preserve all unique markings and characteristics, keep the same pose and expression, identical eye shape and color, same fur patterns and colors'
+      prompt: 'Disney animation style, maintain exact facial features and body proportions, preserve all unique markings and characteristics, keep the same pose and expression, identical eye shape and color, same fur patterns and colors'
     },
     { 
       id: 'realistic', 
       icon: Camera, 
       label: '印象派油画', 
       description: '浪漫印象派绘画风格',
-      prompt: 'impressionistic oil painting, romantic impressionist style, visible thick brushstrokes, impasto technique, warm golden tones, soft dreamy atmosphere, painterly texture, classical European oil painting, rich color palette, artistic brushwork, romantic lighting, pastoral beauty, preserve exact facial structure and expression, maintain all distinctive features and markings, keep identical body proportions and posture, same eye shape and nose structure, preserve all unique characteristics and fur patterns'
+      prompt: 'Classical French Impressionist oil painting style, thick impasto brushstrokes, visible palette knife texture, plein air painting technique, broken color method, dappled sunlight effects, soft atmospheric perspective, warm earth tones mixed with cool blues and purples, Claude Monet and Auguste Renoir inspired, traditional oil paint on canvas texture, romantic pastoral mood, vintage 1880s European aesthetic, preserve exact facial features and body proportions, maintain all distinctive features and markings, keep identical pose and expression, same eye shape and colors, preserve all unique characteristics'
     },
     { 
       id: 'watercolor', 
@@ -127,12 +132,12 @@ export default function CreatePage() {
 
   // 场景风格选项（在选择主风格后显示）
   const sceneOptions = [
-    { id: 'sunny', icon: Sun, label: '阳光明媚', prompt: 'bright sunny garden background, golden sunlight streaming through trees, warm yellow and orange lighting, cheerful outdoor setting with flowers and grass, natural sunbeams' },
-    { id: 'dreamy', icon: Cloud, label: '梦幻云朵', prompt: 'soft dreamy cloud background, pastel sky with fluffy white clouds, ethereal atmosphere, soft pink and blue gradient sky, floating in heavenly clouds' },
-    { id: 'forest', icon: Trees, label: '森林自然', prompt: 'lush forest background, green trees and foliage, natural woodland setting, dappled sunlight through leaves, moss and ferns, peaceful nature scene' },
-    { id: 'warm', icon: Heart, label: '温馨家庭', prompt: 'cozy living room background, warm fireplace, comfortable furniture, soft blankets and cushions, homey atmosphere with warm lighting' },
-    { id: 'playful', icon: Sparkles, label: '活泼欢乐', prompt: 'colorful playground background, bright toys and balloons, rainbow colors, fun carnival atmosphere, cheerful party decorations' },
-    { id: 'artistic', icon: Palette, label: '艺术空间', prompt: 'artist studio background, easels and paintbrushes, colorful paint palette, canvas and art supplies, creative workshop environment' },
+    { id: 'sunny', icon: Sun, label: '阳光明媚', prompt: 'just change the background, keep figure the same, bright sunny garden background, golden sunlight streaming through trees, warm yellow and orange lighting, cheerful outdoor setting with flowers and grass, natural sunbeams' },
+    { id: 'dreamy', icon: Cloud, label: '梦幻云朵', prompt: 'just change the background, keep figure the same, soft dreamy cloud background, pastel sky with fluffy white clouds, ethereal atmosphere, soft pink and blue gradient sky, floating in heavenly clouds' },
+    { id: 'forest', icon: Trees, label: '森林自然', prompt: 'just change the background, keep figure the same, lush forest background, green trees and foliage, natural woodland setting, dappled sunlight through leaves, moss and ferns, peaceful nature scene' },
+    { id: 'warm', icon: Heart, label: '温馨家庭', prompt: 'just change the background, keep figure the same, cozy living room background, warm fireplace, comfortable furniture, soft blankets and cushions, homey atmosphere with warm lighting' },
+    { id: 'playful', icon: Sparkles, label: '活泼欢乐', prompt: 'just change the background, keep figure the same, colorful playground background, bright toys and balloons, rainbow colors, fun carnival atmosphere, cheerful party decorations' },
+    { id: 'artistic', icon: Palette, label: '艺术空间', prompt: 'just change the background, keep figure the same, artist studio background, easels and paintbrushes, colorful paint palette, canvas and art supplies, creative workshop environment' },
   ]
 
 
@@ -147,10 +152,53 @@ export default function CreatePage() {
         setCurrentStep('upload')
       }
     }
-  }, [searchParams]) 
+  }, [searchParams])
+
+  // State restoration effect - runs after login
+  useEffect(() => {
+    if (userId && !stateRestored) {
+      const savedState = sessionStorage.getItem('appStateBeforeLogin')
+      if (savedState) {
+        try {
+          const state = JSON.parse(savedState)
+          
+          // Restore all the saved state
+          if (state.selectedStyle) setSelectedStyle(state.selectedStyle)
+          if (state.generatedImage) setGeneratedImage(state.generatedImage)
+          if (state.editedImage) setEditedImage(state.editedImage)
+          if (state.savedImages) setSavedImages(state.savedImages)
+          if (state.customPrompt) setCustomPrompt(state.customPrompt)
+          if (state.originalPrompt) setOriginalPrompt(state.originalPrompt)
+          if (state.isFirstGeneration !== undefined) setIsFirstGeneration(state.isFirstGeneration)
+          if (state.imageAdjustments) setImageAdjustments(state.imageAdjustments)
+          if (state.editingMode) setEditingMode(state.editingMode)
+          if (state.currentStep) setCurrentStep(state.currentStep)
+          
+          // Clean up
+          sessionStorage.removeItem('appStateBeforeLogin')
+          setStateRestored(true)
+          
+          toast({
+            title: "状态已恢复",
+            description: "您的创作进度已恢复",
+          })
+        } catch (error) {
+          console.error('Error restoring state:', error)
+          sessionStorage.removeItem('appStateBeforeLogin')
+        }
+      }
+      setStateRestored(true)
+    }
+  }, [userId, stateRestored]) 
 
   const handleFileSelect = async (file: File) => {
     console.log("handleFileSelect called with:", file ? file.name : "no file")
+    
+    // Prevent multiple concurrent file processing
+    if (isProcessingFile) {
+      console.log("File processing already in progress, ignoring...")
+      return
+    }
     
     if (!file) {
       toast({
@@ -193,6 +241,7 @@ export default function CreatePage() {
     }
 
     console.log("File validation passed, creating URL...")
+    setIsProcessingFile(true)  // Set processing flag
     setSelectedFile(file)
     const url = URL.createObjectURL(file)
     setSelectedImageUrl(url)
@@ -204,7 +253,11 @@ export default function CreatePage() {
     })
 
     // Automatically start generation
-    await generatePortrait(file, undefined, false)
+    try {
+      await generatePortrait(file, undefined, false)
+    } finally {
+      setIsProcessingFile(false)  // Clear processing flag
+    }
   }
 
   const handleStyleSelect = (style: any) => {
@@ -321,10 +374,18 @@ export default function CreatePage() {
       // Reset edited image when new generation is created
       setEditedImage(null)
       
-      toast({
-        title: "生成成功！",
-        description: "您的宠物艺术作品已经创作完成",
-      })
+      // Show different messages based on saved images count
+      if (savedImages.length === 0) {
+        toast({
+          title: "🎨 第一张作品生成成功！",
+          description: "🎥 提示：收集三张作品后可以制作专属 Vlog 视频哦！",
+        })
+      } else {
+        toast({
+          title: "生成成功！",
+          description: "您的宠物艺术作品已经创作完成",
+        })
+      }
     } catch (error) {
       console.error("Generation error:", error)
       toast({
@@ -364,6 +425,10 @@ export default function CreatePage() {
       // If we now have 3 images, show video option
       if (newSavedImages.length >= 3) {
         setShowVideoOption(true)
+        toast({
+          title: "🎥 可以制作视频啦！",
+          description: "您已收集到3张作品，现在可以制作专属Vlog视频了",
+        })
       }
     }
     
@@ -388,6 +453,100 @@ export default function CreatePage() {
     setCurrentStep('processing')
     // Custom prompt is also a background/scene change
     await generatePortrait(selectedFile, customPrompt, true)
+  }
+
+  const handleGenerateVlog = async () => {
+    console.log("🎬 [VLOG DEBUG] Starting vlog generation process...")
+    console.log("📊 [VLOG DEBUG] Current state:", {
+      savedImagesCount: savedImages.length,
+      userId: userId,
+      selectedStyle: selectedStyle?.label,
+      videoGenerating: videoGenerating
+    })
+    
+    if (savedImages.length < 3) {
+      console.warn("⚠️ [VLOG DEBUG] Insufficient images:", savedImages.length)
+      toast({
+        title: "图片不足",
+        description: "需要保存3张图片才能制作Vlog",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (!userId) {
+      console.error("🚫 [VLOG DEBUG] No user ID found - user not authenticated")
+      toast({
+        title: "需要登录",
+        description: "请先登录后再制作视频",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setVideoGenerating(true)
+    
+    try {
+      console.log("🚀 [VLOG DEBUG] Starting vlog generation with", savedImages.length, "images")
+      console.log("📦 [VLOG DEBUG] Request details:", {
+        imageCount: savedImages.length,
+        style: selectedStyle?.label || '宠物艺术',
+        userId: userId,
+        firstImageLength: savedImages[0]?.length || 'N/A'
+      })
+      
+      // Call vlog generation API
+      const response = await fetch('/api/generate-vlog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          images: savedImages,
+          style: selectedStyle?.label || '宠物艺术',
+          transitions: 'smooth',
+          music: 'ambient'
+        })
+      })
+
+      console.log("📝 [VLOG DEBUG] API response status:", response.status, response.statusText)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("🚫 [VLOG DEBUG] API error response:", errorText)
+        throw new Error(`Vlog generation failed: ${response.status} ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      console.log("✅ [VLOG DEBUG] API response data:", result)
+      
+      if (result.success && result.videoUrl) {
+        console.log("🎥 [VLOG DEBUG] Video generation successful!")
+        setVideoUrl(result.videoUrl)
+        setVideoTaskId(result.taskId)
+        setShowVideoOption(true)
+        
+        toast({
+          title: "Vlog制作完成！",
+          description: "您的专属宠物艺术Vlog已准备就绪",
+        })
+      } else {
+        console.error("🚫 [VLOG DEBUG] Unexpected response format:", result)
+        throw new Error(result.error || 'Unknown error')
+      }
+      
+    } catch (error) {
+      console.error('🚨 [VLOG DEBUG] Vlog generation error:', error)
+      console.error('🚨 [VLOG DEBUG] Error stack:', (error as Error)?.stack)
+      toast({
+        title: "Vlog制作失败",
+        description: `制作过程中出现错误: ${(error as Error)?.message || '未知错误'}`,
+        variant: "destructive"
+      })
+    } finally {
+      console.log("🏁 [VLOG DEBUG] Video generation process completed")
+      setVideoGenerating(false)
+    }
   }
 
   // Filter presets for mobile interface
@@ -462,8 +621,24 @@ export default function CreatePage() {
   }
 
   const handleAdjustmentChange = (newAdjustments: ImageAdjustments) => {
+    // Save current state to history before making changes
+    if (adjustmentHistory.length === 0 || JSON.stringify(imageAdjustments) !== JSON.stringify(adjustmentHistory[adjustmentHistory.length - 1])) {
+      const newHistory = [...adjustmentHistory, imageAdjustments]
+      setAdjustmentHistory(newHistory.slice(-10)) // Keep last 10 states
+      setCanUndo(true)
+    }
+    
     // Immediately update adjustments for real-time preview
     setImageAdjustments(newAdjustments)
+  }
+
+  const handleUndoAdjustment = () => {
+    if (adjustmentHistory.length > 0) {
+      const previousState = adjustmentHistory[adjustmentHistory.length - 1]
+      setImageAdjustments(previousState)
+      setAdjustmentHistory(adjustmentHistory.slice(0, -1))
+      setCanUndo(adjustmentHistory.length > 1)
+    }
   }
 
   // Function to apply and save the final edited image using Canvas
@@ -569,8 +744,23 @@ export default function CreatePage() {
         title: "需要登录",
         description: "正在跳转到登录页面",
       })
-      // Store current URL and redirect to login
-      sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
+      
+      // Save current application state before login
+      const currentState = {
+        selectedStyle,
+        generatedImage,
+        editedImage,
+        savedImages,
+        customPrompt,
+        originalPrompt,
+        isFirstGeneration,
+        imageAdjustments,
+        editingMode,
+        currentStep: 'result' // Set to result to show the generated image
+      }
+      
+      sessionStorage.setItem('appStateBeforeLogin', JSON.stringify(currentState))
+      sessionStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search)
       window.location.href = '/sign-in'
       return
     }
@@ -690,19 +880,19 @@ export default function CreatePage() {
               <div className="vsco-gallery-container">
                 <div className="vsco-gallery-header">
                   <h4 className="vsco-gallery-title">已保存作品 ({savedImages.length}/3)</h4>
-                  {savedImages.length >= 3 && (
+                  {savedImages.length >= 3 ? (
                     <button
-                      onClick={() => {
-                        // Generate video functionality
-                        toast({
-                          title: "视频生成",
-                          description: "视频生成功能即将推出",
-                        })
-                      }}
-                      className="vsco-btn small"
+                      onClick={handleGenerateVlog}
+                      disabled={videoGenerating}
+                      className="vsco-btn primary"
+                      style={{ backgroundColor: '#ff6b6b', color: 'white', fontWeight: 'bold' }}
                     >
-                      生成视频
+                      {videoGenerating ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
                     </button>
+                  ) : (
+                    <div className="text-xs text-gray-500">
+                      再保存 {3 - savedImages.length} 张图片即可制作视频
+                    </div>
                   )}
                 </div>
                 <div className="vsco-gallery-grid">
@@ -777,15 +967,17 @@ export default function CreatePage() {
           )}
 
           {/* Publish Dialog */}
-          <PublishDialog
-            isOpen={showPublishDialog}
-            onClose={() => {
-              console.log("🔄 Closing publish dialog")
-              setShowPublishDialog(false)
-            }}
-            onConfirm={handlePublishConfirm}
-            imageUrl={editedImage || generatedImage || ''}
-          />
+          {showPublishDialog && (editedImage || generatedImage) && (
+            <PublishDialog
+              isOpen={showPublishDialog}
+              onClose={() => {
+                console.log("🔄 Closing publish dialog")
+                setShowPublishDialog(false)
+              }}
+              onConfirm={handlePublishConfirm}
+              imageUrl={(editedImage || generatedImage) || ''}
+            />
+          )}
 
           {/* Main upload area */}
           <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -957,7 +1149,7 @@ export default function CreatePage() {
 
           {/* Desktop Operations Panel */}
           {generatedImage && (
-            <div className="fade-in hidden md:block">
+            <div className="fade-in">
               <h3 className="adjustment-title">操作</h3>
               <div className="space-y-3">
                 <button
@@ -993,14 +1185,121 @@ export default function CreatePage() {
                 {savedImages.length < 3 ? (
                   <button onClick={handleNextImage} className="w-full vsco-btn secondary">
                     <ChevronRight className="w-4 h-4 mr-2" />
-                    保存并继续
+                    保存并继续 ({savedImages.length + 1}/3)
                   </button>
                 ) : (
-                  <button onClick={handleReset} className="w-full vsco-btn secondary">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    重新开始
-                  </button>
+                  <>
+                    <button 
+                      onClick={handleGenerateVlog} 
+                      disabled={videoGenerating}
+                      className="w-full vsco-btn primary mb-3"
+                      style={{ backgroundColor: '#ff6b6b', color: 'white', fontWeight: 'bold' }}
+                    >
+                      {videoGenerating ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
+                    </button>
+                    <button onClick={handleReset} className="w-full vsco-btn secondary">
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      重新开始
+                    </button>
+                  </>
                 )}
+              </div>
+              
+              {/* Desktop Editing Tools */}
+              <div className="space-y-6 mt-6">
+                {/* Adjustments Section */}
+                <div>
+                  <h3 className="adjustment-title">调整</h3>
+                  <div className="space-y-3">
+                    <div className="adjustment-item">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">曝光</span>
+                        <span className="text-xs text-gray-600">{imageAdjustments.exposure > 0 ? '+' + imageAdjustments.exposure : imageAdjustments.exposure}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-100"
+                        max="100"
+                        value={imageAdjustments.exposure}
+                        onChange={(e) => {
+                          const newAdjustments = { ...imageAdjustments, exposure: parseInt(e.target.value) }
+                          handleAdjustmentChange(newAdjustments)
+                        }}
+                        className="vsco-slider w-full"
+                      />
+                    </div>
+                    
+                    <div className="adjustment-item">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">对比度</span>
+                        <span className="text-xs text-gray-600">{imageAdjustments.contrast > 0 ? '+' + imageAdjustments.contrast : imageAdjustments.contrast}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-100"
+                        max="100"
+                        value={imageAdjustments.contrast}
+                        onChange={(e) => {
+                          const newAdjustments = { ...imageAdjustments, contrast: parseInt(e.target.value) }
+                          handleAdjustmentChange(newAdjustments)
+                        }}
+                        className="vsco-slider w-full"
+                      />
+                    </div>
+                    
+                    <div className="adjustment-item">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">饱和度</span>
+                        <span className="text-xs text-gray-600">{imageAdjustments.saturation > 0 ? '+' + imageAdjustments.saturation : imageAdjustments.saturation}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-100"
+                        max="100"
+                        value={imageAdjustments.saturation}
+                        onChange={(e) => {
+                          const newAdjustments = { ...imageAdjustments, saturation: parseInt(e.target.value) }
+                          handleAdjustmentChange(newAdjustments)
+                        }}
+                        className="vsco-slider w-full"
+                      />
+                    </div>
+                    
+                    <div className="adjustment-item">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">色溫</span>
+                        <span className="text-xs text-gray-600">{imageAdjustments.warmth > 0 ? '+' + imageAdjustments.warmth : imageAdjustments.warmth}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-100"
+                        max="100"
+                        value={imageAdjustments.warmth}
+                        onChange={(e) => {
+                          const newAdjustments = { ...imageAdjustments, warmth: parseInt(e.target.value) }
+                          handleAdjustmentChange(newAdjustments)
+                        }}
+                        className="vsco-slider w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Filters Section */}
+                <div>
+                  <h3 className="adjustment-title">滤镜</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {filterPresets.slice(0, 12).map((preset) => (
+                      <button
+                        key={preset.id}
+                        onClick={() => applyPreset(preset)}
+                        className="bg-gray-100 hover:bg-gray-200 rounded text-xs p-2 transition-colors text-center"
+                      >
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -1035,12 +1334,30 @@ export default function CreatePage() {
           )}
 
           {generatedImage && (
-            <div className="vsco-image-container">
-              <PinchZoomImage
-                src={editedImage || generatedImage}
-                alt="生成的艺术作品"
-                className="transition-transform duration-300"
-              />
+            <div className="vsco-image-container relative">
+              <div className="w-full h-full flex items-center justify-center">
+                <img
+                  src={editedImage || generatedImage}
+                  alt="生成的艺术作品"
+                  className="max-w-full max-h-full object-contain transition-all duration-300"
+                  style={{
+                    filter: `
+                      brightness(${100 + imageAdjustments.brightness}%)
+                      contrast(${100 + imageAdjustments.contrast}%)
+                      saturate(${100 + imageAdjustments.saturation}%)
+                      sepia(${imageAdjustments.warmth > 0 ? imageAdjustments.warmth / 2 : 0}%)
+                      hue-rotate(${imageAdjustments.warmth < 0 ? imageAdjustments.warmth : 0}deg)
+                      opacity(${100 + imageAdjustments.exposure / 2}%)
+                    `.replace(/\s+/g, ' ').trim(),
+                    transition: 'filter 0.2s ease-out'
+                  }}
+                />
+              </div>
+              
+              {/* Zoom indicator */}
+              <div className="absolute bottom-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
+                {savedImages.length + 1}/3
+              </div>
             </div>
           )}
         </div>
@@ -1089,9 +1406,10 @@ export default function CreatePage() {
               {/* Mobile Operations Panel - Top Right Floating */}
               <div className="fixed top-16 right-4 z-60 space-y-2">
                 <button
-                  onClick={handleUndo}
+                  onClick={handleUndoAdjustment}
                   disabled={!canUndo}
                   className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm disabled:opacity-50"
+                  title="撤销上一步调整"
                 >
                   <RotateCcw className="w-5 h-5 text-gray-700" />
                 </button>
@@ -1122,12 +1440,22 @@ export default function CreatePage() {
                     <ChevronRight className="w-5 h-5 text-gray-700" />
                   </button>
                 ) : (
-                  <button 
-                    onClick={handleReset} 
-                    className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
-                  >
-                    <RefreshCw className="w-5 h-5 text-gray-700" />
-                  </button>
+                  <>
+                    <button 
+                      onClick={handleGenerateVlog} 
+                      disabled={videoGenerating}
+                      className="w-12 h-12 bg-red-500 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-red-600 transition-all shadow-sm disabled:opacity-50"
+                      title="制作视频 Vlog"
+                    >
+                      <span className="text-white text-lg">🎥</span>
+                    </button>
+                    <button 
+                      onClick={handleReset} 
+                      className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
+                    >
+                      <RefreshCw className="w-5 h-5 text-gray-700" />
+                    </button>
+                  </>
                 )}
               </div>
 
@@ -1137,6 +1465,16 @@ export default function CreatePage() {
                   <div className="bg-white/95 backdrop-blur-md rounded-lg p-3 border border-gray-200/50 shadow-lg">
                     <div className="text-center text-xs text-gray-600 mb-2 font-medium">
                       已保存 {savedImages.length}/3
+                      {savedImages.length === 2 && (
+                        <div className="text-red-500 font-bold">
+                          🎥 再保存一张即可制作视频！
+                        </div>
+                      )}
+                      {savedImages.length >= 3 && (
+                        <div className="text-green-500 font-bold">
+                          🎥 可以制作 Vlog 视频了！
+                        </div>
+                      )}
                     </div>
                     <div className="flex justify-center space-x-2">
                       {savedImages.map((image, index) => (
@@ -1458,6 +1796,28 @@ export default function CreatePage() {
                 alt="保存的作品预览"
                 className="max-w-full max-h-full object-contain"
               />
+            </div>
+          </div>
+        )}
+
+        {/* VSCO-style Video Generation Notification */}
+        {savedImages.length >= 3 && (
+          <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[150] md:top-4 md:left-4 md:transform-none">
+            <div className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-lg px-4 py-3 shadow-sm max-w-sm">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-800 font-medium mb-1">视频制作就绪</p>
+                  <p className="text-xs text-gray-600">三张作品已收集完成</p>
+                </div>
+                <button
+                  onClick={handleGenerateVlog}
+                  disabled={videoGenerating}
+                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition-colors disabled:opacity-50"
+                >
+                  {videoGenerating ? '制作中...' : '制作'}
+                </button>
+              </div>
             </div>
           </div>
         )}

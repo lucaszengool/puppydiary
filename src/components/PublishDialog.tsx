@@ -56,12 +56,12 @@ export default function PublishDialog({ isOpen, onClose, onConfirm, imageUrl }: 
           </div>
 
           {/* Info */}
-          <div className="bg-blue-50 rounded-lg p-3 space-y-2">
-            <div className="flex items-center space-x-2 text-blue-700">
+          <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+            <div className="flex items-center space-x-2 text-gray-700">
               <Globe className="w-4 h-4" />
               <span className="text-sm font-medium">公开发布</span>
             </div>
-            <div className="flex items-center space-x-2 text-blue-600">
+            <div className="flex items-center space-x-2 text-gray-600">
               <Users className="w-4 h-4" />
               <span className="text-xs">所有人都可以在作品集社区中看到这个作品</span>
             </div>
@@ -76,7 +76,7 @@ export default function PublishDialog({ isOpen, onClose, onConfirm, imageUrl }: 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="分享您的创作灵感或故事..."
-              className="w-full h-20 p-3 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="w-full h-20 p-3 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-colors"
               maxLength={200}
             />
             <div className="text-xs text-gray-500 mt-1 text-right">
@@ -86,14 +86,14 @@ export default function PublishDialog({ isOpen, onClose, onConfirm, imageUrl }: 
         </div>
 
         {/* Make publish super obvious */}
-        <div className="p-4 bg-yellow-50 border border-yellow-200">
+        <div className="p-4 bg-gray-50 border border-gray-200">
           <p className="text-center text-sm text-gray-600 mb-3">点击下面的按钮确认发布到社区</p>
           <button
             onClick={() => {
               console.log("🧪 BIG PUBLISH BUTTON CLICKED!")
               handlePublish()
             }}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            className="w-full bg-black text-white p-4 rounded-lg text-xl font-bold shadow-lg hover:bg-gray-800 transition-all duration-200 transform hover:scale-105"
           >
             ✨ 立即发布到作品集 ✨
           </button>
@@ -112,7 +112,7 @@ export default function PublishDialog({ isOpen, onClose, onConfirm, imageUrl }: 
           </button>
           <button
             onClick={handlePublish}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center space-x-2 touch-action-manipulation"
+            className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center space-x-2 touch-action-manipulation"
             style={{ minHeight: '44px', fontSize: '16px' }}
           >
             <Heart className="w-4 h-4" />
