@@ -466,6 +466,58 @@ export default function CreatePage() {
     await generatePortrait(selectedFile, customPrompt, true)
   }
 
+  // Poll video task status until completion
+  const pollVideoTaskStatus = async (taskId: string) => {
+    console.log("🔄 [VLOG DEBUG] Starting to poll task status:", taskId)
+    const maxAttempts = 30 // 30 attempts * 2 seconds = 1 minute max
+    let attempts = 0
+    
+    while (attempts < maxAttempts) {
+      try {
+        console.log(`🔄 [VLOG DEBUG] Polling attempt ${attempts + 1}/${maxAttempts}`)
+        
+        const response = await fetch(`/api/generate-video?taskId=${taskId}`)
+        if (!response.ok) {
+          console.error("🚨 [VLOG DEBUG] Task status check failed:", response.status)
+          throw new Error(`Task status check failed: ${response.status}`)
+        }
+        
+        const taskResult = await response.json()
+        console.log("📊 [VLOG DEBUG] Task status:", taskResult)
+        
+        if (taskResult.status === 'succeeded' && taskResult.content?.video_url) {
+          console.log("🎉 [VLOG DEBUG] Task completed successfully!")
+          console.log("🔗 [VLOG DEBUG] Final video URL:", taskResult.content.video_url)
+          
+          setVideoUrl(taskResult.content.video_url)
+          setShowVideoOption(true)
+          
+          toast({
+            title: "Vlog制作完成！",
+            description: "您的专属宠物艺术Vlog已准备就绪",
+          })
+          return
+        } else if (taskResult.status === 'failed') {
+          console.error("🚨 [VLOG DEBUG] Task failed:", taskResult)
+          throw new Error(`Video generation failed: ${taskResult.error || 'Unknown error'}`)
+        }
+        
+        // Still processing, wait and try again
+        console.log("⏳ [VLOG DEBUG] Task still processing, waiting...")
+        await new Promise(resolve => setTimeout(resolve, 2000)) // Wait 2 seconds
+        attempts++
+        
+      } catch (error) {
+        console.error("🚨 [VLOG DEBUG] Polling error:", error)
+        throw error
+      }
+    }
+    
+    // Timeout
+    console.error("⏰ [VLOG DEBUG] Task polling timeout")
+    throw new Error("Video generation timeout - please try again")
+  }
+
   const handleGenerateVlog = async () => {
     console.log("🎬 [VLOG DEBUG] Starting vlog generation process...")
     console.log("📊 [VLOG DEBUG] Current state:", {
@@ -532,6 +584,7 @@ export default function CreatePage() {
       console.log("✅ [VLOG DEBUG] API response data:", result)
       
       if (result.success && result.videoUrl) {
+        // Direct video URL (fallback/demo case)
         console.log("🎥 [VLOG DEBUG] Video generation successful!")
         console.log("🔗 [VLOG DEBUG] Setting video URL:", result.videoUrl)
         setVideoUrl(result.videoUrl)
@@ -543,6 +596,18 @@ export default function CreatePage() {
           title: "Vlog制作完成！",
           description: "您的专属宠物艺术Vlog已准备就绪",
         })
+      } else if (result.success && result.taskId) {
+        // Task-based video generation (polling case)
+        console.log("⏳ [VLOG DEBUG] Video generation task started:", result.taskId)
+        setVideoTaskId(result.taskId)
+        
+        toast({
+          title: "Vlog制作中...",
+          description: "视频正在生成，请稍候片刻",
+        })
+        
+        // Poll for task completion
+        await pollVideoTaskStatus(result.taskId)
       } else {
         console.error("🚫 [VLOG DEBUG] Unexpected response format:", result)
         throw new Error(result.error || 'Unknown error')
