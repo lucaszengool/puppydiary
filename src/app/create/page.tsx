@@ -1412,10 +1412,15 @@ export default function CreatePage() {
                     <button 
                       onClick={handleGenerateVlog} 
                       disabled={videoGenerating}
-                      className="w-12 h-12 bg-red-500 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-red-600 transition-all shadow-sm disabled:opacity-50"
+                      className="w-14 h-14 bg-gradient-to-br from-red-500 to-pink-500 backdrop-blur-md rounded-full flex items-center justify-center hover:from-red-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50 border-2 border-white/50"
                       title="制作视频 Vlog"
+                      style={{
+                        boxShadow: videoGenerating ? '0 0 20px rgba(239, 68, 68, 0.6)' : '0 4px 15px rgba(239, 68, 68, 0.4)'
+                      }}
                     >
-                      <span className="text-white text-lg">🎥</span>
+                      <span className="text-white text-xl">
+                        {videoGenerating ? '⏳' : '🎥'}
+                      </span>
                     </button>
                     <button 
                       onClick={handleReset} 
@@ -1427,20 +1432,48 @@ export default function CreatePage() {
                 )}
               </div>
 
+              {/* Mobile Video Generation Notification */}
+              {savedImages.length >= 3 && (
+                <div className={`fixed left-4 right-4 z-60 transition-all duration-300 ${editingMode !== 'none' ? 'bottom-80' : 'bottom-28'}`}>
+                  <div className="bg-white/95 backdrop-blur-md rounded-lg p-3 border border-gray-200/50 shadow-lg mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-800 font-medium">🎥 视频制作就绪</p>
+                        <p className="text-xs text-gray-600">三张作品已收集完成，点击右上角视频按钮</p>
+                      </div>
+                      <button
+                        onClick={handleGenerateVlog}
+                        disabled={videoGenerating}
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full transition-colors disabled:opacity-50 text-xs font-medium flex items-center space-x-1"
+                      >
+                        <span>🎥</span>
+                        <span>{videoGenerating ? '制作中' : '制作'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Mobile Thumbnail Gallery - Show saved images */}
               {savedImages.length > 0 && (
                 <div className={`fixed left-4 right-4 z-60 transition-all duration-300 ${editingMode !== 'none' ? 'bottom-72' : 'bottom-20'}`}>
                   <div className="bg-white/95 backdrop-blur-md rounded-lg p-3 border border-gray-200/50 shadow-lg">
                     <div className="text-center text-xs text-gray-600 mb-2 font-medium">
                       已保存 {savedImages.length}/3
+                      {savedImages.length === 1 && (
+                        <div className="text-blue-600 font-medium mt-1">
+                          📸 再保存两张图片即可制作 Vlog
+                        </div>
+                      )}
                       {savedImages.length === 2 && (
-                        <div className="text-red-500 font-bold">
+                        <div className="text-orange-500 font-bold mt-1 animate-pulse">
                           🎥 再保存一张即可制作视频！
                         </div>
                       )}
                       {savedImages.length >= 3 && (
-                        <div className="text-green-500 font-bold">
-                          🎥 可以制作 Vlog 视频了！
+                        <div className="text-green-500 font-bold mt-1">
+                          ✅ 可以制作 Vlog 视频了！
                         </div>
                       )}
                     </div>
@@ -1790,56 +1823,82 @@ export default function CreatePage() {
           </div>
         )}
 
-        {/* Global Video Modal */}
+        {/* Global Video Modal - Optimized for Mobile Portrait */}
         {videoUrl && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 z-[9999] flex items-center justify-center p-4">
-            <div className="bg-white rounded-sm p-6 max-w-2xl w-full max-h-[90vh] overflow-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">艺术视频</h3>
+          <div className="fixed inset-0 bg-black bg-opacity-95 z-[9999] flex items-center justify-center">
+            {/* Mobile-first responsive container */}
+            <div className="relative w-full h-full md:w-auto md:h-auto md:max-w-4xl md:max-h-[90vh] bg-white md:rounded-lg overflow-hidden flex flex-col">
+              
+              {/* Header - Fixed at top */}
+              <div className="flex items-center justify-between p-4 bg-white border-b md:border-b-0 flex-shrink-0">
+                <h3 className="text-lg font-medium text-gray-900">艺术视频</h3>
                 <button
                   onClick={() => {
                     console.log("📺 [VLOG DEBUG] Closing video modal")
                     setVideoUrl(null)
                   }}
-                  className="text-gray-400 hover:text-black transition-colors text-2xl font-bold p-2"
+                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
                 >
-                  ×
+                  <span className="text-gray-600 text-xl font-bold">×</span>
                 </button>
               </div>
-              <video
-                controls
-                autoPlay
-                className="w-full rounded-sm mb-4"
-                poster={savedImages[0]}
-                onLoadStart={() => console.log("📺 [VLOG DEBUG] Video loading started")}
-                onError={(e) => console.error("📺 [VLOG DEBUG] Video error:", e)}
-              >
-                <source src={videoUrl} type="video/mp4" />
-                您的浏览器不支持视频标签。
-              </video>
-              <div className="flex justify-center space-x-4">
-                <a
-                  href={videoUrl}
-                  download={`pet-art-video-${Date.now()}.mp4`}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded transition-colors flex items-center space-x-2"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>下载视频</span>
-                </a>
-                <button
-                  onClick={() => {
-                    console.log("📺 [VLOG DEBUG] Share button clicked")
-                    if (navigator.share) {
-                      navigator.share({
-                        title: '我的宠物艺术 Vlog',
-                        url: videoUrl
-                      })
-                    }
+              
+              {/* Video container - Flexible height */}
+              <div className="flex-1 flex items-center justify-center bg-black p-2 md:p-4">
+                <video
+                  controls
+                  autoPlay
+                  playsInline
+                  className="w-full h-auto max-h-full object-contain"
+                  poster={savedImages[0]}
+                  onLoadStart={() => console.log("📺 [VLOG DEBUG] Video loading started")}
+                  onError={(e) => console.error("📺 [VLOG DEBUG] Video error:", e)}
+                  style={{
+                    maxHeight: 'calc(100vh - 160px)', // Account for header and footer
                   }}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded transition-colors"
                 >
-                  分享
-                </button>
+                  <source src={videoUrl} type="video/mp4" />
+                  您的浏览器不支持视频标签。
+                </video>
+              </div>
+              
+              {/* Footer controls - Fixed at bottom */}
+              <div className="p-4 bg-white border-t flex-shrink-0">
+                <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                  <a
+                    href={videoUrl}
+                    download={`petpo-art-video-${Date.now()}.mp4`}
+                    className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium"
+                    onClick={() => console.log("📺 [VLOG DEBUG] Download button clicked")}
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>下载视频</span>
+                  </a>
+                  <button
+                    onClick={() => {
+                      console.log("📺 [VLOG DEBUG] Share button clicked")
+                      if (navigator.share) {
+                        navigator.share({
+                          title: '我的宠物艺术 Vlog',
+                          text: '查看我的宠物艺术作品！',
+                          url: window.location.href
+                        }).catch(e => console.log('Share failed:', e))
+                      } else {
+                        // Fallback - copy to clipboard
+                        navigator.clipboard?.writeText(window.location.href)
+                        alert('链接已复制到剪贴板')
+                      }
+                    }}
+                    className="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg transition-colors font-medium"
+                  >
+                    分享
+                  </button>
+                </div>
+                
+                {/* Mobile tip */}
+                <p className="text-xs text-gray-500 text-center mt-3 md:hidden">
+                  提示：可旋转手机观看更佳效果
+                </p>
               </div>
             </div>
           </div>
