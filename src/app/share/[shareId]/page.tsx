@@ -90,20 +90,104 @@ export default async function SharePage({ params }: SharePageProps) {
             )}
           </div>
 
-          {/* CTA Section */}
-          <div className="bg-gradient-to-br from-forest-light/20 to-rose/20 rounded-xl p-6 text-center">
-            <Dog className="h-12 w-12 text-forest-dark mx-auto mb-4 animate-gentle-float" />
-            <h2 className="text-xl font-bold text-forest-dark mb-2 handwriting">
-              想要制作专属于你的宠物肖像？
-            </h2>
-            <p className="text-gray-600 mb-6">
-              使用AI技术，将你的宠物照片转化为精美的艺术作品
+          {/* CTA Section - Enhanced for conversion */}
+          <div className="bg-gradient-to-br from-forest-light/20 to-rose/20 rounded-xl p-6 text-center mb-6">
+            <div className="mb-6">
+              <Dog className="h-16 w-16 text-forest-dark mx-auto mb-4 animate-gentle-float" />
+              <h2 className="text-2xl font-bold text-forest-dark mb-3 handwriting">
+                🎨 你也想要这样的专属宠物肖像吗？
+              </h2>
+              <p className="text-gray-700 text-lg mb-4">
+                只需上传一张宠物照片，AI立刻为你生成专业艺术作品
+              </p>
+              <div className="flex items-center justify-center space-x-6 mb-6 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Sparkles className="h-4 w-4 mr-1 text-yellow-500" />
+                  <span>30秒快速生成</span>
+                </div>
+                <div className="flex items-center">
+                  <Heart className="h-4 w-4 mr-1 text-rose" />
+                  <span>多种艺术风格</span>
+                </div>
+                <div className="flex items-center">
+                  <ArrowRight className="h-4 w-4 mr-1 text-forest" />
+                  <span>完全免费体验</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <Link 
+                href="/create"
+                className="inline-flex items-center px-10 py-4 bg-forest text-white rounded-full hover:bg-forest-dark transition-all transform hover:scale-105 shadow-lg text-xl font-semibold w-full max-w-md mx-auto justify-center"
+              >
+                🎯 立即免费制作 <ArrowRight className="ml-2 h-6 w-6" />
+              </Link>
+              
+              <p className="text-xs text-gray-500">
+                无需注册，上传照片即可开始 • 已有 <span className="font-semibold text-forest">10万+</span> 用户体验
+              </p>
+            </div>
+          </div>
+
+          {/* Social Proof & Features */}
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+              ⭐ 为什么选择 PETPO？
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-green-600 font-bold">✓</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">AI智能识别</h4>
+                  <p className="text-sm text-gray-600">自动识别宠物特征，保持原有可爱模样</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-blue-600 font-bold">⚡</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">极速生成</h4>
+                  <p className="text-sm text-gray-600">30秒内完成专业级艺术肖像制作</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-purple-600 font-bold">🎨</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">多种风格</h4>
+                  <p className="text-sm text-gray-600">水彩、油画、动漫、卡通等6种艺术风格</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-pink-600 font-bold">💝</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">高清下载</h4>
+                  <p className="text-sm text-gray-600">支持高清图片下载，可制作实物相框</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Urgency & Final CTA */}
+          <div className="text-center bg-gradient-to-r from-rose/10 to-forest-light/10 rounded-xl p-6">
+            <p className="text-forest-dark font-medium mb-4">
+              🔥 限时活动：现在制作完全免费，还能生成专属视频！
             </p>
             <Link 
               href="/create"
-              className="inline-flex items-center px-8 py-4 bg-forest text-white rounded-full hover:bg-forest-dark transition-all transform hover:scale-105 shadow-lg text-lg font-medium"
+              className="inline-flex items-center px-8 py-3 bg-rose text-white rounded-full hover:bg-rose/90 transition-all shadow-lg font-semibold"
             >
-              开始制作我的肖像 <ArrowRight className="ml-2 h-5 w-5" />
+              马上开始制作 →
             </Link>
           </div>
 

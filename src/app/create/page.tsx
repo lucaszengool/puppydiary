@@ -397,10 +397,63 @@ export default function CreatePage() {
         }
       }
       
+      console.log("🎨 [STYLE DEBUG] Using style:", {
+        styleId: selectedStyle?.id,
+        styleLabel: selectedStyle?.label,
+        prompt: fullPrompt.substring(0, 100) + '...'
+      })
+      
       formData.append("prompt", fullPrompt)
-      formData.append("art_style", "anime")
-      formData.append("cuteness_level", "maximum")
-      formData.append("color_palette", "pastel")
+      
+      // Set style parameters based on selected style
+      let artStyle = "anime"
+      let colorPalette = "pastel"
+      let cutenessLevel = "maximum"
+      
+      if (selectedStyle) {
+        switch(selectedStyle.id) {
+          case 'ghibli':
+            artStyle = "anime"
+            colorPalette = "pastel"
+            cutenessLevel = "maximum"
+            break
+          case 'disney':
+            artStyle = "cartoon"
+            colorPalette = "vibrant"
+            cutenessLevel = "maximum"
+            break
+          case 'realistic':
+            artStyle = "oil_painting"
+            colorPalette = "warm"
+            cutenessLevel = "medium"
+            break
+          case 'watercolor':
+            artStyle = "watercolor"
+            colorPalette = "soft"
+            cutenessLevel = "high"
+            break
+          case 'vintage':
+            artStyle = "photography"
+            colorPalette = "sepia"
+            cutenessLevel = "medium"
+            break
+          case 'modern':
+            artStyle = "minimalist"
+            colorPalette = "clean"
+            cutenessLevel = "medium"
+            break
+        }
+      }
+      
+      formData.append("art_style", artStyle)
+      formData.append("cuteness_level", cutenessLevel)
+      formData.append("color_palette", colorPalette)
+      
+      console.log("🎨 [STYLE DEBUG] API parameters:", {
+        art_style: artStyle,
+        cuteness_level: cutenessLevel,
+        color_palette: colorPalette
+      })
 
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -553,8 +606,8 @@ export default function CreatePage() {
     throw new Error("Video generation timeout - please try again")
   }
 
-  // Share single image
-  const handleShareImage = async (imageUrl: string) => {
+  // Share with native share API and confirmation for bone reward
+  const handleShareWithConfirmation = async (imageUrl: string) => {
     if (!userId) {
       toast({
         title: "需要登录",
@@ -565,6 +618,7 @@ export default function CreatePage() {
     }
 
     try {
+      // First create the share link
       const response = await fetch('/api/share', {
         method: 'POST',
         headers: {
@@ -574,31 +628,48 @@ export default function CreatePage() {
           imageUrl,
           title: `${selectedStyle?.label || '艺术'}风格宠物肖像`,
           style: selectedStyle?.label || '艺术',
-          description: `由AI生成的专属宠物艺术肖像`
+          description: `由AI生成的专属宠物艺术肖像 - PETPO宠物肖像定制`
         })
       })
 
       if (!response.ok) {
-        throw new Error('分享失败')
+        throw new Error('创建分享链接失败')
       }
 
       const data = await response.json()
-      
-      // Copy share link to clipboard
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(data.shareLink)
-      }
+      const shareUrl = data.shareLink
+      const shareTitle = `${selectedStyle?.label || '艺术'}风格宠物肖像`
+      const shareText = `看看我用AI生成的专属宠物艺术肖像！快来PETPO制作你的专属宠物肖像吧！`
 
-      toast({
-        title: "分享成功！",
-        description: data.boneReward.awarded 
-          ? `分享链接已复制！获得1个骨头奖励 🦴 (${data.boneReward.bones}个)`
-          : `分享链接已复制！今日骨头奖励已获取`,
-      })
-
-      // Update bones count if rewarded
-      if (data.boneReward.awarded) {
-        setUserBones(data.boneReward.bones)
+      // Try native share first (mobile)
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+          })
+          
+          // Show confirmation dialog after successful share
+          const confirmed = confirm(
+            "感谢分享！🎉\n\n" +
+            "为了获得骨头奖励，请确认：\n" + 
+            "✅ 您是否已成功分享了这个链接？\n\n" +
+            "点击"确定"领取1个骨头奖励 🦴"
+          )
+          
+          if (confirmed) {
+            await awardBonesAfterShare(data.boneReward)
+          }
+          
+        } catch (shareError) {
+          console.log('Native share cancelled or failed')
+          // Fall back to clipboard copy
+          await fallbackShare(shareUrl, data.boneReward)
+        }
+      } else {
+        // Fall back to clipboard copy for desktop
+        await fallbackShare(shareUrl, data.boneReward)
       }
     } catch (error) {
       console.error('Share error:', error)
@@ -610,7 +681,61 @@ export default function CreatePage() {
     }
   }
 
-  // Generate video for single image (requires bones)
+  // Fallback share method (copy to clipboard)
+  const fallbackShare = async (shareUrl: string, boneReward: any) => {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl)
+      }
+      
+      toast({
+        title: "链接已复制！📋",
+        description: "请粘贴到微信、微博等社交平台分享",
+        duration: 5000,
+      })
+      
+      // Show confirmation dialog
+      const confirmed = confirm(
+        "链接已复制到剪贴板！📋\n\n" +
+        "请将链接分享到微信、微博等社交平台\n\n" +
+        "分享完成后点击"确定"获得1个骨头奖励 🦴"
+      )
+      
+      if (confirmed) {
+        await awardBonesAfterShare(boneReward)
+      }
+    } catch (error) {
+      console.error('Clipboard copy failed:', error)
+      toast({
+        title: "复制失败",
+        description: "请手动复制链接进行分享",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Award bones after share confirmation
+  const awardBonesAfterShare = async (boneReward: any) => {
+    if (boneReward.awarded) {
+      setUserBones(boneReward.bones)
+      toast({
+        title: "获得骨头奖励！🦴",
+        description: `感谢分享！获得1个骨头奖励 (总计: ${boneReward.bones}个)`,
+      })
+    } else {
+      toast({
+        title: "分享成功！",
+        description: boneReward.message || "今日骨头奖励已获取",
+      })
+    }
+  }
+
+  // Simple share for UI buttons (no confirmation needed)
+  const handleShareImage = async (imageUrl: string) => {
+    await handleShareWithConfirmation(imageUrl)
+  }
+
+  // Generate video for single image - show share prompt if no bones
   const handleSingleVideoGeneration = async (imageUrl: string) => {
     if (!userId) {
       toast({
@@ -621,13 +746,9 @@ export default function CreatePage() {
       return
     }
 
-    // Check if user has enough bones
+    // If no bones, prompt to share first
     if (userBones < 1) {
-      toast({
-        title: "骨头不足 🦴",
-        description: "生成视频需要消耗1个骨头。通过分享作品可获得骨头奖励！",
-        variant: "destructive",
-      })
+      handleShareWithConfirmation(imageUrl)
       return
     }
 
@@ -1658,18 +1779,16 @@ export default function CreatePage() {
                 </button>
                 <button
                   onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
-                  disabled={videoGenerating || userBones < 1}
+                  disabled={videoGenerating}
                   className="flex items-center px-3 py-2 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={userBones < 1 ? "需要1个骨头" : "生成视频"}
+                  title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
                 >
                   <Video className="w-4 h-4 mr-1" />
-                  {videoGenerating ? '生成中...' : '视频'}
-                  {!videoGenerating && (
-                    <div className="flex items-center ml-1">
-                      <BoneIcon className="w-3 h-3 text-white/80" />
-                      <span className="text-xs ml-0.5">1</span>
-                    </div>
-                  )}
+                  {videoGenerating ? '生成中...' : (userBones < 1 ? '分享获得' : '视频')}
+                  <div className="flex items-center ml-1">
+                    <BoneIcon className="w-3 h-3 text-white/80" />
+                    <span className="text-xs ml-0.5">1</span>
+                  </div>
                 </button>
               </div>
             </div>
@@ -1728,18 +1847,16 @@ export default function CreatePage() {
                   </button>
                   <button
                     onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
-                    disabled={videoGenerating || userBones < 1}
+                    disabled={videoGenerating}
                     className="flex items-center px-4 py-3 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={userBones < 1 ? "需要1个骨头" : "生成视频"}
+                    title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
                   >
                     <Video className="w-4 h-4 mr-2" />
-                    {videoGenerating ? '生成中...' : '生成视频'}
-                    {!videoGenerating && (
-                      <div className="flex items-center ml-2">
-                        <BoneIcon className="w-3 h-3 text-white/80" />
-                        <span className="text-xs ml-1">1</span>
-                      </div>
-                    )}
+                    {videoGenerating ? '生成中...' : (userBones < 1 ? '先分享获得骨头' : '生成视频')}
+                    <div className="flex items-center ml-2">
+                      <BoneIcon className="w-3 h-3 text-white/80" />
+                      <span className="text-xs ml-1">1</span>
+                    </div>
                   </button>
                 </div>
               </div>
