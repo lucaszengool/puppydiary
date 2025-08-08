@@ -24,7 +24,9 @@ import {
   ZoomIn,
   User,
   Plus,
-  ArrowLeft
+  ArrowLeft,
+  ArrowRight,
+  ChevronRight
 } from "lucide-react"
 import Link from "next/link"
 import './vsco-style.css'
@@ -82,7 +84,7 @@ export default function CreatePage() {
       icon: Heart, 
       label: '宫崎骏动漫', 
       description: '温暖治愈的手绘风格',
-      prompt: 'Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration'
+      prompt: 'Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration, maintain exact facial features and body proportions, preserve all unique markings and characteristics, keep the same pose and expression, identical eye shape and color, same fur patterns and colors, preserve all distinctive features'
     },
     { 
       id: 'disney', 
@@ -96,21 +98,21 @@ export default function CreatePage() {
       icon: Camera, 
       label: '印象派油画', 
       description: '浪漫印象派绘画风格',
-      prompt: 'impressionistic oil painting, romantic impressionist style, visible thick brushstrokes, impasto technique, warm golden tones, soft dreamy atmosphere, painterly texture, classical European oil painting, rich color palette, artistic brushwork, romantic lighting, pastoral beauty'
+      prompt: 'impressionistic oil painting, romantic impressionist style, visible thick brushstrokes, impasto technique, warm golden tones, soft dreamy atmosphere, painterly texture, classical European oil painting, rich color palette, artistic brushwork, romantic lighting, pastoral beauty, preserve exact facial structure and expression, maintain all distinctive features and markings, keep identical body proportions and posture, same eye shape and nose structure, preserve all unique characteristics and fur patterns'
     },
     { 
       id: 'watercolor', 
       icon: Palette, 
       label: '水彩插画', 
       description: '柔美的水彩艺术风格',
-      prompt: 'watercolor illustration, soft watercolor painting, delicate brushstrokes, flowing colors, artistic illustration, gentle and dreamy watercolor art'
+      prompt: 'watercolor illustration, soft watercolor painting, delicate brushstrokes, flowing colors, artistic illustration, gentle and dreamy watercolor art, maintain exact facial features and body proportions, preserve all unique markings and characteristics, keep the same pose and expression, identical eye shape and color, same fur patterns and colors, preserve all distinctive features'
     },
     { 
       id: 'vintage', 
       icon: Sun, 
       label: '复古怀旧', 
       description: '温暖的复古摄影风格',
-      prompt: 'vintage photography style, retro aesthetic, warm sepia tones, nostalgic atmosphere, classic portrait photography, timeless vintage look'
+      prompt: 'vintage photography style, retro aesthetic, warm sepia tones, nostalgic atmosphere, classic portrait photography, timeless vintage look, preserve exact facial structure and expression, maintain all distinctive features and markings, keep identical body proportions and posture, same eye shape and nose structure, preserve all unique characteristics and fur patterns'
     },
     { 
       id: 'modern', 
@@ -145,7 +147,7 @@ export default function CreatePage() {
     }
   }, [searchParams]) 
 
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = async (file: File) => {
     console.log("handleFileSelect called with:", file ? file.name : "no file")
     
     if (!file) {
@@ -179,16 +181,28 @@ export default function CreatePage() {
       return
     }
 
+    if (!selectedStyle) {
+      toast({
+        title: "请先选择风格",
+        description: "请选择艺术风格后上传照片",
+        variant: "destructive",
+      })
+      return
+    }
+
     console.log("File validation passed, creating URL...")
     setSelectedFile(file)
     const url = URL.createObjectURL(file)
     setSelectedImageUrl(url)
-    setCurrentStep('upload')
+    setCurrentStep('processing')
     
     toast({
-      title: "图片上传成功",
-      description: "点击开始创作生成艺术作品",
+      title: "开始创作",
+      description: "AI 正在为您的宠物生成艺术作品...",
     })
+
+    // Automatically start generation
+    await generatePortrait(file, undefined, false)
   }
 
   const handleStyleSelect = (style: any) => {
@@ -196,12 +210,6 @@ export default function CreatePage() {
     setCurrentStep('upload')
   }
 
-  const handleGenerate = () => {
-    if (!selectedFile || !selectedStyle) return
-    setCurrentStep('processing')
-    // First generation with selected style
-    generatePortrait(selectedFile, undefined, false)
-  }
 
   const handleUploadClick = () => {
     fileInputRef.current?.click()
@@ -888,32 +896,6 @@ export default function CreatePage() {
             </div>
           )}
 
-          {selectedFile && selectedImageUrl && !generatedImage && (
-            <div className="fade-in">
-              <h3 className="adjustment-title">预览</h3>
-              <div className="mb-4">
-                <img
-                  src={selectedImageUrl}
-                  alt="预览"
-                  className="w-full aspect-square object-cover rounded-sm"
-                />
-              </div>
-              <button
-                onClick={handleGenerate}
-                disabled={isProcessing}
-                className="w-full vsco-btn"
-              >
-                {isProcessing ? (
-                  <>
-                    <div className="vsco-spinner w-4 h-4 mr-2"></div>
-                    生成中...
-                  </>
-                ) : (
-                  '开始创作'
-                )}
-              </button>
-            </div>
-          )}
 
           {/* Desktop Operations Panel */}
           {generatedImage && (
@@ -952,7 +934,7 @@ export default function CreatePage() {
                 </button>
                 {savedImages.length < 3 ? (
                   <button onClick={handleNextImage} className="w-full vsco-btn secondary">
-                    <Plus className="w-4 h-4 mr-2" />
+                    <ChevronRight className="w-4 h-4 mr-2" />
                     保存并继续
                   </button>
                 ) : (
@@ -1022,24 +1004,15 @@ export default function CreatePage() {
               {/* Main content area - flex to center image */}
               <div className="flex-1 flex items-center justify-center px-2 pt-12 pb-28">
                 <div className="w-full h-full flex items-center justify-center">
-                  {/* Show ImageEditor when editing, otherwise show PinchZoom */}
-                  {(editingMode === 'adjustments' || editingMode === 'filters') ? (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ImageEditor
-                        originalImage={generatedImage}
-                        adjustments={imageAdjustments}
-                        onAdjustmentChange={handleAdjustmentChange}
-                        onImageUpdate={handleImageUpdate}
-                      />
-                    </div>
-                  ) : (
-                    <PinchZoomImage
-                      src={editedImage || generatedImage}
-                      alt="生成的艺术作品"
-                      className="w-full h-full object-contain"
-                      style={{ maxWidth: '100%', maxHeight: '100%' }}
+                  {/* Always show ImageEditor for real-time preview, even when not editing */}
+                  <div className="w-full h-full flex items-center justify-center">
+                    <ImageEditor
+                      originalImage={generatedImage}
+                      adjustments={imageAdjustments}
+                      onAdjustmentChange={handleAdjustmentChange}
+                      onImageUpdate={handleImageUpdate}
                     />
-                  )}
+                  </div>
                 </div>
               </div>
 
@@ -1076,7 +1049,7 @@ export default function CreatePage() {
                     onClick={handleNextImage} 
                     className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center border border-gray-200/50 hover:bg-white/90 transition-all shadow-sm"
                   >
-                    <Plus className="w-5 h-5 text-gray-700" />
+                    <ChevronRight className="w-5 h-5 text-gray-700" />
                   </button>
                 ) : (
                   <button 
@@ -1088,6 +1061,42 @@ export default function CreatePage() {
                 )}
               </div>
 
+              {/* Mobile Thumbnail Gallery - Show saved images */}
+              {savedImages.length > 0 && (
+                <div className="fixed bottom-20 left-4 right-4 z-40">
+                  <div className="bg-white/90 backdrop-blur-md rounded-lg p-3 border border-gray-200/50 shadow-lg">
+                    <div className="text-center text-xs text-gray-600 mb-2">
+                      已保存 {savedImages.length}/3
+                    </div>
+                    <div className="flex justify-center space-x-2">
+                      {savedImages.map((image, index) => (
+                        <div 
+                          key={index} 
+                          className="w-12 h-12 rounded border-2 border-gray-200 overflow-hidden cursor-pointer hover:border-black transition-colors"
+                          onClick={() => {
+                            // Download image on click
+                            const a = document.createElement('a')
+                            a.href = image
+                            a.download = `saved-artwork-${index + 1}-${Date.now()}.png`
+                            a.click()
+                          }}
+                        >
+                          <img
+                            src={image}
+                            alt={`保存的作品 ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
+                      {Array.from({ length: 3 - savedImages.length }).map((_, index) => (
+                        <div key={`empty-${index}`} className="w-12 h-12 rounded border-2 border-dashed border-gray-300 flex items-center justify-center">
+                          <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Bottom Tools - Only appear when clicked */}
               <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -1142,12 +1151,14 @@ export default function CreatePage() {
 
                     {/* Adjustments Panel */}
                     {editingMode === 'adjustments' && (
-                      <div className="p-4 space-y-6">
-                        <div className="space-y-4">
+                      <div className="p-4 space-y-4">
+                        <div className="text-center text-sm font-medium text-gray-800 mb-4">调整</div>
+                        
+                        <div className="space-y-3">
                           <div className="adjustment-item-mobile">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-gray-800 text-sm">曝光</span>
-                              <span className="text-gray-600 text-sm">{imageAdjustments.exposure}</span>
+                              <span className="text-gray-800 text-sm font-medium">曝光</span>
+                              <span className="text-gray-600 text-sm min-w-[30px] text-right">{imageAdjustments.exposure > 0 ? '+' + imageAdjustments.exposure : imageAdjustments.exposure}</span>
                             </div>
                             <input
                               type="range"
@@ -1156,7 +1167,12 @@ export default function CreatePage() {
                               value={imageAdjustments.exposure}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, exposure: parseInt(e.target.value) }
-                                handleAdjustmentChange(newAdjustments)
+                                setImageAdjustments(newAdjustments)
+                              }}
+                              onInput={(e) => {
+                                // Real-time preview during drag
+                                const newAdjustments = { ...imageAdjustments, exposure: parseInt((e.target as HTMLInputElement).value) }
+                                setImageAdjustments(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1164,8 +1180,8 @@ export default function CreatePage() {
 
                           <div className="adjustment-item-mobile">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-gray-800 text-sm">高光</span>
-                              <span className="text-gray-600 text-sm">{imageAdjustments.highlights}</span>
+                              <span className="text-gray-800 text-sm font-medium">高光</span>
+                              <span className="text-gray-600 text-sm min-w-[30px] text-right">{imageAdjustments.highlights > 0 ? '+' + imageAdjustments.highlights : imageAdjustments.highlights}</span>
                             </div>
                             <input
                               type="range"
@@ -1174,7 +1190,11 @@ export default function CreatePage() {
                               value={imageAdjustments.highlights}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, highlights: parseInt(e.target.value) }
-                                handleAdjustmentChange(newAdjustments)
+                                setImageAdjustments(newAdjustments)
+                              }}
+                              onInput={(e) => {
+                                const newAdjustments = { ...imageAdjustments, highlights: parseInt((e.target as HTMLInputElement).value) }
+                                setImageAdjustments(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1182,8 +1202,8 @@ export default function CreatePage() {
 
                           <div className="adjustment-item-mobile">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-gray-800 text-sm">阴影</span>
-                              <span className="text-gray-600 text-sm">{imageAdjustments.shadows}</span>
+                              <span className="text-gray-800 text-sm font-medium">阴影</span>
+                              <span className="text-gray-600 text-sm min-w-[30px] text-right">{imageAdjustments.shadows > 0 ? '+' + imageAdjustments.shadows : imageAdjustments.shadows}</span>
                             </div>
                             <input
                               type="range"
@@ -1192,7 +1212,11 @@ export default function CreatePage() {
                               value={imageAdjustments.shadows}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, shadows: parseInt(e.target.value) }
-                                handleAdjustmentChange(newAdjustments)
+                                setImageAdjustments(newAdjustments)
+                              }}
+                              onInput={(e) => {
+                                const newAdjustments = { ...imageAdjustments, shadows: parseInt((e.target as HTMLInputElement).value) }
+                                setImageAdjustments(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1200,8 +1224,8 @@ export default function CreatePage() {
 
                           <div className="adjustment-item-mobile">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-gray-800 text-sm">对比度</span>
-                              <span className="text-gray-600 text-sm">{imageAdjustments.contrast}</span>
+                              <span className="text-gray-800 text-sm font-medium">对比度</span>
+                              <span className="text-gray-600 text-sm min-w-[30px] text-right">{imageAdjustments.contrast > 0 ? '+' + imageAdjustments.contrast : imageAdjustments.contrast}</span>
                             </div>
                             <input
                               type="range"
@@ -1210,7 +1234,11 @@ export default function CreatePage() {
                               value={imageAdjustments.contrast}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, contrast: parseInt(e.target.value) }
-                                handleAdjustmentChange(newAdjustments)
+                                setImageAdjustments(newAdjustments)
+                              }}
+                              onInput={(e) => {
+                                const newAdjustments = { ...imageAdjustments, contrast: parseInt((e.target as HTMLInputElement).value) }
+                                setImageAdjustments(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1218,8 +1246,8 @@ export default function CreatePage() {
 
                           <div className="adjustment-item-mobile">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-gray-800 text-sm">饱和度</span>
-                              <span className="text-gray-600 text-sm">{imageAdjustments.saturation}</span>
+                              <span className="text-gray-800 text-sm font-medium">饱和度</span>
+                              <span className="text-gray-600 text-sm min-w-[30px] text-right">{imageAdjustments.saturation > 0 ? '+' + imageAdjustments.saturation : imageAdjustments.saturation}</span>
                             </div>
                             <input
                               type="range"
@@ -1228,7 +1256,11 @@ export default function CreatePage() {
                               value={imageAdjustments.saturation}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, saturation: parseInt(e.target.value) }
-                                handleAdjustmentChange(newAdjustments)
+                                setImageAdjustments(newAdjustments)
+                              }}
+                              onInput={(e) => {
+                                const newAdjustments = { ...imageAdjustments, saturation: parseInt((e.target as HTMLInputElement).value) }
+                                setImageAdjustments(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
@@ -1236,8 +1268,8 @@ export default function CreatePage() {
 
                           <div className="adjustment-item-mobile">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-gray-800 text-sm">色温</span>
-                              <span className="text-gray-600 text-sm">{imageAdjustments.warmth}</span>
+                              <span className="text-gray-800 text-sm font-medium">色温</span>
+                              <span className="text-gray-600 text-sm min-w-[30px] text-right">{imageAdjustments.warmth > 0 ? '+' + imageAdjustments.warmth : imageAdjustments.warmth}</span>
                             </div>
                             <input
                               type="range"
@@ -1246,7 +1278,11 @@ export default function CreatePage() {
                               value={imageAdjustments.warmth}
                               onChange={(e) => {
                                 const newAdjustments = { ...imageAdjustments, warmth: parseInt(e.target.value) }
-                                handleAdjustmentChange(newAdjustments)
+                                setImageAdjustments(newAdjustments)
+                              }}
+                              onInput={(e) => {
+                                const newAdjustments = { ...imageAdjustments, warmth: parseInt((e.target as HTMLInputElement).value) }
+                                setImageAdjustments(newAdjustments)
                               }}
                               className="vsco-slider-mobile"
                             />
