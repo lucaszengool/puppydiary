@@ -76,6 +76,8 @@ export default function CreatePage() {
   const [canUndo, setCanUndo] = useState(false)
   const [showPublishDialog, setShowPublishDialog] = useState(false)
   const [publishLoading, setPublishLoading] = useState(false)
+  const [showImagePreview, setShowImagePreview] = useState(false)
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>("")
 
   // 主要艺术风格选项
   const mainStyleOptions = [
@@ -343,9 +345,18 @@ export default function CreatePage() {
     await generatePortrait(selectedFile, stylePrompt, true)
   }
 
-  const handleNextImage = () => {
-    // Save the current image (edited version if available, otherwise generated)
-    const imageToSave = editedImage || generatedImage
+  const handleNextImage = async () => {
+    // Apply final edits and save the result
+    let imageToSave = generatedImage
+    if (Object.values(imageAdjustments).some(val => val !== 0)) {
+      // If there are adjustments, apply them and get the final image
+      const finalEditedImage = await applyFinalEdit()
+      imageToSave = finalEditedImage || generatedImage
+      setEditedImage(imageToSave)
+    } else {
+      imageToSave = editedImage || generatedImage
+    }
+    
     if (imageToSave && savedImages.length < 3) {
       const newSavedImages = [...savedImages, imageToSave]
       setSavedImages(newSavedImages)
@@ -451,8 +462,55 @@ export default function CreatePage() {
   }
 
   const handleAdjustmentChange = (newAdjustments: ImageAdjustments) => {
-    saveToHistory()
+    // Immediately update adjustments for real-time preview
     setImageAdjustments(newAdjustments)
+  }
+
+  // Function to apply and save the final edited image using Canvas
+  const applyFinalEdit = async () => {
+    if (!generatedImage) return
+
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    
+    return new Promise<string>((resolve) => {
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return resolve(generatedImage)
+
+        canvas.width = img.width
+        canvas.height = img.height
+
+        // Apply CSS filters to canvas context
+        const filters = []
+        if (imageAdjustments.brightness !== 0) {
+          filters.push(`brightness(${100 + imageAdjustments.brightness}%)`)
+        }
+        if (imageAdjustments.contrast !== 0) {
+          filters.push(`contrast(${100 + imageAdjustments.contrast}%)`)
+        }
+        if (imageAdjustments.saturation !== 0) {
+          filters.push(`saturate(${100 + imageAdjustments.saturation}%)`)
+        }
+        if (imageAdjustments.warmth > 0) {
+          filters.push(`sepia(${imageAdjustments.warmth / 2}%)`)
+        }
+        if (imageAdjustments.warmth < 0) {
+          filters.push(`hue-rotate(${imageAdjustments.warmth}deg)`)
+        }
+        if (imageAdjustments.exposure !== 0) {
+          filters.push(`opacity(${100 + imageAdjustments.exposure / 2}%)`)
+        }
+
+        ctx.filter = filters.join(' ')
+        ctx.drawImage(img, 0, 0)
+        
+        const editedDataUrl = canvas.toDataURL('image/png')
+        resolve(editedDataUrl)
+      }
+      img.src = generatedImage
+    })
   }
 
   const handleImageUpdate = (editedImageData: string) => {
@@ -1004,13 +1062,23 @@ export default function CreatePage() {
               {/* Main content area - flex to center image */}
               <div className="flex-1 flex items-center justify-center px-2 pt-12 pb-28">
                 <div className="w-full h-full flex items-center justify-center">
-                  {/* Always show ImageEditor for real-time preview, even when not editing */}
+                  {/* Mobile optimized real-time preview using CSS filters */}
                   <div className="w-full h-full flex items-center justify-center">
-                    <ImageEditor
-                      originalImage={generatedImage}
-                      adjustments={imageAdjustments}
-                      onAdjustmentChange={handleAdjustmentChange}
-                      onImageUpdate={handleImageUpdate}
+                    <img
+                      src={editedImage || generatedImage}
+                      alt="生成的艺术作品"
+                      className="max-w-full max-h-full object-contain"
+                      style={{
+                        filter: `
+                          brightness(${100 + imageAdjustments.brightness}%)
+                          contrast(${100 + imageAdjustments.contrast}%)
+                          saturate(${100 + imageAdjustments.saturation}%)
+                          sepia(${imageAdjustments.warmth > 0 ? imageAdjustments.warmth / 2 : 0}%)
+                          hue-rotate(${imageAdjustments.warmth < 0 ? imageAdjustments.warmth : 0}deg)
+                          opacity(${100 + imageAdjustments.exposure / 2}%)
+                        `.replace(/\s+/g, ' ').trim(),
+                        transition: 'filter 0.1s ease-out'
+                      }}
                     />
                   </div>
                 </div>
@@ -1074,11 +1142,9 @@ export default function CreatePage() {
                           key={index} 
                           className="w-12 h-12 rounded border-2 border-gray-200 overflow-hidden cursor-pointer hover:border-black transition-colors shadow-sm"
                           onClick={() => {
-                            // Download image on click
-                            const a = document.createElement('a')
-                            a.href = image
-                            a.download = `saved-artwork-${index + 1}-${Date.now()}.png`
-                            a.click()
+                            // Show preview modal
+                            setPreviewImageUrl(image)
+                            setShowImagePreview(true)
                           }}
                         >
                           <img
@@ -1357,6 +1423,41 @@ export default function CreatePage() {
                 )}
               </div>
             </div>
+        )}
+
+        {/* Image Preview Modal */}
+        {showImagePreview && previewImageUrl && (
+          <div className="fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4">
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Close button */}
+              <button
+                onClick={() => setShowImagePreview(false)}
+                className="absolute top-4 right-4 z-[210] w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              >
+                <span className="text-white text-xl">×</span>
+              </button>
+              
+              {/* Download button */}
+              <button
+                onClick={() => {
+                  const a = document.createElement('a')
+                  a.href = previewImageUrl
+                  a.download = `petpo-artwork-${Date.now()}.png`
+                  a.click()
+                }}
+                className="absolute top-4 right-16 z-[210] w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              >
+                <Download className="w-5 h-5 text-white" />
+              </button>
+              
+              {/* Zoomable image */}
+              <PinchZoomImage
+                src={previewImageUrl}
+                alt="保存的作品预览"
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          </div>
         )}
 
     </div>
