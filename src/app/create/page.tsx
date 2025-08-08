@@ -94,28 +94,28 @@ export default function CreatePage() {
   const [userBones, setUserBones] = useState<number>(0)
   const [loadingBones, setLoadingBones] = useState(false)
 
-  // 主要艺术风格选项
+  // 主要艺术风格选项 - 优化后的prompts
   const mainStyleOptions = [
     { 
       id: 'ghibli', 
       icon: Heart, 
       label: '宫崎骏动漫', 
       description: '温暖治愈的手绘风格',
-      prompt: 'Studio Ghibli anime style, hand-drawn cel animation, soft watercolor backgrounds, warm pastel colors, magical atmosphere, detailed character design, preserve all facial features and body proportions, keep same pose and expression, maintain all unique characteristics'
+      prompt: 'Studio Ghibli style anime illustration, 宫崎骏风格动漫插画, hand-drawn 2D animation, soft watercolor technique, warm pastel color palette, gentle magical atmosphere, detailed character design with large expressive eyes, rounded cute features, soft shading, whimsical charm, preserve exact pose and facial expression, maintain all original fur patterns and markings, keep identical body proportions, same eye color and shape, 高质量手绘动漫风格, masterpiece quality'
     },
     { 
       id: 'disney', 
       icon: Sparkles, 
       label: '迪士尼卡通', 
       description: '可爱生动的卡通风格',
-      prompt: 'Disney 3D animation style, Pixar quality rendering, vibrant colors, cute and expressive character design, smooth clean lines, maintain facial features and body proportions, preserve unique markings, keep same pose and expression'
+      prompt: 'Disney Pixar 3D animation style, 迪士尼风格卡通, high-quality 3D rendering, vibrant saturated colors, smooth clean surfaces, cute anthropomorphic design, large expressive cartoon eyes, exaggerated cute features, professional CGI quality, Pixar-style lighting and shading, maintain exact pose and expression, preserve all distinctive markings and patterns, identical proportions, same eye color, 精美卡通风格, animation masterpiece'
     },
     { 
       id: 'realistic', 
       icon: Camera, 
       label: '印象派油画', 
-      description: '浪漫印象派绘画风格',
-      prompt: 'French Impressionist oil painting, thick paint texture, visible brushstrokes, dappled sunlight, warm earth tones, artistic masterpiece style, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
+      description: '浪漫印象派绘画风格',  
+      prompt: 'French Impressionist oil painting, 印象派油画风格, Monet-inspired brushwork, thick impasto paint texture, visible expressive brushstrokes, dappled natural lighting, warm golden hour colors, soft atmospheric effects, post-impressionist technique, plein air painting style, artistic loose brushwork, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 印象派大师风格, oil painting masterpiece'
     },
     { 
       id: 'watercolor', 
@@ -129,14 +129,14 @@ export default function CreatePage() {
       icon: Sun, 
       label: '复古怀旧', 
       description: '温暖的复古摄影风格',
-      prompt: 'vintage film photography, retro 1950s style, warm sepia filter, soft focus, classic portrait photography, nostalgic mood, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
+      prompt: 'vintage portrait photography, 复古摄影风格, retro 1950s aesthetic, warm sepia and amber tones, soft film grain texture, classic portrait lighting, nostalgic warm filter, aged photograph look, golden hour lighting, vintage color grading, old-fashioned charm, maintain exact pose and facial expression, preserve all distinctive features and markings, identical proportions, same eye detail, 复古摄影大师风格, timeless portrait quality'
     },
     { 
       id: 'modern', 
       icon: Wand2, 
-      label: '现代艺术', 
+      label: '现代简约', 
       description: '简约现代的艺术风格',
-      prompt: 'modern art style, contemporary illustration, clean lines, minimalist design, digital art, stylized portrait, modern graphic design, preserve exact facial structure and expression, maintain all distinctive features and markings, keep identical body proportions and posture, same eye shape and nose structure, preserve all unique characteristics and fur patterns'
+      prompt: 'modern minimalist art style, 现代简约风格, contemporary digital illustration, clean geometric lines, simplified color palette, minimalist design principles, modern graphic design, stylized vector art, clean composition, modern art aesthetic, sophisticated simplicity, preserve exact facial structure and expression, maintain all distinctive features, identical pose and proportions, same characteristic details, 现代艺术风格, contemporary masterpiece'
     },
   ]
 
