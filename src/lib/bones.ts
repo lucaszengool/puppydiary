@@ -1,8 +1,32 @@
-import { supabaseAdmin } from './supabase'
 import type { UserBones } from './supabase'
+
+let supabaseAdmin: any = null
+let supabaseAvailable = false
+
+// Try to initialize Supabase, fall back to in-memory storage if it fails
+async function initSupabase() {
+  try {
+    const supabaseLib = await import('./supabase')
+    supabaseAdmin = supabaseLib.supabaseAdmin
+    supabaseAvailable = true
+    return true
+  } catch (error) {
+    console.warn('Supabase not available, using fallback:', error)
+    supabaseAvailable = false
+    return false
+  }
+}
 
 // Get user's bone count
 export async function getUserBones(userId: string): Promise<UserBones | null> {
+  const initialized = await initSupabase()
+  
+  if (!initialized || !supabaseAvailable) {
+    // Use fallback system
+    const fallback = await import('./bones-fallback')
+    return await fallback.getUserBones(userId)
+  }
+  
   try {
     const { data, error } = await supabaseAdmin
       .from('user_bones')
@@ -23,7 +47,9 @@ export async function getUserBones(userId: string): Promise<UserBones | null> {
     return data
   } catch (error) {
     console.error('Error in getUserBones:', error)
-    return null
+    // Fall back to in-memory system
+    const fallback = await import('./bones-fallback')
+    return await fallback.getUserBones(userId)
   }
 }
 

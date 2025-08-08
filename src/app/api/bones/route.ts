@@ -1,10 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getUserBones, consumeBones, awardShareBones } from '@/lib/bones'
+
+// Dynamic import to prevent build-time errors
+let getUserBones: any, consumeBones: any, awardShareBones: any
+
+async function loadBonesLib() {
+  try {
+    const bonesLib = await import('@/lib/bones')
+    getUserBones = bonesLib.getUserBones
+    consumeBones = bonesLib.consumeBones
+    awardShareBones = bonesLib.awardShareBones
+    return true
+  } catch (error) {
+    console.error('Failed to load bones lib:', error)
+    return false
+  }
+}
 
 // GET /api/bones - Get user's bone count
 export async function GET() {
   try {
+    const loaded = await loadBonesLib()
+    if (!loaded) {
+      return NextResponse.json({ 
+        bones: 0, 
+        lastShareReward: null,
+        error: 'Bones system not available' 
+      }, { status: 503 })
+    }
+
     const { userId } = await auth()
     
     if (!userId) {
@@ -19,13 +43,24 @@ export async function GET() {
     })
   } catch (error) {
     console.error('Error fetching bones:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ 
+      bones: 0,
+      error: 'Internal server error' 
+    }, { status: 500 })
   }
 }
 
 // POST /api/bones - Consume or award bones
 export async function POST(request: NextRequest) {
   try {
+    const loaded = await loadBonesLib()
+    if (!loaded) {
+      return NextResponse.json({ 
+        error: 'Bones system not available',
+        bones: 0
+      }, { status: 503 })
+    }
+
     const { userId } = await auth()
     
     if (!userId) {

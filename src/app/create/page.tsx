@@ -212,9 +212,14 @@ export default function CreatePage() {
         if (response.ok) {
           const data = await response.json()
           setUserBones(data.bones || 0)
+        } else {
+          // If bones API is not available, set to 0
+          setUserBones(0)
         }
       } catch (error) {
         console.error('Error fetching bones:', error)
+        // If bones system fails, set to 0 but don't break the app
+        setUserBones(0)
       } finally {
         setLoadingBones(false)
       }

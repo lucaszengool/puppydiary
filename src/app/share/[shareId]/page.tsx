@@ -1,6 +1,15 @@
-import { getSharedImage } from '@/lib/bones'
 import Link from 'next/link'
 import { Heart, Dog, Sparkles, ArrowRight } from 'lucide-react'
+
+async function getSharedImage(shareId: string) {
+  try {
+    const { getSharedImage } = await import('@/lib/bones')
+    return await getSharedImage(shareId)
+  } catch (error) {
+    console.error('Failed to load bones lib:', error)
+    return null
+  }
+}
 
 interface SharePageProps {
   params: {

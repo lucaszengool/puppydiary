@@ -1,10 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { createSharedImage, awardShareBones } from '@/lib/bones'
+
+// Dynamic import to prevent build-time errors
+let createSharedImage: any, awardShareBones: any
+
+async function loadBonesLib() {
+  try {
+    const bonesLib = await import('@/lib/bones')
+    createSharedImage = bonesLib.createSharedImage
+    awardShareBones = bonesLib.awardShareBones
+    return true
+  } catch (error) {
+    console.error('Failed to load bones lib:', error)
+    return false
+  }
+}
 
 // POST /api/share - Create a shareable link for an image
 export async function POST(request: NextRequest) {
   try {
+    const loaded = await loadBonesLib()
+    if (!loaded) {
+      return NextResponse.json({ 
+        error: 'Share system not available'
+      }, { status: 503 })
+    }
+
     const { userId } = await auth()
     
     if (!userId) {
