@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     console.log('Using first image:', images[0])
     
     const requestBody = {
-      model: 'seedance-1-0-lite-i2v-250428', // 使用正确的Seedance模型ID
+      model: 'ep-20250808201258-h59fq', // 使用正确的端点ID
       content: [
         {
           type: 'text',
@@ -75,13 +75,13 @@ export async function POST(req: NextRequest) {
     console.log('Request body:', JSON.stringify(requestBody, null, 2))
     
     console.log('🎬 [VIDEO API DEBUG] Making request to Volcengine:', {
-      endpoint: 'https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks',
+      endpoint: 'https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks',
       model: requestBody.model,
       hasAuthHeader: !!ARK_API_KEY,
       imageUrl: images[0]?.substring(0, 100) + '...'
     })
     
-    const createResponse = await fetch('https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks', {
+    const createResponse = await fetch('https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -104,8 +104,8 @@ export async function POST(req: NextRequest) {
         debug: {
           status: createResponse.status,
           statusText: createResponse.statusText,
-          endpoint: 'https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks',
-          model: 'seedance-1-0-lite-i2v-250428'
+          endpoint: 'https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks',
+          model: 'ep-20250808201258-h59fq'
         }
       }, { status: createResponse.status })
     }
@@ -159,7 +159,7 @@ export async function GET(req: NextRequest) {
       }, { status: 503 })
     }
 
-    const response = await fetch(`https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/${taskId}`, {
+    const response = await fetch(`https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks/${taskId}`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${ARK_API_KEY}`,
