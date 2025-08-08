@@ -655,7 +655,7 @@ export default function CreatePage() {
             "感谢分享！🎉\n\n" +
             "为了获得骨头奖励，请确认：\n" + 
             "✅ 您是否已成功分享了这个链接？\n\n" +
-            "点击"确定"领取1个骨头奖励 🦴"
+            "点击\"确定\"领取1个骨头奖励 🦴"
           )
           
           if (confirmed) {
@@ -698,7 +698,7 @@ export default function CreatePage() {
       const confirmed = confirm(
         "链接已复制到剪贴板！📋\n\n" +
         "请将链接分享到微信、微博等社交平台\n\n" +
-        "分享完成后点击"确定"获得1个骨头奖励 🦴"
+        "分享完成后点击\"确定\"获得1个骨头奖励 🦴"
       )
       
       if (confirmed) {
