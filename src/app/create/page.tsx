@@ -1059,8 +1059,10 @@ export default function CreatePage() {
                 </button>
               </div>
 
-              {/* Main content area - flex to center image */}
-              <div className="flex-1 flex items-center justify-center px-2 pt-12 pb-28">
+              {/* Main content area - flex to center image with dynamic padding based on editing mode */}
+              <div className={`flex-1 flex items-center justify-center px-2 pt-12 transition-all duration-300 ${
+                editingMode !== 'none' ? 'pb-80' : 'pb-32'
+              }`}>
                 <div className="w-full h-full flex items-center justify-center">
                   {/* Mobile optimized real-time preview using CSS filters */}
                   <div className="w-full h-full flex items-center justify-center">
@@ -1131,7 +1133,7 @@ export default function CreatePage() {
 
               {/* Mobile Thumbnail Gallery - Show saved images */}
               {savedImages.length > 0 && (
-                <div className={`fixed left-4 right-4 z-60 transition-all duration-300 ${editingMode !== 'none' ? 'bottom-96' : 'bottom-20'}`}>
+                <div className={`fixed left-4 right-4 z-60 transition-all duration-300 ${editingMode !== 'none' ? 'bottom-72' : 'bottom-20'}`}>
                   <div className="bg-white/95 backdrop-blur-md rounded-lg p-3 border border-gray-200/50 shadow-lg">
                     <div className="text-center text-xs text-gray-600 mb-2 font-medium">
                       已保存 {savedImages.length}/3
@@ -1213,7 +1215,7 @@ export default function CreatePage() {
 
                 {/* Tool Panels - Show only when active */}
                 {editingMode !== 'none' && (
-                  <div className="bg-white/95 backdrop-blur-md border-t border-gray-200 max-h-80 overflow-y-auto">
+                  <div className="bg-white/95 backdrop-blur-md border-t border-gray-200 max-h-64 overflow-y-auto">
 
                     {/* Adjustments Panel */}
                     {editingMode === 'adjustments' && (
