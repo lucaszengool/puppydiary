@@ -91,21 +91,21 @@ export default function CreatePage() {
       icon: Heart, 
       label: '宫崎骏动漫', 
       description: '温暖治愈的手绘风格',
-      prompt: 'Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration, maintain exact facial features and body proportions, preserve all unique markings and characteristics, keep the same pose and expression, identical eye shape and color, same fur patterns and colors, preserve all distinctive features'
+      prompt: 'Studio Ghibli anime style, hand-drawn illustration, warm colors, soft lighting, whimsical and heartwarming, preserve all facial features and body proportions, keep same pose and expression, maintain all unique characteristics'
     },
     { 
       id: 'disney', 
       icon: Sparkles, 
       label: '迪士尼卡通', 
       description: '可爱生动的卡通风格',
-      prompt: 'Disney animation style, maintain exact facial features and body proportions, preserve all unique markings and characteristics, keep the same pose and expression, identical eye shape and color, same fur patterns and colors'
+      prompt: 'Disney animation style, cartoon illustration, bright colors, cute and charming, maintain facial features and body proportions, preserve unique markings, keep same pose and expression'
     },
     { 
       id: 'realistic', 
       icon: Camera, 
       label: '印象派油画', 
       description: '浪漫印象派绘画风格',
-      prompt: 'Classical French Impressionist oil painting style, thick impasto brushstrokes, visible palette knife texture, plein air painting technique, broken color method, dappled sunlight effects, soft atmospheric perspective, warm earth tones mixed with cool blues and purples, Claude Monet and Auguste Renoir inspired, traditional oil paint on canvas texture, romantic pastoral mood, vintage 1880s European aesthetic, preserve exact facial features and body proportions, maintain all distinctive features and markings, keep identical pose and expression, same eye shape and colors, preserve all unique characteristics'
+      prompt: 'Impressionist oil painting style, visible brushstrokes, warm colors, soft lighting, artistic painting, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
     },
     { 
       id: 'watercolor', 
@@ -119,7 +119,7 @@ export default function CreatePage() {
       icon: Sun, 
       label: '复古怀旧', 
       description: '温暖的复古摄影风格',
-      prompt: 'vintage photography style, retro aesthetic, warm sepia tones, nostalgic atmosphere, classic portrait photography, timeless vintage look, preserve exact facial structure and expression, maintain all distinctive features and markings, keep identical body proportions and posture, same eye shape and nose structure, preserve all unique characteristics and fur patterns'
+      prompt: 'vintage style, retro aesthetic, warm sepia tones, nostalgic atmosphere, classic portrait, preserve facial features and body proportions, maintain unique characteristics, keep same pose and expression'
     },
     { 
       id: 'modern', 
