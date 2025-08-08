@@ -165,18 +165,50 @@ async def generate_image(
     """
     start_time = time.time()
     
+    # 记录接收到的参数
+    logger.info(f"📥 Received parameters: art_style={art_style}, cuteness_level={cuteness_level}, color_palette={color_palette}")
+    logger.info(f"📝 Custom prompt: {prompt[:50] if prompt else 'None'}...")
+    
+    # DEBUG: 打印prompt的详细信息
+    print(f"🔍 DEBUG - prompt type: {type(prompt)}")
+    print(f"🔍 DEBUG - prompt value: {repr(prompt)}")
+    print(f"🔍 DEBUG - prompt length: {len(prompt) if prompt else 0}")
+    print(f"🔍 DEBUG - art_style: {art_style}")
+    
     try:
         # 构建严格保留原有特征的中文Prompt（豆包支持中英双语）
         # 铁的定义：100%保留原有特征
         preservation_prompt = "重要：必须100%保留原始图片中的人物或宠物的所有特征：面部表情、姿势、动作、身体大小、生物特征、解剖细节，包括眼睛形状、鼻子、嘴巴、耳朵、毛发图案、标记和任何独特特征都要完全一致。"
         
-        if prompt and prompt.strip():
-            # 用户自定义prompt，但仍要加上保留原有特征的要求
-            final_prompt = f"{preservation_prompt} {prompt.strip()}"
-        else:
-            # 默认宫崎骏风格转换
-            base_style = "将图片转换为宫崎骏风格的手绘漫画，温暖柔和的水彩色调，细腻的光影效果，梦幻氛围，手工绘制质感"
+        # 定义不同艺术风格的转换
+        style_prompts = {
+            "oil_painting": "将图片转换为古典油画风格，厚重的油画质感，丰富的颜色层次，明暗对比强烈，文艺复兴时期的画风，大师级作品质感",
+            "watercolor": "将图片转换为水彩画风格，柔和的水彩晕染效果，透明的色彩层次，轻盈的笔触，清新淡雅的艺术风格",
+            "anime": "将图片转换为宫崎骏风格的手绘漫画，温暖柔和的水彩色调，细腻的光影效果，梦幻氛围，手工绘制质感",
+            "cartoon": "将图片转换为迪士尼皮克斯3D动画风格，圆润可爱的造型，鲜艳的色彩，光滑的表面质感，电影级渲染",
+            "photography": "将图片转换为复古摄影风格，胶片质感，温暖的色调，颗粒感，怀旧的氛围，经典的构图",
+            "minimalist": "将图片转换为现代简约风格，干净的线条，简洁的构图，有限的色彩，极简主义美学"
+        }
+        
+        # 检查prompt是否包含前端自动添加的内容
+        is_frontend_auto_prompt = prompt and "重要规则：必须100%保留原始图片中的人物或宠物的所有外貌特征" in prompt
+        
+        print(f"🔍 DEBUG - is_frontend_auto_prompt: {is_frontend_auto_prompt}")
+        
+        if is_frontend_auto_prompt:
+            # 这是前端自动生成的prompt，根据art_style来生成合适的风格提示
+            base_style = style_prompts.get(art_style, style_prompts["anime"])  # 默认使用anime风格
             final_prompt = f"{preservation_prompt} {base_style}"
+            print(f"✅ Using art_style-based prompt for: {art_style}")
+        elif prompt and prompt.strip():
+            # 用户自定义prompt（不包含前端自动内容）
+            final_prompt = f"{preservation_prompt} {prompt.strip()}"
+            print(f"✅ Using custom user prompt")
+        else:
+            # 没有prompt，使用默认风格
+            base_style = style_prompts.get(art_style, style_prompts["anime"])  # 默认使用anime风格
+            final_prompt = f"{preservation_prompt} {base_style}"
+            print(f"✅ No prompt, using art_style default: {art_style}")
         
         logger.info(f"🎨 生成提示词: {final_prompt}")
         
@@ -195,11 +227,24 @@ async def generate_image(
         generation_time = time.time() - start_time
         
         if result["success"]:
+            # 定义风格名称映射
+            style_names = {
+                "oil_painting": "古典油画风格",
+                "watercolor": "水彩画风格",
+                "anime": "宫崎骏动漫风格",
+                "cartoon": "迪士尼卡通风格",
+                "photography": "复古摄影风格",
+                "minimalist": "现代简约风格"
+            }
+            
+            style_display = style_names.get(art_style, "艺术风格")
+            
             return JSONResponse({
                 "success": True,
                 "imageUrl": result["image_data"],
-                "analysis": f"已生成宫崎骏风格图像，耗时 {generation_time:.1f}秒。您可以继续微调或尝试其他风格。",
+                "analysis": f"已生成{style_display}图像，耗时 {generation_time:.1f}秒。您可以继续微调或尝试其他风格。",
                 "generationTime": f"{generation_time:.1f}",
+                "art_style_used": art_style,  # 添加实际使用的art_style
                 "prompt": final_prompt,
                 "model": "豆包 Seedream-3.0 图像编辑",
                 "showPromptInput": True,  # 显示提示词输入框
