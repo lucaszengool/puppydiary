@@ -28,7 +28,6 @@ import {
   ArrowRight,
   ChevronRight,
   Share2,
-  Video,
   Copy
 } from "lucide-react"
 import BoneIcon from "@/components/BoneIcon"
@@ -55,10 +54,6 @@ export default function CreatePage() {
   const [, setGeneratedPrompt] = useState<string>("")
   const [savedImages, setSavedImages] = useState<string[]>([])
   // const [editingImageIndex, setEditingImageIndex] = useState<number>(-1) // Track which saved image we're editing
-  const [showVideoOption, setShowVideoOption] = useState(false)
-  const [videoTaskId, setVideoTaskId] = useState<string | null>(null)
-  const [videoUrl, setVideoUrl] = useState<string | null>(null)
-  const [videoGenerating, setVideoGenerating] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState<any>(null)
   const [originalPrompt, setOriginalPrompt] = useState<string>("")  // Store the original prompt for reuse
   const [isFirstGeneration, setIsFirstGeneration] = useState(true)  // Track if it's the first generation
@@ -111,13 +106,6 @@ export default function CreatePage() {
       prompt: 'Disney Pixar 3D animation style, 迪士尼风格卡通, high-quality 3D rendering, vibrant saturated colors, smooth clean surfaces, cute anthropomorphic design, large expressive cartoon eyes, exaggerated cute features, professional CGI quality, Pixar-style lighting and shading, preserve original background and environment, maintain exact pose and expression, preserve all distinctive markings and patterns, identical proportions, same eye color, 精美卡通风格, animation masterpiece'
     },
     { 
-      id: 'realistic', 
-      icon: Camera, 
-      label: '古典油画', 
-      description: '经典写实油画风格',  
-      prompt: 'Classical oil painting, 古典写实油画风格, Renaissance-style portraiture, rich oil paint texture, detailed realistic brushwork, dramatic chiaroscuro lighting, deep warm colors, traditional oil painting technique, museum-quality artwork, baroque painting style, detailed realistic rendering, classical composition, preserve original background with oil painting treatment, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 古典大师油画风格, masterpiece oil painting'
-    },
-    { 
       id: 'watercolor', 
       icon: Palette, 
       label: '水彩插画', 
@@ -137,6 +125,41 @@ export default function CreatePage() {
       label: '现代简约', 
       description: '简约现代的艺术风格',
       prompt: 'modern minimalist art style, 现代简约风格, contemporary digital illustration, clean geometric lines, simplified color palette, minimalist design principles, modern graphic design, stylized vector art, clean composition, modern art aesthetic, sophisticated simplicity, preserve original background with minimalist treatment, preserve exact facial structure and expression, maintain all distinctive features, identical pose and proportions, same characteristic details, 现代艺术风格, contemporary masterpiece'
+    },
+    {
+      id: 'pencil',
+      icon: Camera,
+      label: '铅笔素描',
+      description: '精细逼真的素描风格',
+      prompt: 'Detailed pencil sketch, 精细铅笔素描, realistic pencil strokes, fine shading and texture, black and white tones, sketchbook effect, artist hand-drawn quality, detailed cross-hatching, professional drawing, preserve exact facial features and expression, maintain all unique characteristics, identical pose and proportions, same eye detail, 素描大师风格, sketch masterpiece'
+    },
+    {
+      id: 'cyberpunk',
+      icon: Wand2,
+      label: '赛博朋克',
+      description: '未来科技霓虹风格',
+      prompt: 'Cyberpunk style, 赛博朋克风格, neon lighting effects, futuristic tech aesthetic, electric blue and purple tones, holographic projection texture, dark urban background, digital art aesthetics, neon glow effects, preserve exact facial features and expression, maintain all unique characteristics, identical pose and proportions, same eye detail, 赛博朋克大师风格, cyberpunk masterpiece'
+    },
+    {
+      id: 'renaissance',
+      icon: Heart,
+      label: '文艺复兴',
+      description: '古典贵族肖像风格',
+      prompt: 'Renaissance portrait style, 文艺复兴肖像画, classical oil painting technique, noble aristocratic quality, Leonardo da Vinci and Raphael style, golden decorations, royal portrait effect, baroque details, museum quality artwork, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 文艺复兴大师风格, renaissance masterpiece'
+    },
+    {
+      id: 'mosaic',
+      icon: Sun,
+      label: '马赛克艺术',
+      description: '彩色玻璃镶嵌风格',
+      prompt: 'Mosaic art style, 马赛克艺术风格, colored glass pieces effect, geometric pattern composition, Byzantine art style, shiny tessellation texture, church stained glass art, colorful tile patterns, preserve exact facial features and expression, maintain all unique characteristics, identical pose and proportions, same eye detail, 马赛克艺术大师风格, mosaic masterpiece'
+    },
+    {
+      id: 'monet',
+      icon: Palette,
+      label: '莫奈印象派',
+      description: '莫奈睡莲般的梦幻风格',
+      prompt: 'Claude Monet impressionist style, 莫奈印象派风格, signature broken brushstrokes like Water Lilies series, dreamy atmospheric effects, soft diffused light, visible canvas texture, impasto technique, shimmering color transitions, capturing fleeting moments of light, hazy dreamlike quality, dappled sunlight effects, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 莫奈大师风格, impressionist masterpiece'
     },
   ]
 
@@ -427,12 +450,6 @@ export default function CreatePage() {
             cutenessLevel = "maximum"
             console.log("✅ [DISNEY] Applied parameters")
             break
-          case 'realistic':
-            artStyle = "oil_painting"
-            colorPalette = "warm"
-            cutenessLevel = "medium"
-            console.log("✅ [REALISTIC] Applied oil_painting parameters")
-            break
           case 'watercolor':
             artStyle = "watercolor"
             colorPalette = "soft"
@@ -450,6 +467,36 @@ export default function CreatePage() {
             colorPalette = "clean"
             cutenessLevel = "medium"
             console.log("✅ [MODERN] Applied parameters")
+            break
+          case 'pencil':
+            artStyle = "pencil_sketch"
+            colorPalette = "monochrome"
+            cutenessLevel = "medium"
+            console.log("✅ [PENCIL] Applied parameters")
+            break
+          case 'cyberpunk':
+            artStyle = "cyberpunk"
+            colorPalette = "neon"
+            cutenessLevel = "medium"
+            console.log("✅ [CYBERPUNK] Applied parameters")
+            break
+          case 'renaissance':
+            artStyle = "renaissance"
+            colorPalette = "warm"
+            cutenessLevel = "low"
+            console.log("✅ [RENAISSANCE] Applied parameters")
+            break
+          case 'mosaic':
+            artStyle = "mosaic"
+            colorPalette = "vibrant"
+            cutenessLevel = "medium"
+            console.log("✅ [MOSAIC] Applied parameters")
+            break
+          case 'monet':
+            artStyle = "monet_impressionist"
+            colorPalette = "pastel"
+            cutenessLevel = "low"
+            console.log("✅ [MONET] Applied parameters")
             break
           default:
             console.log(`❌ [UNKNOWN STYLE] "${selectedStyle.id}" - using defaults`)
@@ -571,57 +618,6 @@ export default function CreatePage() {
     await generatePortrait(selectedFile, customPrompt, true)
   }
 
-  // Poll video task status until completion
-  const pollVideoTaskStatus = async (taskId: string) => {
-    console.log("🔄 [VLOG DEBUG] Starting to poll task status:", taskId)
-    const maxAttempts = 30 // 30 attempts * 2 seconds = 1 minute max
-    let attempts = 0
-    
-    while (attempts < maxAttempts) {
-      try {
-        console.log(`🔄 [VLOG DEBUG] Polling attempt ${attempts + 1}/${maxAttempts}`)
-        
-        const response = await fetch(`/api/generate-video?taskId=${taskId}`)
-        if (!response.ok) {
-          console.error("🚨 [VLOG DEBUG] Task status check failed:", response.status)
-          throw new Error(`Task status check failed: ${response.status}`)
-        }
-        
-        const taskResult = await response.json()
-        console.log("📊 [VLOG DEBUG] Task status:", taskResult)
-        
-        if (taskResult.status === 'succeeded' && taskResult.content?.video_url) {
-          console.log("🎉 [VLOG DEBUG] Task completed successfully!")
-          console.log("🔗 [VLOG DEBUG] Final video URL:", taskResult.content.video_url)
-          
-          setVideoUrl(taskResult.content.video_url)
-          setShowVideoOption(true)
-          
-          toast({
-            title: "Vlog制作完成！",
-            description: "您的专属宠物艺术Vlog已准备就绪",
-          })
-          return
-        } else if (taskResult.status === 'failed') {
-          console.error("🚨 [VLOG DEBUG] Task failed:", taskResult)
-          throw new Error(`Video generation failed: ${taskResult.error || 'Unknown error'}`)
-        }
-        
-        // Still processing, wait and try again
-        console.log("⏳ [VLOG DEBUG] Task still processing, waiting...")
-        await new Promise(resolve => setTimeout(resolve, 2000)) // Wait 2 seconds
-        attempts++
-        
-      } catch (error) {
-        console.error("🚨 [VLOG DEBUG] Polling error:", error)
-        throw error
-      }
-    }
-    
-    // Timeout
-    console.error("⏰ [VLOG DEBUG] Task polling timeout")
-    throw new Error("Video generation timeout - please try again")
-  }
 
   // Share with native share API and confirmation for bone reward
   const handleShareWithConfirmation = async (imageUrl: string) => {
@@ -752,100 +748,7 @@ export default function CreatePage() {
     await handleShareWithConfirmation(imageUrl)
   }
 
-  // Generate video for single image - show share prompt if no bones
-  const handleSingleVideoGeneration = async (imageUrl: string) => {
-    if (!userId) {
-      toast({
-        title: "需要登录",
-        description: "请先登录以生成视频",
-        variant: "destructive",
-      })
-      return
-    }
-
-    // If no bones, prompt to share first
-    if (userBones < 1) {
-      handleShareWithConfirmation(imageUrl)
-      return
-    }
-
-    try {
-      // Consume bones first
-      const bonesResponse = await fetch('/api/bones', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'consume',
-          amount: 1
-        })
-      })
-
-      if (!bonesResponse.ok) {
-        const errorData = await bonesResponse.json()
-        if (errorData.code === 'INSUFFICIENT_BONES') {
-          toast({
-            title: "骨头不足 🦴",
-            description: "生成视频需要消耗1个骨头",
-            variant: "destructive",
-          })
-          return
-        }
-        throw new Error('骨头消耗失败')
-      }
-
-      const bonesData = await bonesResponse.json()
-      setUserBones(bonesData.bones) // Update bones count
-
-      // Generate video
-      setVideoGenerating(true)
-      const videoResponse = await fetch('/api/generate-video', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          images: [imageUrl],
-          prompt: `${selectedStyle?.label || '艺术'} style pet portrait video with gentle transitions`
-        })
-      })
-
-      if (!videoResponse.ok) {
-        throw new Error('视频生成失败')
-      }
-
-      const videoData = await videoResponse.json()
-      
-      if (videoData.taskId) {
-        toast({
-          title: "视频生成中...",
-          description: "视频正在生成，请稍候片刻 🎬",
-        })
-        
-        // Poll for completion
-        await pollVideoTaskStatus(videoData.taskId)
-      } else if (videoData.videoUrl) {
-        setVideoUrl(videoData.videoUrl)
-        setVideoTaskId(videoData.taskId)
-        
-        toast({
-          title: "视频生成完成！",
-          description: "您的专属宠物视频已准备就绪 🎥",
-        })
-      }
-
-    } catch (error) {
-      console.error('Single video generation error:', error)
-      toast({
-        title: "视频生成失败",
-        description: "请稍后重试",
-        variant: "destructive",
-      })
-    } finally {
-      setVideoGenerating(false)
-    }
-  }
+  // Video generation removed
 
   const handleGenerateVlog = async () => {
     console.log("🎬 [VLOG DEBUG] Starting vlog generation process...")
@@ -853,7 +756,7 @@ export default function CreatePage() {
       savedImagesCount: savedImages.length,
       userId: userId,
       selectedStyle: selectedStyle?.label,
-      videoGenerating: videoGenerating
+      false: false
     })
     
     if (savedImages.length < 3) {
@@ -1342,11 +1245,11 @@ export default function CreatePage() {
                   {savedImages.length >= 3 ? (
                     <button
                       onClick={handleGenerateVlog}
-                      disabled={videoGenerating}
+                      disabled={false}
                       className="vsco-btn primary"
                       style={{ backgroundColor: '#ff6b6b', color: 'white', fontWeight: 'bold' }}
                     >
-                      {videoGenerating ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
+                      {false ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
                     </button>
                   ) : (
                     <div className="text-xs text-gray-500">
@@ -1616,11 +1519,11 @@ export default function CreatePage() {
                   <>
                     <button 
                       onClick={handleGenerateVlog} 
-                      disabled={videoGenerating}
+                      disabled={false}
                       className="w-full vsco-btn primary mb-3"
                       style={{ backgroundColor: '#ff6b6b', color: 'white', fontWeight: 'bold' }}
                     >
-                      {videoGenerating ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
+                      {false ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
                     </button>
                     <button onClick={handleReset} className="w-full vsco-btn secondary">
                       <RefreshCw className="w-4 h-4 mr-2" />
@@ -1794,19 +1697,6 @@ export default function CreatePage() {
                   <Share2 className="w-4 h-4 mr-1" />
                   分享
                 </button>
-                <button
-                  onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
-                  disabled={videoGenerating}
-                  className="flex items-center px-3 py-2 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
-                >
-                  <Video className="w-4 h-4 mr-1" />
-                  {videoGenerating ? '生成中...' : (userBones < 1 ? '分享获得' : '视频')}
-                  <div className="flex items-center ml-1">
-                    <BoneIcon className="w-3 h-3 text-white/80" />
-                    <span className="text-xs ml-0.5">1</span>
-                  </div>
-                </button>
               </div>
             </div>
           )}
@@ -1873,19 +1763,6 @@ export default function CreatePage() {
                     <Share2 className="w-4 h-4 mr-2" />
                     分享获得骨头
                   </button>
-                  <button
-                    onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
-                    disabled={videoGenerating}
-                    className="flex items-center px-4 py-3 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
-                  >
-                    <Video className="w-4 h-4 mr-2" />
-                    {videoGenerating ? '生成中...' : (userBones < 1 ? '先分享获得骨头' : '生成视频')}
-                    <div className="flex items-center ml-2">
-                      <BoneIcon className="w-3 h-3 text-white/80" />
-                      <span className="text-xs ml-1">1</span>
-                    </div>
-                  </button>
                 </div>
               </div>
 
@@ -1929,15 +1806,15 @@ export default function CreatePage() {
                   <>
                     <button 
                       onClick={handleGenerateVlog} 
-                      disabled={videoGenerating}
+                      disabled={false}
                       className="w-14 h-14 bg-gradient-to-br from-red-500 to-pink-500 backdrop-blur-md rounded-full flex items-center justify-center hover:from-red-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50 border-2 border-white/50"
                       title="制作视频 Vlog"
                       style={{
-                        boxShadow: videoGenerating ? '0 0 20px rgba(239, 68, 68, 0.6)' : '0 4px 15px rgba(239, 68, 68, 0.4)'
+                        boxShadow: false ? '0 0 20px rgba(239, 68, 68, 0.6)' : '0 4px 15px rgba(239, 68, 68, 0.4)'
                       }}
                     >
                       <span className="text-white text-xl">
-                        {videoGenerating ? '⏳' : '🎥'}
+                        {false ? '⏳' : '🎥'}
                       </span>
                     </button>
                     <button 
@@ -1962,11 +1839,11 @@ export default function CreatePage() {
                       </div>
                       <button
                         onClick={handleGenerateVlog}
-                        disabled={videoGenerating}
+                        disabled={false}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full transition-colors disabled:opacity-50 text-xs font-medium flex items-center space-x-1"
                       >
                         <span>🎥</span>
-                        <span>{videoGenerating ? '制作中' : '制作'}</span>
+                        <span>{false ? '制作中' : '制作'}</span>
                       </button>
                     </div>
                   </div>
@@ -2331,96 +2208,16 @@ export default function CreatePage() {
                 </div>
                 <button
                   onClick={handleGenerateVlog}
-                  disabled={videoGenerating}
+                  disabled={false}
                   className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition-colors disabled:opacity-50"
                 >
-                  {videoGenerating ? '制作中...' : '制作'}
+                  {false ? '制作中...' : '制作'}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Global Video Modal - Optimized for Mobile Portrait */}
-        {videoUrl && (
-          <div className="fixed inset-0 bg-black bg-opacity-95 z-[9999] flex items-center justify-center">
-            {/* Mobile-first responsive container */}
-            <div className="relative w-full h-full md:w-auto md:h-auto md:max-w-4xl md:max-h-[90vh] bg-white md:rounded-lg overflow-hidden flex flex-col">
-              
-              {/* Header - Fixed at top */}
-              <div className="flex items-center justify-between p-4 bg-white border-b md:border-b-0 flex-shrink-0">
-                <h3 className="text-lg font-medium text-gray-900">艺术视频</h3>
-                <button
-                  onClick={() => {
-                    console.log("📺 [VLOG DEBUG] Closing video modal")
-                    setVideoUrl(null)
-                  }}
-                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                >
-                  <span className="text-gray-600 text-xl font-bold">×</span>
-                </button>
-              </div>
-              
-              {/* Video container - Flexible height */}
-              <div className="flex-1 flex items-center justify-center bg-black p-2 md:p-4">
-                <video
-                  controls
-                  autoPlay
-                  playsInline
-                  className="w-full h-auto max-h-full object-contain"
-                  poster={savedImages[0]}
-                  onLoadStart={() => console.log("📺 [VLOG DEBUG] Video loading started")}
-                  onError={(e) => console.error("📺 [VLOG DEBUG] Video error:", e)}
-                  style={{
-                    maxHeight: 'calc(100vh - 160px)', // Account for header and footer
-                  }}
-                >
-                  <source src={videoUrl} type="video/mp4" />
-                  您的浏览器不支持视频标签。
-                </video>
-              </div>
-              
-              {/* Footer controls - Fixed at bottom */}
-              <div className="p-4 bg-white border-t flex-shrink-0">
-                <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                  <a
-                    href={videoUrl}
-                    download={`petpo-art-video-${Date.now()}.mp4`}
-                    className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium"
-                    onClick={() => console.log("📺 [VLOG DEBUG] Download button clicked")}
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>下载视频</span>
-                  </a>
-                  <button
-                    onClick={() => {
-                      console.log("📺 [VLOG DEBUG] Share button clicked")
-                      if (navigator.share) {
-                        navigator.share({
-                          title: '我的宠物艺术 Vlog',
-                          text: '查看我的宠物艺术作品！',
-                          url: window.location.href
-                        }).catch(e => console.log('Share failed:', e))
-                      } else {
-                        // Fallback - copy to clipboard
-                        navigator.clipboard?.writeText(window.location.href)
-                        alert('链接已复制到剪贴板')
-                      }
-                    }}
-                    className="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg transition-colors font-medium"
-                  >
-                    分享
-                  </button>
-                </div>
-                
-                {/* Mobile tip */}
-                <p className="text-xs text-gray-500 text-center mt-3 md:hidden">
-                  提示：可旋转手机观看更佳效果
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
     </div>
   )

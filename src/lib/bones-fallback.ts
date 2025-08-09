@@ -8,7 +8,7 @@ export async function getUserBones(userId: string) {
   return {
     id: `fallback-${userId}`,
     user_id: userId,
-    bones_count: fallbackBones.get(userId) || 0,
+    bones_count: fallbackBones.get(userId) ?? 5,
     last_share_reward_date: fallbackLastReward.get(userId) || null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -16,7 +16,7 @@ export async function getUserBones(userId: string) {
 }
 
 export async function consumeBones(userId: string, amount: number = 1) {
-  const currentBones = fallbackBones.get(userId) || 0
+  const currentBones = fallbackBones.get(userId) ?? 5
   
   if (currentBones < amount) {
     return {
@@ -45,11 +45,11 @@ export async function awardShareBones(userId: string) {
     return {
       success: false,
       message: 'Already received share reward today',
-      bones: fallbackBones.get(userId) || 0
+      bones: fallbackBones.get(userId) ?? 5
     }
   }
   
-  const currentBones = fallbackBones.get(userId) || 0
+  const currentBones = fallbackBones.get(userId) ?? 5
   const newBones = currentBones + 1
   fallbackBones.set(userId, newBones)
   fallbackLastReward.set(userId, today)

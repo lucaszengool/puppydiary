@@ -54,21 +54,6 @@ export default async function Home() {
         {/* Style Grid */}
         <div className="pb-24">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1 md:gap-2">
-            {/* Realistic Oil Painting */}
-            <Link href="/create?style=realistic" className="group relative aspect-square overflow-hidden bg-gray-50">
-              <Image
-                src="/styles/disney-style.png"
-                alt="印象派油画"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
-                  印象派油画
-                </div>
-              </div>
-            </Link>
 
             {/* Ghibli Style */}
             <Link href="/create?style=ghibli" className="group relative aspect-square overflow-hidden bg-gray-50">
@@ -76,6 +61,7 @@ export default async function Home() {
                 src="/styles/ghibli-style.png"
                 alt="宫崎骏动漫"
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
@@ -92,6 +78,7 @@ export default async function Home() {
                 src="/styles/watercolor-style.png"
                 alt="水彩插画"
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
@@ -106,14 +93,136 @@ export default async function Home() {
             <Link href="/create?style=modern" className="group relative aspect-square overflow-hidden bg-gray-50">
               <Image
                 src="/styles/modern-style.png"
-                alt="现代艺术"
+                alt="现代简约"
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
-                  现代艺术
+                  现代简约
+                </div>
+              </div>
+            </Link>
+
+            {/* Disney Style */}
+            <Link href="/create?style=disney" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/disney-cartoon.png"
+                alt="迪士尼卡通"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  迪士尼卡通
+                </div>
+              </div>
+            </Link>
+
+            {/* Vintage Style */}
+            <Link href="/create?style=vintage" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/vintage-style.png"
+                alt="复古怀旧"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  复古怀旧
+                </div>
+              </div>
+            </Link>
+
+
+            {/* Pencil Sketch Style */}
+            <Link href="/create?style=pencil" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/pencil-style.png"
+                alt="铅笔素描"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  铅笔素描
+                </div>
+              </div>
+            </Link>
+
+
+            {/* Cyberpunk Style */}
+            <Link href="/create?style=cyberpunk" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/cyberpunk-style.png"
+                alt="赛博朋克"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  赛博朋克
+                </div>
+              </div>
+            </Link>
+
+            {/* Renaissance Style */}
+            <Link href="/create?style=renaissance" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/renaissance-style.png"
+                alt="文艺复兴"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  文艺复兴
+                </div>
+              </div>
+            </Link>
+
+            {/* Mosaic Style */}
+            <Link href="/create?style=mosaic" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/mosaic-style.png"
+                alt="马赛克艺术"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  马赛克艺术
+                </div>
+              </div>
+            </Link>
+
+            {/* Monet Impressionist Style */}
+            <Link href="/create?style=monet" className="group relative aspect-square overflow-hidden bg-gray-50">
+              <Image
+                src="/styles/monet-style.png"
+                alt="莫奈印象派"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-black">
+                  莫奈印象派
                 </div>
               </div>
             </Link>

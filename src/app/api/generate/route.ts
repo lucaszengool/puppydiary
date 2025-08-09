@@ -58,6 +58,32 @@ export async function POST(request: NextRequest) {
 
     const { userId } = auth()
     
+    // Check anonymous user limits before proceeding
+    if (!userId) {
+      const ip = request.ip || 'unknown'
+      
+      // Check current anonymous usage
+      const limitsResponse = await fetch(`http://localhost:3000/api/user-limits`, {
+        method: 'GET',
+        headers: {
+          'x-forwarded-for': ip,
+          'x-real-ip': ip
+        }
+      })
+      
+      if (limitsResponse.ok) {
+        const limitsData = await limitsResponse.json()
+        if (!limitsData.canGenerate) {
+          return NextResponse.json({
+            error: `您已达到每日免费生成限制 (${limitsData.maxGenerations}张)。请注册账号继续使用！`,
+            requiresRegistration: true,
+            generationsUsed: limitsData.generationsUsed,
+            maxGenerations: limitsData.maxGenerations
+          }, { status: 429 })
+        }
+      }
+    }
+    
     // Use userId for rate limiting if available, otherwise use IP address
     const rateLimitKey = userId || request.ip || 'anonymous'
     
@@ -116,8 +142,9 @@ export async function POST(request: NextRequest) {
     
     console.log("Image buffer size:", buffer.length)
     
-    // Resize and optimize image for API
+    // Resize and optimize image for API with orientation correction
     const optimizedBuffer = await sharp(buffer)
+      .rotate() // Auto-rotate based on EXIF orientation
       .resize(1024, 1024, { fit: "inside", withoutEnlargement: true })
       .jpeg({ quality: 90 })
       .toBuffer()
@@ -218,6 +245,23 @@ export async function POST(request: NextRequest) {
 
       console.log(`✅ Local AI generation successful in ${aiResult.generationTime}s`)
       
+      // Update anonymous user generation count if not signed in
+      if (!userId) {
+        try {
+          const ip = request.ip || 'unknown'
+          await fetch(`http://localhost:3000/api/user-limits`, {
+            method: 'POST',
+            headers: {
+              'x-forwarded-for': ip,
+              'x-real-ip': ip,
+              'Content-Type': 'application/json'
+            }
+          })
+        } catch (error) {
+          console.warn('Failed to update anonymous user count:', error)
+        }
+      }
+
       // Save to storage only if user is signed in
       let portraitId = null
       if (userId) {
