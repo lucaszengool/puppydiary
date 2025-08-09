@@ -549,7 +549,7 @@ export default function CreatePage() {
       if (savedImages.length === 0) {
         toast({
           title: "🎨 第一张作品生成成功！",
-          description: "🎥 提示：收集三张作品后可以制作专属 Vlog 视频哦！",
+          description: "继续创作更多精美的宠物艺术作品吧！",
         })
       } else {
         toast({
@@ -681,11 +681,8 @@ export default function CreatePage() {
   // Share with native share API and confirmation for bone reward
   const handleShareWithConfirmation = async (imageUrl: string) => {
     if (!userId) {
-      toast({
-        title: "需要登录",
-        description: "请先登录以分享作品",
-        variant: "destructive",
-      })
+      // 直接跳转到登录页面
+      window.location.href = '/sign-in'
       return
     }
 
@@ -810,11 +807,8 @@ export default function CreatePage() {
   // Generate video for single image - show share prompt if no bones
   const handleSingleVideoGeneration = async (imageUrl: string) => {
     if (!userId) {
-      toast({
-        title: "需要登录",
-        description: "请先登录以生成视频",
-        variant: "destructive",
-      })
+      // 直接跳转到登录页面
+      window.location.href = '/sign-in'
       return
     }
 
@@ -842,7 +836,7 @@ export default function CreatePage() {
         if (errorData.code === 'INSUFFICIENT_BONES') {
           toast({
             title: "骨头不足 🦴",
-            description: "生成视频需要消耗1个骨头",
+            description: "生成图片需要消耗1个骨头，可通过分享作品获得更多骨头！",
             variant: "destructive",
           })
           return
@@ -923,11 +917,8 @@ export default function CreatePage() {
 
     if (!userId) {
       console.error("🚫 [VLOG DEBUG] No user ID found - user not authenticated")
-      toast({
-        title: "需要登录",
-        description: "请先登录后再制作视频",
-        variant: "destructive"
-      })
+      // 直接跳转到登录页面
+      window.location.href = '/sign-in'
       return
     }
 
@@ -1236,10 +1227,6 @@ export default function CreatePage() {
     
     if (!userId) {
       console.log("No user, redirecting to login")
-      toast({
-        title: "需要登录",
-        description: "正在跳转到登录页面",
-      })
       
       // Save current application state before login
       const currentState = {
@@ -1446,18 +1433,7 @@ export default function CreatePage() {
           )}
 
 
-          {/* Publish Dialog */}
-          {showPublishDialog && (editedImage || generatedImage) && (
-            <PublishDialog
-              isOpen={showPublishDialog}
-              onClose={() => {
-                console.log("🔄 Closing publish dialog")
-                setShowPublishDialog(false)
-              }}
-              onConfirm={handlePublishConfirm}
-              imageUrl={(editedImage || generatedImage) || ''}
-            />
-          )}
+          {/* Publish Dialog - removed from here, moved to top level */}
 
           {/* Main upload area */}
           <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -2012,8 +1988,8 @@ export default function CreatePage() {
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-800 font-medium">🎥 视频制作就绪</p>
-                        <p className="text-xs text-gray-600">三张作品已收集完成，点击右上角视频按钮</p>
+                        <p className="text-sm text-gray-800 font-medium">🎨 作品收藏</p>
+                        <p className="text-xs text-gray-600">您的精美作品已保存</p>
                       </div>
                       <button
                         onClick={handleGenerateVlog}
@@ -2381,8 +2357,8 @@ export default function CreatePage() {
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-800 font-medium mb-1">视频制作就绪</p>
-                  <p className="text-xs text-gray-600">三张作品已收集完成</p>
+                  <p className="text-sm text-gray-800 font-medium mb-1">作品收藏</p>
+                  <p className="text-xs text-gray-600">您的精美作品已保存</p>
                 </div>
                 <button
                   onClick={handleGenerateVlog}
@@ -2396,6 +2372,18 @@ export default function CreatePage() {
           </div>
         )}
 
+        {/* Publish Dialog - Available for both mobile and desktop */}
+        {showPublishDialog && (editedImage || generatedImage) && (
+          <PublishDialog
+            isOpen={showPublishDialog}
+            onClose={() => {
+              console.log("🔄 Closing publish dialog")
+              setShowPublishDialog(false)
+            }}
+            onConfirm={handlePublishConfirm}
+            imageUrl={(editedImage || generatedImage) || ''}
+          />
+        )}
 
     </div>
   )
