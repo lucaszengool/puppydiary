@@ -28,7 +28,8 @@ import {
   ArrowRight,
   ChevronRight,
   Share2,
-  Copy
+  Copy,
+  Video
 } from "lucide-react"
 import BoneIcon from "@/components/BoneIcon"
 import Link from "next/link"
@@ -88,6 +89,13 @@ export default function CreatePage() {
   // Bones system state
   const [userBones, setUserBones] = useState<number>(0)
   const [loadingBones, setLoadingBones] = useState(false)
+
+
+  // Video-related states (stubs to prevent compilation errors)
+  const [showVideoOption, setShowVideoOption] = useState(false)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [videoTaskId, setVideoTaskId] = useState<string | null>(null)
+  const [videoGenerating, setVideoGenerating] = useState(false)
 
   // 主要艺术风格选项 - 优化后的prompts
   const mainStyleOptions = [
@@ -618,6 +626,57 @@ export default function CreatePage() {
     await generatePortrait(selectedFile, customPrompt, true)
   }
 
+  // Poll video task status until completion
+  const pollVideoTaskStatus = async (taskId: string) => {
+    console.log("🔄 [VLOG DEBUG] Starting to poll task status:", taskId)
+    const maxAttempts = 30 // 30 attempts * 2 seconds = 1 minute max
+    let attempts = 0
+    
+    while (attempts < maxAttempts) {
+      try {
+        console.log(`🔄 [VLOG DEBUG] Polling attempt ${attempts + 1}/${maxAttempts}`)
+        
+        const response = await fetch(`/api/generate-video?taskId=${taskId}`)
+        if (!response.ok) {
+          console.error("🚨 [VLOG DEBUG] Task status check failed:", response.status)
+          throw new Error(`Task status check failed: ${response.status}`)
+        }
+        
+        const taskResult = await response.json()
+        console.log("📊 [VLOG DEBUG] Task status:", taskResult)
+        
+        if (taskResult.status === 'succeeded' && taskResult.content?.video_url) {
+          console.log("🎉 [VLOG DEBUG] Task completed successfully!")
+          console.log("🔗 [VLOG DEBUG] Final video URL:", taskResult.content.video_url)
+          
+          setVideoUrl(taskResult.content.video_url)
+          setShowVideoOption(true)
+          
+          toast({
+            title: "Vlog制作完成！",
+            description: "您的专属宠物艺术Vlog已准备就绪",
+          })
+          return
+        } else if (taskResult.status === 'failed') {
+          console.error("🚨 [VLOG DEBUG] Task failed:", taskResult)
+          throw new Error(`Video generation failed: ${taskResult.error || 'Unknown error'}`)
+        }
+        
+        // Still processing, wait and try again
+        console.log("⏳ [VLOG DEBUG] Task still processing, waiting...")
+        await new Promise(resolve => setTimeout(resolve, 2000)) // Wait 2 seconds
+        attempts++
+        
+      } catch (error) {
+        console.error("🚨 [VLOG DEBUG] Polling error:", error)
+        throw error
+      }
+    }
+    
+    // Timeout
+    console.error("⏰ [VLOG DEBUG] Task polling timeout")
+    throw new Error("Video generation timeout - please try again")
+  }
 
   // Share with native share API and confirmation for bone reward
   const handleShareWithConfirmation = async (imageUrl: string) => {
@@ -748,7 +807,100 @@ export default function CreatePage() {
     await handleShareWithConfirmation(imageUrl)
   }
 
-  // Video generation removed
+  // Generate video for single image - show share prompt if no bones
+  const handleSingleVideoGeneration = async (imageUrl: string) => {
+    if (!userId) {
+      toast({
+        title: "需要登录",
+        description: "请先登录以生成视频",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // If no bones, prompt to share first
+    if (userBones < 1) {
+      handleShareWithConfirmation(imageUrl)
+      return
+    }
+
+    try {
+      // Consume bones first
+      const bonesResponse = await fetch('/api/bones', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'consume',
+          amount: 1
+        })
+      })
+
+      if (!bonesResponse.ok) {
+        const errorData = await bonesResponse.json()
+        if (errorData.code === 'INSUFFICIENT_BONES') {
+          toast({
+            title: "骨头不足 🦴",
+            description: "生成视频需要消耗1个骨头",
+            variant: "destructive",
+          })
+          return
+        }
+        throw new Error('骨头消耗失败')
+      }
+
+      const bonesData = await bonesResponse.json()
+      setUserBones(bonesData.bones) // Update bones count
+
+      // Generate video
+      setVideoGenerating(true)
+      const videoResponse = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          images: [imageUrl],
+          prompt: `${selectedStyle?.label || '艺术'} style pet portrait video with gentle transitions`
+        })
+      })
+
+      if (!videoResponse.ok) {
+        throw new Error('视频生成失败')
+      }
+
+      const videoData = await videoResponse.json()
+      
+      if (videoData.taskId) {
+        toast({
+          title: "视频生成中...",
+          description: "视频正在生成，请稍候片刻 🎬",
+        })
+        
+        // Poll for completion
+        await pollVideoTaskStatus(videoData.taskId)
+      } else if (videoData.videoUrl) {
+        setVideoUrl(videoData.videoUrl)
+        setVideoTaskId(videoData.taskId)
+        
+        toast({
+          title: "视频生成完成！",
+          description: "您的专属宠物视频已准备就绪 🎥",
+        })
+      }
+
+    } catch (error) {
+      console.error('Single video generation error:', error)
+      toast({
+        title: "视频生成失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      })
+    } finally {
+      setVideoGenerating(false)
+    }
+  }
 
   const handleGenerateVlog = async () => {
     console.log("🎬 [VLOG DEBUG] Starting vlog generation process...")
@@ -756,7 +908,7 @@ export default function CreatePage() {
       savedImagesCount: savedImages.length,
       userId: userId,
       selectedStyle: selectedStyle?.label,
-      false: false
+      videoGenerating: videoGenerating
     })
     
     if (savedImages.length < 3) {
@@ -1245,11 +1397,11 @@ export default function CreatePage() {
                   {savedImages.length >= 3 ? (
                     <button
                       onClick={handleGenerateVlog}
-                      disabled={false}
+                      disabled={videoGenerating}
                       className="vsco-btn primary"
                       style={{ backgroundColor: '#ff6b6b', color: 'white', fontWeight: 'bold' }}
                     >
-                      {false ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
+                      {videoGenerating ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
                     </button>
                   ) : (
                     <div className="text-xs text-gray-500">
@@ -1519,11 +1671,11 @@ export default function CreatePage() {
                   <>
                     <button 
                       onClick={handleGenerateVlog} 
-                      disabled={false}
+                      disabled={videoGenerating}
                       className="w-full vsco-btn primary mb-3"
                       style={{ backgroundColor: '#ff6b6b', color: 'white', fontWeight: 'bold' }}
                     >
-                      {false ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
+                      {videoGenerating ? '🎥 制作中...' : '🎥 制作视频 Vlog'}
                     </button>
                     <button onClick={handleReset} className="w-full vsco-btn secondary">
                       <RefreshCw className="w-4 h-4 mr-2" />
@@ -1697,6 +1849,19 @@ export default function CreatePage() {
                   <Share2 className="w-4 h-4 mr-1" />
                   分享
                 </button>
+                <button
+                  onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
+                  disabled={videoGenerating}
+                  className="flex items-center px-3 py-2 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
+                >
+                  <Video className="w-4 h-4 mr-1" />
+                  {videoGenerating ? '生成中...' : (userBones < 1 ? '分享获得' : '视频')}
+                  <div className="flex items-center ml-1">
+                    <BoneIcon className="w-3 h-3 text-white/80" />
+                    <span className="text-xs ml-0.5">1</span>
+                  </div>
+                </button>
               </div>
             </div>
           )}
@@ -1763,6 +1928,19 @@ export default function CreatePage() {
                     <Share2 className="w-4 h-4 mr-2" />
                     分享获得骨头
                   </button>
+                  <button
+                    onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
+                    disabled={videoGenerating}
+                    className="flex items-center px-4 py-3 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
+                  >
+                    <Video className="w-4 h-4 mr-2" />
+                    {videoGenerating ? '生成中...' : (userBones < 1 ? '先分享获得骨头' : '生成视频')}
+                    <div className="flex items-center ml-2">
+                      <BoneIcon className="w-3 h-3 text-white/80" />
+                      <span className="text-xs ml-1">1</span>
+                    </div>
+                  </button>
                 </div>
               </div>
 
@@ -1806,15 +1984,15 @@ export default function CreatePage() {
                   <>
                     <button 
                       onClick={handleGenerateVlog} 
-                      disabled={false}
+                      disabled={videoGenerating}
                       className="w-14 h-14 bg-gradient-to-br from-red-500 to-pink-500 backdrop-blur-md rounded-full flex items-center justify-center hover:from-red-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50 border-2 border-white/50"
                       title="制作视频 Vlog"
                       style={{
-                        boxShadow: false ? '0 0 20px rgba(239, 68, 68, 0.6)' : '0 4px 15px rgba(239, 68, 68, 0.4)'
+                        boxShadow: videoGenerating ? '0 0 20px rgba(239, 68, 68, 0.6)' : '0 4px 15px rgba(239, 68, 68, 0.4)'
                       }}
                     >
                       <span className="text-white text-xl">
-                        {false ? '⏳' : '🎥'}
+                        {videoGenerating ? '⏳' : '🎥'}
                       </span>
                     </button>
                     <button 
@@ -1839,11 +2017,11 @@ export default function CreatePage() {
                       </div>
                       <button
                         onClick={handleGenerateVlog}
-                        disabled={false}
+                        disabled={videoGenerating}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full transition-colors disabled:opacity-50 text-xs font-medium flex items-center space-x-1"
                       >
                         <span>🎥</span>
-                        <span>{false ? '制作中' : '制作'}</span>
+                        <span>{videoGenerating ? '制作中' : '制作'}</span>
                       </button>
                     </div>
                   </div>
@@ -2208,10 +2386,10 @@ export default function CreatePage() {
                 </div>
                 <button
                   onClick={handleGenerateVlog}
-                  disabled={false}
+                  disabled={videoGenerating}
                   className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition-colors disabled:opacity-50"
                 >
-                  {false ? '制作中...' : '制作'}
+                  {videoGenerating ? '制作中...' : '制作'}
                 </button>
               </div>
             </div>
