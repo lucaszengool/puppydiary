@@ -1445,13 +1445,15 @@ export default function CreatePage() {
             </div>
           )}
 
-          {/* Mobile Product Preview Modal - Show as overlay on mobile */}
+          {/* Mobile Product Preview Modal - Full screen on mobile */}
           {(generatedImage || editedImage || selectedImageUrl) && showProductPreview && (
-            <div className="md:hidden fixed inset-0 z-[200] bg-white">
-              <VSCOProductDisplay 
-                selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
-                onBack={() => setShowProductPreview(false)}
-              />
+            <div className="md:hidden fixed inset-0 z-[200] bg-white overflow-hidden">
+              <div className="w-full h-full overflow-y-auto">
+                <VSCOProductDisplay 
+                  selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
+                  onBack={() => setShowProductPreview(false)}
+                />
+              </div>
             </div>
           )}
 

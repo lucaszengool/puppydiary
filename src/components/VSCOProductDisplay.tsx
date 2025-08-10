@@ -885,13 +885,23 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           transform: scale(1.1);
         }
 
-        /* Portrait mobile screens */
+        /* Portrait mobile screens - Full screen experience */
         @media (max-width: 480px) and (orientation: portrait) {
+          .vsco-product-display {
+            min-height: 100vh;
+            height: 100vh;
+            overflow-y: auto;
+          }
+          
+          .vsco-main-preview {
+            padding: 10px 15px 20px 15px;
+          }
+          
           .vsco-preview-image {
             width: 90vw;
-            max-width: 350px;
-            height: calc(90vw * 1.2);
-            max-height: 420px;
+            max-width: none;
+            height: 45vh;
+            min-height: 300px;
           }
 
           .vsco-design-on-clothing {
@@ -901,13 +911,34 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
 
           .vsco-preview-container {
             gap: 10px;
-            padding: 10px;
+            padding: 0;
+            margin-bottom: 15px;
+          }
+          
+          .vsco-category-tabs {
+            padding: 15px 10px;
           }
 
           .vsco-product-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             padding: 15px 10px;
+            padding-bottom: 30px;
+          }
+          
+          .vsco-back-btn {
+            position: fixed !important;
+            top: 10px !important;
+            left: 10px !important;
+            z-index: 1000 !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 8px 16px !important;
+            margin: 0 !important;
+            border-radius: 20px !important;
+            font-size: 14px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
           }
         }
 
@@ -944,14 +975,38 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           }
         }
 
+        /* Additional mobile portrait adjustments */
         @media (max-width: 480px) {
+          .vsco-product-display {
+            background: #fafafa;
+          }
+          
           .vsco-preview-image {
-            width: 300px;
-            height: 360px;
+            width: 88vw;
+            height: 42vh;
+            min-height: 280px;
           }
 
           .vsco-product-grid {
             grid-template-columns: repeat(2, 1fr);
+          }
+          
+          .vsco-preview-info {
+            padding: 0 10px;
+          }
+          
+          .vsco-order-btn {
+            padding: 12px 24px;
+            font-size: 14px;
+          }
+        }
+        
+        /* Ensure full viewport coverage on very small screens */
+        @media (max-width: 375px) {
+          .vsco-preview-image {
+            width: 92vw;
+            height: 40vh;
+            min-height: 260px;
           }
         }
       `}</style>
