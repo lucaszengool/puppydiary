@@ -1446,15 +1446,56 @@ export default function CreatePage() {
           )}
 
           {/* Mobile Product Preview Modal - Full screen on mobile */}
-          {(generatedImage || editedImage || selectedImageUrl) && showProductPreview && (
-            <div className="md:hidden fixed inset-0 z-[200] bg-white overflow-hidden">
-              <div className="w-full h-full overflow-y-auto">
-                <VSCOProductDisplay 
-                  selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
-                  onBack={() => setShowProductPreview(false)}
-                />
+          {showProductPreview && (
+            <>
+              <div 
+                className="md:hidden fixed inset-0 bg-white"
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  backgroundColor: 'white',
+                  zIndex: 99999,
+                  overflow: 'hidden'
+                }}
+              >
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowProductPreview(false)}
+                  className="fixed top-4 right-4 w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-gray-700 transition-all"
+                  style={{
+                    position: 'fixed',
+                    top: '16px',
+                    right: '16px',
+                    zIndex: 100000,
+                    width: '40px',
+                    height: '40px',
+                    backgroundColor: '#1f2937',
+                    borderRadius: '50%',
+                    border: 'none',
+                    color: 'white',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  ✕
+                </button>
+                
+                <div className="w-full h-full overflow-y-auto">
+                  <VSCOProductDisplay 
+                    selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
+                    onBack={() => setShowProductPreview(false)}
+                  />
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {/* Publish Dialog - removed from here, moved to top level */}
@@ -1939,7 +1980,7 @@ export default function CreatePage() {
                   </div>
                 
                   {/* Mobile Action Buttons - Bottom Overlay - Fixed position to always be visible */}
-                  <div className="fixed bottom-4 left-4 right-4 flex justify-between z-[70]">
+                  <div className="fixed bottom-4 left-4 right-4 flex justify-between z-[70]" style={{ zIndex: 70 }}>
                   <button
                     onClick={() => handleShareImage(editedImage || generatedImage || selectedImageUrl!)}
                     className="flex items-center px-4 py-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
@@ -1949,9 +1990,16 @@ export default function CreatePage() {
                     分享获得骨头
                   </button>
                   <button
-                    onClick={() => setShowProductPreview(true)}
+                    onClick={() => {
+                      console.log('产品预览按钮被点击了！');
+                      setShowProductPreview(true);
+                    }}
                     className="flex items-center px-4 py-3 bg-black/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-black transition-colors"
                     title="查看产品效果"
+                    style={{ 
+                      pointerEvents: 'auto',
+                      touchAction: 'manipulation'
+                    }}
                   >
                     <ShoppingBag className="w-4 h-4 mr-2" />
                     产品预览
