@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Beautiful Dotted Frame</title>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <button onclick="downloadFrame()">下载点点相框</button>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function createDottedFrame() {
+            // 清空画布 - 纯白背景
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // 外层阴影效果
+            const gradient = ctx.createRadialGradient(400, 400, 300, 400, 400, 400);
+            gradient.addColorStop(0, '#ffffff');
+            gradient.addColorStop(1, '#f5f5f5');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // 主相框区域 - 纯白
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(50, 50, 700, 700);
+            
+            // 创建点点装饰边框
+            const dotColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffa726', '#ab47bc'];
+            
+            // 外圈点点 (大)
+            for (let i = 0; i < 360; i += 12) {
+                const angle = (i * Math.PI) / 180;
+                const x = 400 + Math.cos(angle) * 350;
+                const y = 400 + Math.sin(angle) * 350;
+                ctx.fillStyle = dotColors[Math.floor(i / 60) % dotColors.length];
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 内圈点点 (中)
+            for (let i = 0; i < 360; i += 15) {
+                const angle = (i * Math.PI) / 180;
+                const x = 400 + Math.cos(angle) * 320;
+                const y = 400 + Math.sin(angle) * 320;
+                ctx.fillStyle = dotColors[(Math.floor(i / 72) + 2) % dotColors.length];
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 最内圈点点 (小)
+            for (let i = 0; i < 360; i += 18) {
+                const angle = (i * Math.PI) / 180;
+                const x = 400 + Math.cos(angle) * 290;
+                const y = 400 + Math.sin(angle) * 290;
+                ctx.fillStyle = dotColors[(Math.floor(i / 90) + 4) % dotColors.length];
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 四角装饰点
+            const cornerDots = [
+                {x: 80, y: 80}, {x: 720, y: 80}, {x: 720, y: 720}, {x: 80, y: 720}
+            ];
+            cornerDots.forEach((dot, i) => {
+                ctx.fillStyle = dotColors[i];
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, 12, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // 内边框线条 - 浅灰
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(100, 100, 600, 600);
+            
+            // 中间图片区域背景 - 极浅灰
+            ctx.fillStyle = '#fafafa';
+            ctx.fillRect(120, 120, 560, 560);
+        }
+        
+        function downloadFrame() {
+            createDottedFrame();
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'beautiful-dotted-frame.jpg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }, 'image/jpeg', 0.95);
+        }
+        
+        // 立即创建相框
+        createDottedFrame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Product Templates</title>
+</head>
+<body>
+    <h2>Product Template Generator</h2>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <div>
+        <button onclick="createTshirtTemplate()">T恤模板</button>
+        <button onclick="createHoodieTemplate()">卫衣模板</button>
+        <button onclick="createFrameTemplate()">相框模板</button>
+    </div>
+    <div id="downloads"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function createTshirtTemplate() {
+            // Clear canvas
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // Create a simple T-shirt silhouette
+            // Body
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(200, 200, 400, 500);
+            
+            // Sleeves
+            ctx.fillRect(100, 200, 100, 200);
+            ctx.fillRect(600, 200, 100, 200);
+            
+            // Neck
+            ctx.beginPath();
+            ctx.arc(400, 220, 40, 0, Math.PI);
+            ctx.fill();
+            
+            // Add shading for 3D effect
+            ctx.fillStyle = '#e5e7eb';
+            ctx.fillRect(580, 200, 20, 500); // Right shadow
+            ctx.fillRect(200, 680, 400, 20); // Bottom shadow
+            
+            // Design area indicator
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(300, 280, 200, 200);
+            
+            // Text
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('设计区域', 400, 390);
+            
+            downloadImage('white-tshirt-front.jpg');
+        }
+
+        function createHoodieTemplate() {
+            // Clear canvas
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // Hoodie body
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(180, 250, 440, 480);
+            
+            // Hood
+            ctx.beginPath();
+            ctx.arc(400, 250, 120, Math.PI, 0);
+            ctx.fill();
+            
+            // Sleeves
+            ctx.fillRect(80, 250, 100, 300);
+            ctx.fillRect(620, 250, 100, 300);
+            
+            // Pocket
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(280, 500, 240, 80);
+            
+            // Add shading
+            ctx.fillStyle = '#e5e7eb';
+            ctx.fillRect(600, 250, 20, 480);
+            ctx.fillRect(180, 710, 440, 20);
+            
+            // Design area
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(280, 320, 240, 200);
+            
+            // Text
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('设计区域', 400, 430);
+            
+            downloadImage('classic-hoodie-front.jpg');
+        }
+
+        function createFrameTemplate() {
+            // Clear canvas
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // Outer frame - wood texture
+            const outerGradient = ctx.createLinearGradient(0, 0, 800, 0);
+            outerGradient.addColorStop(0, '#8b7355');
+            outerGradient.addColorStop(0.5, '#a0845c');
+            outerGradient.addColorStop(1, '#8b7355');
+            ctx.fillStyle = outerGradient;
+            ctx.fillRect(50, 50, 700, 700);
+            
+            // Inner frame
+            const innerGradient = ctx.createLinearGradient(0, 0, 800, 0);
+            innerGradient.addColorStop(0, '#c9b037');
+            innerGradient.addColorStop(0.5, '#f7ef8a');
+            innerGradient.addColorStop(1, '#c9b037');
+            ctx.fillStyle = innerGradient;
+            ctx.fillRect(80, 80, 640, 640);
+            
+            // Glass area
+            const glassGradient = ctx.createRadialGradient(400, 400, 0, 400, 400, 300);
+            glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+            glassGradient.addColorStop(0.7, 'rgba(240, 248, 255, 0.9)');
+            glassGradient.addColorStop(1, 'rgba(230, 240, 250, 0.85)');
+            ctx.fillStyle = glassGradient;
+            ctx.fillRect(120, 120, 560, 560);
+            
+            // Picture area (white background)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(140, 140, 520, 520);
+            
+            // Glass reflection
+            const highlightGradient = ctx.createLinearGradient(140, 140, 300, 300);
+            highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = highlightGradient;
+            ctx.fillRect(140, 140, 160, 160);
+            
+            // Design area indicator
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(160, 160, 480, 480);
+            
+            downloadImage('classic-frame-front.jpg');
+        }
+
+        function downloadImage(filename) {
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                
+                const downloadDiv = document.getElementById('downloads');
+                downloadDiv.innerHTML += `<p>下载: <a href="${url}" download="${filename}">${filename}</a></p>`;
+                
+                // Auto download
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }, 'image/jpeg', 0.9);
+        }
+    </script>
+</body>
+</html>

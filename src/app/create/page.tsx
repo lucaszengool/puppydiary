@@ -29,11 +29,13 @@ import {
   ChevronRight,
   Share2,
   Copy,
-  Video
+  Video,
+  ShoppingBag
 } from "lucide-react"
 import BoneIcon from "@/components/BoneIcon"
 import Link from "next/link"
 import './vsco-style.css'
+import { VSCOProductDisplay } from "@/components/VSCOProductDisplay"
 
 export default function CreatePage() {
   const { userId, isSignedIn, isLoaded } = useAuth()
@@ -85,6 +87,17 @@ export default function CreatePage() {
   const [publishLoading, setPublishLoading] = useState(false)
   const [showImagePreview, setShowImagePreview] = useState(false)
   const [previewImageUrl, setPreviewImageUrl] = useState<string>("")
+  const [showProductPreview, setShowProductPreview] = useState(false)
+  
+  // Debug images state
+  useEffect(() => {
+    console.log("🖼️ Image state changed:", {
+      generatedImage: generatedImage ? "EXISTS" : "NULL",
+      editedImage: editedImage ? "EXISTS" : "NULL",
+      showProductPreview
+    });
+  }, [generatedImage, editedImage, showProductPreview])
+  
   
   // Bones system state
   const [userBones, setUserBones] = useState<number>(0)
@@ -1432,6 +1445,52 @@ export default function CreatePage() {
             </div>
           )}
 
+          {/* Test Panel - Always show */}
+          <div className="hidden md:block fixed right-0 top-0 w-20 h-20 bg-green-500 text-white text-xs z-[100] p-2">
+            TEST PANEL
+          </div>
+
+          {/* Debug: Force show product preview for uploaded images */}
+          {selectedImageUrl && !generatedImage && (
+            <div className="hidden md:block fixed right-20 top-0 w-80 h-32 bg-blue-500 text-white text-xs z-[100] p-2">
+              UPLOADED IMAGE DETECTED
+              <br />selectedImageUrl: {selectedImageUrl ? '✓' : '✗'}
+              <br />generatedImage: {generatedImage ? '✓' : '✗'}
+            </div>
+          )}
+
+          {/* Desktop Product Preview - Always show on desktop */}
+          {(generatedImage || editedImage || selectedImageUrl) && (
+            <>
+              <div className="hidden md:block fixed right-0 top-0 bottom-0 w-96 bg-red-100 border-l-4 border-red-500 shadow-xl overflow-y-auto z-[50]">
+                <div className="h-full pt-16 p-4">
+                  <div className="bg-yellow-200 p-2 mb-4 text-sm">
+                    DEBUG: Desktop Product Preview Panel
+                    <br />generatedImage: {generatedImage ? '✓' : '✗'}
+                    <br />editedImage: {editedImage ? '✓' : '✗'}
+                  </div>
+                  <VSCOProductDisplay 
+                    selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl}
+                    isCompactMode={true}
+                  />
+                </div>
+              </div>
+              {/* Debug overlay */}
+              <div className="hidden md:block fixed top-4 right-[400px] bg-blue-500 text-white p-2 text-xs z-[60]">
+                Desktop Preview Active
+              </div>
+            </>
+          )}
+
+          {/* Mobile Product Preview Modal - Show as overlay on mobile */}
+          {(generatedImage || editedImage || selectedImageUrl) && showProductPreview && (
+            <div className="md:hidden fixed inset-0 z-[200] bg-white">
+              <VSCOProductDisplay 
+                selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl}
+                onBack={() => setShowProductPreview(false)}
+              />
+            </div>
+          )}
 
           {/* Publish Dialog - removed from here, moved to top level */}
 
@@ -1826,6 +1885,14 @@ export default function CreatePage() {
                   分享
                 </button>
                 <button
+                  onClick={() => setShowProductPreview(true)}
+                  className="flex items-center px-3 py-2 bg-black/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-black transition-colors"
+                  title="查看产品效果"
+                >
+                  <ShoppingBag className="w-4 h-4 mr-1" />
+                  产品预览
+                </button>
+                <button
                   onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
                   disabled={videoGenerating}
                   className="flex items-center px-3 py-2 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1841,6 +1908,7 @@ export default function CreatePage() {
               </div>
             </div>
           )}
+
         </div>
       </div>
 
@@ -1903,6 +1971,14 @@ export default function CreatePage() {
                   >
                     <Share2 className="w-4 h-4 mr-2" />
                     分享获得骨头
+                  </button>
+                  <button
+                    onClick={() => setShowProductPreview(true)}
+                    className="flex items-center px-4 py-3 bg-black/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-black transition-colors"
+                    title="查看产品效果"
+                  >
+                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    产品预览
                   </button>
                   <button
                     onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}

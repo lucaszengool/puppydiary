@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Test Dog Image</title>
+</head>
+<body>
+    <canvas id="canvas" width="512" height="512"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Draw a simple dog face
+        ctx.fillStyle = '#8B4513'; // Brown
+        ctx.beginPath();
+        ctx.arc(256, 256, 150, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Eyes
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(200, 220, 20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(312, 220, 20, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Nose
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(256, 280, 15, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Mouth
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(230, 300, 30, 0, Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(282, 300, 30, 0, Math.PI);
+        ctx.stroke();
+        
+        // Ears
+        ctx.fillStyle = '#654321';
+        ctx.beginPath();
+        ctx.ellipse(150, 200, 40, 80, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(362, 200, 40, 80, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Download as image
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'test-dog.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+    </script>
+</body>
+</html>

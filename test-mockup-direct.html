@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Mockup Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-image {
+            width: 300px;
+            height: 300px;
+            border: 2px solid #ddd;
+            margin: 10px;
+            display: inline-block;
+        }
+        .result-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .product-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .product-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .angles-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .angle-preview {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+        .angle-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 4px;
+        }
+        .main-preview {
+            width: 300px;
+            height: 300px;
+            border: 2px solid #333;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 8px;
+        }
+        .main-preview img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔥 Direct Mockup System Test</h1>
+        
+        <div class="status info">
+            <strong>测试目标:</strong> 验证马克杯图片居中、相框背景正确
+        </div>
+        
+        <div class="result-section">
+            <h2>1. 测试图像</h2>
+            <canvas id="testCanvas" width="400" height="400" style="border: 2px solid #333; border-radius: 8px;"></canvas>
+            <button onclick="generateTestImage()">生成新测试图</button>
+            <button onclick="runMockupTest()">开始测试</button>
+        </div>
+
+        <div id="results" class="product-grid">
+            <!-- Results will be inserted here -->
+        </div>
+
+        <div class="result-section">
+            <h2>测试日志</h2>
+            <div id="log" style="background: #000; color: #0f0; padding: 15px; font-family: monospace; height: 200px; overflow-y: scroll; border-radius: 4px;">
+                准备开始测试...<br>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Copy the exact mockup generation code from the system
+        const mockupTemplates = [
+            // T恤
+            {
+                id: 'tshirt-front',
+                name: 'T恤 · 正面',
+                templateImage: '/mockup-templates/white-tshirt.jpg',
+                overlayArea: { x: 0.38, y: 0.35, width: 0.24, height: 0.28 },
+                blendMode: 'multiply',
+                opacity: 0.95
+            },
+            
+            // 马克杯 - 测试重点
+            {
+                id: 'mug-front',
+                name: '马克杯 · 正面',
+                templateImage: '/mockup-templates/white-mug.jpg',
+                overlayArea: { x: 0.28, y: 0.32, width: 0.44, height: 0.36 },
+                blendMode: 'multiply',
+                opacity: 0.90
+            },
+            
+            // 相框 - 测试重点
+            {
+                id: 'frame-front',
+                name: '相框 · 正面',
+                templateImage: '/mockup-templates/white-frame-bg.jpg',
+                overlayArea: { x: 0.05, y: 0.05, width: 0.9, height: 0.9 },
+                blendMode: 'source-over',
+                opacity: 1
+            }
+        ];
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function generateTestImage() {
+            const canvas = document.getElementById('testCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Create a distinctive test pattern
+            const colors = ['#ff4757', '#2ed573', '#3742fa', '#ffa502', '#ff6b6b'];
+            
+            // Clear canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 400, 400);
+            
+            // Draw colorful pattern
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    ctx.fillStyle = colors[(i + j) % colors.length];
+                    ctx.fillRect(i * 40, j * 40, 35, 35);
+                }
+            }
+            
+            // Add center text
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('TEST', 200, 180);
+            ctx.fillText('DOG', 200, 220);
+            
+            // Add a distinctive shape in center
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(200, 250, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+            log('✅ 测试图像已生成');
+        }
+
+        function removeBackground(imageData) {
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                const brightness = (r + g + b) / 3;
+                const isLight = brightness > 240;
+                const isGray = Math.abs(r - g) < 20 && Math.abs(g - b) < 20 && Math.abs(r - b) < 20;
+                
+                if (isLight || (isGray && brightness > 200)) {
+                    data[i + 3] = 0;
+                }
+            }
+            
+            return imageData;
+        }
+
+        function applyCurvedOverlay(sourceCanvas, ctx, x, y, width, height) {
+            const slices = 20;
+            const sliceWidth = sourceCanvas.width / slices;
+            const targetSliceWidth = width / slices;
+            
+            for (let i = 0; i < slices; i++) {
+                const sourceX = i * sliceWidth;
+                const targetX = x + (i * targetSliceWidth);
+                
+                const curveEffect = Math.sin((i / slices) * Math.PI) * 0.1;
+                const sliceHeight = height * (1 + curveEffect);
+                const sliceY = y + (height - sliceHeight) / 2;
+                
+                ctx.drawImage(
+                    sourceCanvas,
+                    sourceX, 0, sliceWidth, sourceCanvas.height,
+                    targetX, sliceY, targetSliceWidth, sliceHeight
+                );
+            }
+        }
+
+        async function generateSingleMockup(testImageCanvas, template) {
+            return new Promise((resolve, reject) => {
+                const templateImg = new Image();
+                templateImg.crossOrigin = 'anonymous';
+                
+                templateImg.onload = () => {
+                    try {
+                        // Create result canvas
+                        const resultCanvas = document.createElement('canvas');
+                        const ctx = resultCanvas.getContext('2d');
+                        resultCanvas.width = templateImg.width;
+                        resultCanvas.height = templateImg.height;
+                        
+                        // Draw template background
+                        ctx.drawImage(templateImg, 0, 0);
+                        
+                        // Process test image
+                        const tempCanvas = document.createElement('canvas');
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCanvas.width = testImageCanvas.width;
+                        tempCanvas.height = testImageCanvas.height;
+                        tempCtx.drawImage(testImageCanvas, 0, 0);
+                        
+                        // Remove background
+                        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                        const cleanImageData = removeBackground(imageData);
+                        tempCtx.putImageData(cleanImageData, 0, 0);
+                        
+                        // Calculate overlay position
+                        const overlayX = template.overlayArea.x * templateImg.width;
+                        const overlayY = template.overlayArea.y * templateImg.height;
+                        const overlayWidth = template.overlayArea.width * templateImg.width;
+                        const overlayHeight = template.overlayArea.height * templateImg.height;
+                        
+                        // Apply blend mode and opacity
+                        ctx.save();
+                        if (template.opacity !== undefined) {
+                            ctx.globalAlpha = template.opacity;
+                        }
+                        if (template.blendMode) {
+                            ctx.globalCompositeOperation = template.blendMode;
+                        }
+                        
+                        // Apply overlay
+                        if (template.id.startsWith('mug-')) {
+                            log(`🔧 使用曲面算法处理马克杯: ${template.name}`);
+                            applyCurvedOverlay(tempCanvas, ctx, overlayX, overlayY, overlayWidth, overlayHeight);
+                        } else {
+                            log(`📐 直接覆盖处理: ${template.name}`);
+                            ctx.drawImage(tempCanvas, overlayX, overlayY, overlayWidth, overlayHeight);
+                        }
+                        
+                        ctx.restore();
+                        
+                        const dataUrl = resultCanvas.toDataURL('image/png');
+                        resolve({ template, dataUrl, dimensions: { overlayX, overlayY, overlayWidth, overlayHeight } });
+                        
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                templateImg.onerror = () => {
+                    // If template fails to load, create a placeholder
+                    log(`⚠️ 模板图片加载失败: ${template.templateImage}`);
+                    
+                    const placeholderCanvas = document.createElement('canvas');
+                    const ctx = placeholderCanvas.getContext('2d');
+                    placeholderCanvas.width = 400;
+                    placeholderCanvas.height = 400;
+                    
+                    // Draw placeholder background
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.fillRect(0, 0, 400, 400);
+                    ctx.fillStyle = '#666';
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('模板加载失败', 200, 180);
+                    ctx.fillText(template.name, 200, 220);
+                    
+                    const dataUrl = placeholderCanvas.toDataURL('image/png');
+                    resolve({ template, dataUrl, error: 'Template load failed' });
+                };
+                
+                // Try to load template
+                templateImg.src = template.templateImage;
+            });
+        }
+
+        async function runMockupTest() {
+            log('🚀 开始mockup测试...');
+            
+            const testCanvas = document.getElementById('testCanvas');
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = '<div class="status info">生成中...</div>';
+            
+            try {
+                const results = await Promise.all(
+                    mockupTemplates.map(template => generateSingleMockup(testCanvas, template))
+                );
+                
+                // Display results
+                resultsDiv.innerHTML = '';
+                
+                results.forEach(result => {
+                    const { template, dataUrl, error, dimensions } = result;
+                    
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'product-item';
+                    
+                    let statusClass = 'success';
+                    let statusText = '✅ 生成成功';
+                    
+                    if (error) {
+                        statusClass = 'error';
+                        statusText = '❌ ' + error;
+                    }
+                    
+                    // Check specific issues
+                    let analysisText = '';
+                    if (template.id === 'mug-front') {
+                        analysisText = `
+                            <div class="status info">
+                                <strong>马克杯分析:</strong><br>
+                                • 覆盖区域: x=${dimensions?.overlayX.toFixed(0)}, y=${dimensions?.overlayY.toFixed(0)}<br>
+                                • 尺寸: ${dimensions?.overlayWidth.toFixed(0)} × ${dimensions?.overlayHeight.toFixed(0)}<br>
+                                • 是否使用曲面算法: ✅<br>
+                                • 图片应该在杯子中央，不能飘在外面
+                            </div>
+                        `;
+                    } else if (template.id === 'frame-front') {
+                        analysisText = `
+                            <div class="status info">
+                                <strong>相框分析:</strong><br>
+                                • 覆盖区域: 几乎全覆盖 (5% margin)<br>
+                                • 背景应该是白色相框，不是其他物体<br>
+                                • 如果显示错误物体，说明模板图片错误
+                            </div>
+                        `;
+                    }
+                    
+                    productDiv.innerHTML = `
+                        <div class="product-title">${template.name}</div>
+                        <div class="status ${statusClass}">${statusText}</div>
+                        <div class="main-preview">
+                            <img src="${dataUrl}" alt="${template.name}" />
+                        </div>
+                        ${analysisText}
+                        <div style="text-align: center; font-size: 14px; color: #666;">
+                            模板: ${template.templateImage}<br>
+                            混合模式: ${template.blendMode}<br>
+                            透明度: ${template.opacity}
+                        </div>
+                    `;
+                    
+                    resultsDiv.appendChild(productDiv);
+                });
+                
+                log('✅ 所有mockup生成完成！');
+                log('🔍 请检查马克杯图片是否在杯子中央');
+                log('🔍 请检查相框是否显示白色框架背景');
+                
+            } catch (error) {
+                log('❌ 测试失败: ' + error.message);
+                resultsDiv.innerHTML = `<div class="status error">测试失败: ${error.message}</div>`;
+            }
+        }
+
+        // Initialize
+        window.onload = () => {
+            generateTestImage();
+            log('🎯 测试页面已加载');
+            log('📝 点击"开始测试"按钮来验证mockup效果');
+        };
+    </script>
+</body>
+</html>

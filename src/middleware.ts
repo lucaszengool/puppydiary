@@ -7,6 +7,8 @@ export default authMiddleware({
     "/gallery",
     "/sign-in",
     "/sign-up",
+    "/public-mockup-test",
+    "/fabric-mockup-test",
     "/api/generate",
     "/api/generate-video",
     "/api/uploadthing",

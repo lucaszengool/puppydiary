@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Realistic Glass Frame</title>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <button onclick="downloadFrame()">下载玻璃相框</button>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function createGlassFrame() {
+            // 环境背景 - 淡雅渐变
+            const bgGradient = ctx.createLinearGradient(0, 0, 800, 800);
+            bgGradient.addColorStop(0, '#f8f9fa');
+            bgGradient.addColorStop(0.5, '#ffffff');
+            bgGradient.addColorStop(1, '#f1f3f4');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // 相框阴影 - 柔和阴影效果
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+            
+            // 外框 - 深色木纹效果
+            const frameGradient = ctx.createLinearGradient(0, 0, 800, 0);
+            frameGradient.addColorStop(0, '#8b7355');
+            frameGradient.addColorStop(0.3, '#a0845c');
+            frameGradient.addColorStop(0.7, '#8b7355');
+            frameGradient.addColorStop(1, '#7a6247');
+            ctx.fillStyle = frameGradient;
+            ctx.fillRect(30, 30, 740, 740);
+            
+            // 重置阴影
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // 内框渐变 - 金属质感
+            const innerFrameGradient = ctx.createLinearGradient(0, 0, 800, 0);
+            innerFrameGradient.addColorStop(0, '#c9b037');
+            innerFrameGradient.addColorStop(0.5, '#f7ef8a');
+            innerFrameGradient.addColorStop(1, '#c9b037');
+            ctx.fillStyle = innerFrameGradient;
+            ctx.fillRect(60, 60, 680, 680);
+            
+            // 玻璃区域 - 透明玻璃效果
+            const glassGradient = ctx.createRadialGradient(400, 400, 0, 400, 400, 300);
+            glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+            glassGradient.addColorStop(0.7, 'rgba(240, 248, 255, 0.9)');
+            glassGradient.addColorStop(1, 'rgba(230, 240, 250, 0.85)');
+            ctx.fillStyle = glassGradient;
+            ctx.fillRect(90, 90, 620, 620);
+            
+            // 玻璃反光效果 - 左上角高光
+            const highlightGradient = ctx.createLinearGradient(90, 90, 300, 300);
+            highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+            highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = highlightGradient;
+            ctx.fillRect(90, 90, 200, 200);
+            
+            // 玻璃边缘高光
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(91, 91, 618, 618);
+            
+            // 内部图片区域边框 - 精细边框
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(110, 110, 580, 580);
+            
+            // 添加细微的木纹纹理
+            for (let i = 0; i < 740; i += 3) {
+                ctx.strokeStyle = `rgba(139, 115, 85, ${0.1 + Math.random() * 0.1})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(30, 30 + i);
+                ctx.lineTo(770, 30 + i);
+                ctx.stroke();
+            }
+            
+            // 四角装饰螺丝
+            const screws = [
+                {x: 50, y: 50}, {x: 750, y: 50}, {x: 750, y: 750}, {x: 50, y: 750}
+            ];
+            screws.forEach(screw => {
+                // 螺丝阴影
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.arc(screw.x + 1, screw.y + 1, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 螺丝主体
+                const screwGradient = ctx.createRadialGradient(screw.x, screw.y, 0, screw.x, screw.y, 6);
+                screwGradient.addColorStop(0, '#e8e8e8');
+                screwGradient.addColorStop(0.7, '#c0c0c0');
+                screwGradient.addColorStop(1, '#999999');
+                ctx.fillStyle = screwGradient;
+                ctx.beginPath();
+                ctx.arc(screw.x, screw.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 螺丝十字槽
+                ctx.strokeStyle = '#666666';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(screw.x - 3, screw.y);
+                ctx.lineTo(screw.x + 3, screw.y);
+                ctx.moveTo(screw.x, screw.y - 3);
+                ctx.lineTo(screw.x, screw.y + 3);
+                ctx.stroke();
+            });
+            
+            // 最终图片放置区域 - 纯白背景用于图片放置
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(120, 120, 560, 560);
+        }
+        
+        function downloadFrame() {
+            createGlassFrame();
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'realistic-glass-frame.jpg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }, 'image/jpeg', 0.95);
+        }
+        
+        // 立即创建相框
+        createGlassFrame();
+    </script>
+</body>
+</html>

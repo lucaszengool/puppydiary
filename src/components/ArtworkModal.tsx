@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { X, Heart, Calendar, User } from "lucide-react"
 import { useAuth } from "@clerk/nextjs"
+import { MockupDisplay } from "@/components/MockupDisplay"
 
 interface Artwork {
   id: string
@@ -34,6 +35,7 @@ export default function ArtworkModal({ isOpen, onClose, artwork }: ArtworkModalP
   const [author, setAuthor] = useState<User | null>(null)
   const [isFavorited, setIsFavorited] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showMockups, setShowMockups] = useState(false)
 
   useEffect(() => {
     if (isOpen && artwork) {
@@ -190,12 +192,35 @@ export default function ArtworkModal({ isOpen, onClose, artwork }: ArtworkModalP
             )}
 
             {/* Stats */}
-            <div className="flex items-center space-x-4 pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
               <div className="flex items-center space-x-2 text-gray-600">
                 <Heart className="w-4 h-4" />
                 <span className="text-sm">{artwork.likes || 0} 人喜欢</span>
               </div>
+              
+              {/* Mockup Toggle Button */}
+              <button
+                onClick={() => setShowMockups(!showMockups)}
+                className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+              >
+                {showMockups ? '隐藏产品预览' : '查看产品预览'}
+              </button>
             </div>
+
+            {/* Mockup Display Section */}
+            {showMockups && (
+              <div className="mt-6 border-t border-gray-100 pt-4">
+                <MockupDisplay 
+                  designImageUrl={artwork.imageUrl}
+                  onDownload={(mockupUrl, templateName) => {
+                    const link = document.createElement('a');
+                    link.href = mockupUrl;
+                    link.download = `mockup-${templateName}-${Date.now()}.png`;
+                    link.click();
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
