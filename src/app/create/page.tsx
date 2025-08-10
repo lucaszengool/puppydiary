@@ -1915,7 +1915,7 @@ export default function CreatePage() {
               <div className={`flex-1 flex items-center justify-center px-2 pt-12 transition-all duration-300 ${
                 editingMode !== 'none' ? 'pb-80' : 'pb-32'
               }`}>
-                <div className="w-full h-full flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center relative">
                   {/* Mobile optimized real-time preview using CSS filters */}
                   <div className="w-full h-full flex items-center justify-center">
                     <img
@@ -1935,10 +1935,9 @@ export default function CreatePage() {
                       }}
                     />
                   </div>
-                </div>
                 
-                {/* Mobile Action Buttons - Bottom Overlay */}
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between">
+                  {/* Mobile Action Buttons - Bottom Overlay - Fixed position to always be visible */}
+                  <div className="fixed bottom-4 left-4 right-4 flex justify-between z-[70]">
                   <button
                     onClick={() => handleShareImage(editedImage || generatedImage || selectedImageUrl!)}
                     className="flex items-center px-4 py-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
@@ -1968,6 +1967,7 @@ export default function CreatePage() {
                       <span className="text-xs ml-1">1</span>
                     </div>
                   </button>
+                  </div>
                 </div>
               </div>
 
