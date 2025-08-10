@@ -1,8 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '@clerk/nextjs';
 import { X, ShoppingBag, User, Mail, Phone, MapPin, Ruler } from 'lucide-react';
+
+// 添加全局样式
+if (typeof window !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes modalScale {
+      from { 
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to { 
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 interface ClothingProduct {
   id: string;
@@ -127,12 +146,38 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
     }
   };
 
-  if (!isOpen || !product) return null;
+  if (!isOpen || !product || typeof window === 'undefined') return null;
 
   if (success) {
-    return (
-      <div className="enhanced-modal-overlay">
-        <div className="enhanced-modal enhanced-success-modal">
+    return createPortal(
+      <div 
+        className="enhanced-modal-overlay"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}
+      >
+        <div 
+          className="enhanced-modal enhanced-success-modal"
+          style={{
+            background: 'white',
+            borderRadius: '20px',
+            maxWidth: '400px',
+            width: '100%',
+            position: 'relative',
+            animation: 'modalScale 0.3s ease',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)'
+          }}
+        >
           <div className="enhanced-success-content">
             <div className="enhanced-success-icon">✓</div>
             <h3 className="enhanced-success-title">预订成功！</h3>
@@ -146,13 +191,44 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
             </p>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     );
   }
 
-  return (
-    <div className="enhanced-modal-overlay" onClick={onClose}>
-      <div className="enhanced-modal" onClick={(e) => e.stopPropagation()}>
+  return createPortal(
+    <div 
+      className="enhanced-modal-overlay" 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        padding: '20px'
+      }}
+    >
+      <div 
+        className="enhanced-modal" 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: 'white',
+          borderRadius: '20px',
+          maxWidth: '600px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          position: 'relative',
+          animation: 'modalScale 0.3s ease',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)'
+        }}
+      >
         {/* Header */}
         <div className="enhanced-modal-header">
           <h3 className="enhanced-modal-title">
@@ -336,12 +412,13 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 9999;
             padding: 20px;
+            animation: fadeIn 0.2s ease;
           }
 
           .enhanced-modal {
@@ -352,6 +429,8 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
+            animation: modalScale 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
           }
 
           .enhanced-modal-header {
@@ -714,6 +793,22 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
             100% { transform: rotate(360deg); }
           }
 
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+
+          @keyframes modalScale {
+            from { 
+              opacity: 0;
+              transform: scale(0.9);
+            }
+            to { 
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+
           @media (max-width: 600px) {
             .enhanced-order-preview {
               flex-direction: column;
@@ -727,6 +822,7 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
           }
         `}</style>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

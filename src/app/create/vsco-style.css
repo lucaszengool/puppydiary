@@ -641,6 +641,17 @@
   padding-bottom: 140px; /* Add space for the fixed bottom gallery */
 }
 
+/* Adjust main editor to account for product preview panel */
+.vsco-editor.with-product-preview {
+  margin-right: 320px; /* Add space for the fixed product preview panel (80*4 = 320px) */
+}
+
+@media (min-width: 768px) {
+  .vsco-editor.with-product-preview {
+    margin-right: 384px; /* Add space for the fixed product preview panel (96*4 = 384px) */
+  }
+}
+
 /* Transitions */
 .fade-in {
   animation: fadeIn 0.3s ease-out;

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { ShoppingBag, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { ShoppingBag, ChevronLeft, ChevronRight, ArrowLeft, X } from 'lucide-react';
 import { EnhancedPreOrderModal } from './EnhancedPreOrderModal';
 
 interface ProductItem {
   id: string;
   name: string;
-  type: '卫衣' | '短袖' | '相框';
+  type: '卫衣' | '短袖';
   price?: number;
   image: string;
   sizes?: {
@@ -21,35 +21,33 @@ interface ProductItem {
 
 const productItems: ProductItem[] = [
   // 卫衣
-  { id: 'hoodie-1', name: '连帽卫衣 - 款式1', type: '卫衣', price: 168, image: '/卫衣/31ec7bd89ff08b6d1d81bba77b44d3d2.jpg',
+  { id: 'hoodie-1', name: '连帽卫衣 - 款式1', type: '卫衣', price: 99, image: '/卫衣/31ec7bd89ff08b6d1d81bba77b44d3d2.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '舒适棉质，经典版型' },
-  { id: 'hoodie-2', name: '连帽卫衣 - 款式2', type: '卫衣', price: 168, image: '/卫衣/5684ce5c525e6ad1c9af443e2653e8d4.jpg',
+  { id: 'hoodie-2', name: '连帽卫衣 - 款式2', type: '卫衣', price: 99, image: '/卫衣/5684ce5c525e6ad1c9af443e2653e8d4.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '舒适棉质，经典版型' },
-  { id: 'hoodie-3', name: '连帽卫衣 - 款式3', type: '卫衣', price: 168, image: '/卫衣/826c7f376223c11a5d44adb95ceeaf6a.jpg',
+  { id: 'hoodie-3', name: '连帽卫衣 - 款式3', type: '卫衣', price: 99, image: '/卫衣/826c7f376223c11a5d44adb95ceeaf6a.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '舒适棉质，经典版型' },
-  { id: 'hoodie-4', name: '连帽卫衣 - 款式4', type: '卫衣', price: 168, image: '/卫衣/926e055aa81bcd7681beffbcd82d2dd5.jpg',
+  { id: 'hoodie-4', name: '连帽卫衣 - 款式4', type: '卫衣', price: 99, image: '/卫衣/926e055aa81bcd7681beffbcd82d2dd5.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '舒适棉质，经典版型' },
-  { id: 'hoodie-5', name: '连帽卫衣 - 款式5', type: '卫衣', price: 168, image: '/卫衣/df18d236e7e8b8b49f63fad744fed181.jpg',
+  { id: 'hoodie-5', name: '连帽卫衣 - 款式5', type: '卫衣', price: 99, image: '/卫衣/df18d236e7e8b8b49f63fad744fed181.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '舒适棉质，经典版型' },
   
   // 短袖
-  { id: 'tshirt-1', name: '短袖T恤 - 款式1', type: '短袖', price: 88, image: '/短袖/612d2b25d4da872b0eb360603e26383d.jpg',
+  { id: 'tshirt-1', name: '短袖T恤 - 款式1', type: '短袖', price: 49, image: '/短袖/612d2b25d4da872b0eb360603e26383d.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '纯棉材质，透气舒适' },
-  { id: 'tshirt-2', name: '短袖T恤 - 款式2', type: '短袖', price: 88, image: '/短袖/6f6fe23689d18c3582267bd457c390d3.jpg',
+  { id: 'tshirt-2', name: '短袖T恤 - 款式2', type: '短袖', price: 49, image: '/短袖/6f6fe23689d18c3582267bd457c390d3.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '纯棉材质，透气舒适' },
-  { id: 'tshirt-3', name: '短袖T恤 - 款式3', type: '短袖', price: 88, image: '/短袖/b81feb9703f09524b4cb09ae9acf8acd.jpg',
+  { id: 'tshirt-3', name: '短袖T恤 - 款式3', type: '短袖', price: 49, image: '/短袖/b81feb9703f09524b4cb09ae9acf8acd.jpg',
     sizes: { S: { height: '160-165cm', chest: '88-92cm' }, M: { height: '165-170cm', chest: '92-96cm' }, L: { height: '170-175cm', chest: '96-100cm' }, XL: { height: '175-180cm', chest: '100-104cm' }},
     description: '纯棉材质，透气舒适' },
 
-  // 相框
-  { id: 'frame-1', name: '经典相框', type: '相框', image: '/相框/相框1.png', description: '精美相框设计' }
 ];
 
 interface VSCOProductDisplayProps {
@@ -59,13 +57,14 @@ interface VSCOProductDisplayProps {
 }
 
 export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMode = false }: VSCOProductDisplayProps) {
-  const [selectedCategory, setSelectedCategory] = useState<'卫衣' | '短袖' | '相框'>('卫衣');
+  const [selectedCategory, setSelectedCategory] = useState<'卫衣' | '短袖'>('卫衣');
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
-  const [selectedFrame, setSelectedFrame] = useState<ProductItem | null>(
-    productItems.find(item => item.type === '相框') || null
-  );
   const [showPreOrderModal, setShowPreOrderModal] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
+  const [showFullView, setShowFullView] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const currentCategoryItems = productItems.filter(item => item.type === selectedCategory);
   const previewItem = currentCategoryItems[previewIndex] || null;
@@ -115,27 +114,55 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           </button>
 
           {/* Large Preview */}
-          <div className="vsco-preview-image">
+          <div 
+            ref={previewRef}
+            className="vsco-preview-image"
+            onMouseMove={(e) => {
+              if (!previewRef.current) return;
+              const rect = previewRef.current.getBoundingClientRect();
+              const x = Math.max(10, Math.min(90, ((e.clientX - rect.left) / rect.width) * 100));
+              const y = Math.max(10, Math.min(90, ((e.clientY - rect.top) / rect.height) * 100));
+              setMagnifierPosition({ x, y });
+            }}
+            onMouseEnter={() => setShowMagnifier(true)}
+            onMouseLeave={() => setShowMagnifier(false)}
+            onDoubleClick={() => setShowFullView(true)}
+            style={{ cursor: 'zoom-in' }}
+          >
             <div className="vsco-image-layers">
-              {/* Background (Clothing/Frame) */}
-              {previewItem && (
-                <div className="vsco-layer vsco-background-layer">
-                  <img src={previewItem.image} alt={previewItem.name} />
-                </div>
+              {/* For clothing items - show clothing with design */}
+              {previewItem && selectedCategory !== '相框' && (
+                <>
+                  {/* Background Clothing */}
+                  <div className="vsco-layer vsco-background-layer">
+                    <img src={previewItem.image} alt={previewItem.name} />
+                  </div>
+                  
+                  {/* Design on Clothing */}
+                  {selectedDesignImageUrl && (
+                    <div className="vsco-layer vsco-design-on-clothing">
+                      <img src={selectedDesignImageUrl} alt="设计" />
+                    </div>
+                  )}
+                </>
               )}
               
-              {/* Frame Overlay (if frame selected and not viewing frames) */}
-              {selectedFrame && selectedCategory !== '相框' && (
-                <div className="vsco-layer vsco-frame-layer">
-                  <img src={selectedFrame.image} alt="相框" />
-                </div>
-              )}
               
-              {/* Design Overlay */}
-              {selectedDesignImageUrl && selectedCategory !== '相框' && (
-                <div className="vsco-layer vsco-design-layer">
-                  <img src={selectedDesignImageUrl} alt="设计" />
-                </div>
+              {/* Magnifier */}
+              {showMagnifier && !isCompactMode && previewItem && (
+                <div 
+                  className="vsco-magnifier"
+                  style={{
+                    backgroundImage: `url(${previewItem.image})`,
+                    backgroundSize: '500%',
+                    backgroundPosition: `${magnifierPosition.x}% ${magnifierPosition.y}%`,
+                    backgroundRepeat: 'no-repeat',
+                    left: `${magnifierPosition.x}%`,
+                    top: `${magnifierPosition.y}%`,
+                    border: '4px solid #fff',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+                  }}
+                />
               )}
             </div>
           </div>
@@ -161,18 +188,35 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
               <p className="vsco-preview-description">{previewItem.description}</p>
             )}
             
-            {previewItem.type !== '相框' && (
-              <button 
-                className="vsco-order-btn"
-                onClick={() => handleProductSelect(previewItem)}
-              >
-                <ShoppingBag size={16} />
-                立即预订
-              </button>
-            )}
+            <button 
+              className="vsco-order-btn"
+              onClick={() => handleProductSelect(previewItem)}
+            >
+              <ShoppingBag size={16} />
+              立即预订
+            </button>
           </div>
         )}
       </div>
+
+      {/* Full View Modal */}
+      {showFullView && (
+        <div className="vsco-fullview-modal" onClick={() => setShowFullView(false)}>
+          <button className="vsco-fullview-close" onClick={(e) => { e.stopPropagation(); setShowFullView(false); }}>
+            <X size={24} />
+          </button>
+          <div className="vsco-fullview-content">
+            {previewItem && (
+              <>
+                <img src={previewItem.image} alt={previewItem.name} className="vsco-fullview-bg" />
+                {selectedDesignImageUrl && (
+                  <img src={selectedDesignImageUrl} alt="设计" className="vsco-fullview-design" />
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Category Tabs */}
       <div className="vsco-category-tabs">
@@ -188,12 +232,6 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
         >
           短袖 ({productItems.filter(item => item.type === '短袖').length})
         </button>
-        <button 
-          className={`vsco-tab ${selectedCategory === '相框' ? 'active' : ''}`}
-          onClick={() => handleCategoryChange('相框')}
-        >
-          相框 ({productItems.filter(item => item.type === '相框').length})
-        </button>
       </div>
 
       {/* Product Grid */}
@@ -201,14 +239,9 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
         {currentCategoryItems.map((item, index) => (
           <div 
             key={item.id} 
-            className={`vsco-product-card ${
-              (item.type === '相框' ? selectedFrame?.id === item.id : false) ? 'selected' : ''
-            } ${index === previewIndex ? 'previewing' : ''}`}
+            className={`vsco-product-card ${index === previewIndex ? 'previewing' : ''}`}
             onClick={() => {
               setPreviewIndex(index);
-              if (item.type === '相框') {
-                setSelectedFrame(item);
-              }
             }}
           >
             <div className="vsco-product-image">
@@ -221,17 +254,15 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
                 <span className="vsco-product-price">¥{item.price}</span>
               )}
             </div>
-            {item.type !== '相框' && (
-              <button 
-                className="vsco-quick-order"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleProductSelect(item);
-                }}
-              >
-                <ShoppingBag size={14} />
-              </button>
-            )}
+            <button 
+              className="vsco-quick-order"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleProductSelect(item);
+              }}
+            >
+              <ShoppingBag size={14} />
+            </button>
           </div>
         ))}
       </div>
@@ -242,7 +273,6 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
         onClose={() => setShowPreOrderModal(false)}
         product={selectedProduct}
         designImageUrl={selectedDesignImageUrl}
-        frameImage={selectedFrame?.image}
       />
 
       <style jsx>{`
@@ -254,6 +284,8 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           background: #fafafa;
           min-height: 100vh;
+          display: flex;
+          flex-direction: column;
         }
 
         .vsco-back-btn {
@@ -317,8 +349,8 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
         }
 
         .vsco-preview-image {
-          width: ${isCompactMode ? '280px' : '500px'};
-          height: ${isCompactMode ? '350px' : '600px'};
+          width: ${isCompactMode ? '320px' : '550px'};
+          height: ${isCompactMode ? '400px' : '650px'};
           position: relative;
           border-radius: 12px;
           overflow: hidden;
@@ -333,7 +365,9 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           display: flex;
           align-items: center;
           justify-content: center;
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
         }
+
 
         .vsco-layer {
           position: absolute;
@@ -350,41 +384,325 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           z-index: 1;
         }
 
-        .vsco-design-layer {
+        .vsco-background-layer::after {
+          content: '';
+          position: absolute;
+          top: 48%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: ${isCompactMode ? '74px' : '104px'};
+          height: ${isCompactMode ? '74px' : '104px'};
+          background: 
+            radial-gradient(ellipse at center,
+              rgba(0, 0, 0, 0.03) 0%,
+              rgba(0, 0, 0, 0.01) 60%,
+              transparent 100%);
+          border-radius: 8px;
+          z-index: 1.5;
+          pointer-events: none;
+        }
+
+        .vsco-design-on-clothing {
+          position: absolute;
+          top: 48%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: ${isCompactMode ? '70px' : '100px'};
+          height: ${isCompactMode ? '70px' : '100px'};
+          z-index: 2;
+          filter: 
+            drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))
+            drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+        }
+
+        .vsco-design-on-clothing::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(ellipse at center, 
+              rgba(0, 0, 0, 0.02) 0%,
+              rgba(0, 0, 0, 0.05) 70%,
+              rgba(0, 0, 0, 0.08) 100%);
+          border-radius: 6px;
+          z-index: -1;
+          transform: scale(1.05);
+        }
+
+        .vsco-design-on-clothing::after {
+          content: '';
+          position: absolute;
+          top: -1px;
+          left: -1px;
+          right: -1px;
+          bottom: -1px;
+          background: 
+            linear-gradient(135deg, 
+              rgba(255, 255, 255, 0.1) 0%,
+              transparent 50%,
+              rgba(0, 0, 0, 0.05) 100%);
+          border-radius: 7px;
+          z-index: -1;
+          pointer-events: none;
+          mix-blend-mode: overlay;
+        }
+
+        .vsco-design-in-frame {
+          position: absolute;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 250px;
-          height: 250px;
-          z-index: 2;
-          padding: 20px;
+          width: 70%;
+          height: 70%;
+          z-index: 1;
+          padding: 10%;
         }
 
-        .vsco-frame-layer {
+        .vsco-frame-foreground {
+          position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          z-index: 3;
+          z-index: 2;
           pointer-events: none;
         }
 
         .vsco-background-layer img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
-        }
-
-        .vsco-design-layer img {
-          max-width: 100%;
-          max-height: 100%;
           object-fit: contain;
         }
 
-        .vsco-frame-layer img {
+        .vsco-design-on-clothing img {
           width: 100%;
           height: 100%;
           object-fit: contain;
+          border-radius: 6px;
+          transition: all 0.3s ease;
+        }
+
+        .vsco-design-in-frame img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 4px;
+        }
+
+        .vsco-frame-foreground img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
+        /* New frame container styles */
+        .vsco-frame-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .vsco-frame-background {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: white;
+          z-index: 0;
+        }
+
+        .vsco-frame-content {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 68%;
+          height: 54%;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .vsco-frame-content img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .vsco-frame-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        .vsco-frame-overlay img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
+        /* Magnifier styles */
+        .vsco-magnifier {
+          position: absolute;
+          width: 120px;
+          height: 120px;
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+          background-repeat: no-repeat;
+          pointer-events: none;
+          z-index: 100;
+          transform: translate(-50%, -50%);
+          backdrop-filter: blur(0px);
+        }
+
+        /* Full view modal styles */
+        .vsco-fullview-modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.95);
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: zoom-out;
+          animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .vsco-fullview-close {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: white;
+          border: none;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 1001;
+          transition: all 0.2s ease;
+        }
+
+        .vsco-fullview-close:hover {
+          background: #f0f0f0;
+          transform: scale(1.1);
+        }
+
+        .vsco-fullview-content {
+          position: relative;
+          max-width: 90vw;
+          max-height: 90vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .vsco-fullview-bg {
+          max-width: 100%;
+          max-height: 90vh;
+          object-fit: contain;
+        }
+
+        .vsco-fullview-design {
+          position: absolute;
+          top: 42%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 240px;
+          height: 240px;
+          object-fit: contain;
+          border-radius: 12px;
+          filter: 
+            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))
+            drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+        }
+
+        .vsco-fullview-design::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(ellipse at center, 
+              rgba(0, 0, 0, 0.02) 0%,
+              rgba(0, 0, 0, 0.05) 70%,
+              rgba(0, 0, 0, 0.08) 100%);
+          border-radius: 12px;
+          z-index: -1;
+          transform: scale(1.03);
+        }
+
+        .vsco-fullview-design::after {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          background: 
+            linear-gradient(135deg, 
+              rgba(255, 255, 255, 0.1) 0%,
+              transparent 50%,
+              rgba(0, 0, 0, 0.05) 100%);
+          border-radius: 14px;
+          z-index: -1;
+          pointer-events: none;
+          mix-blend-mode: overlay;
+        }
+
+        .vsco-fullview-frame {
+          position: relative;
+          width: 80vw;
+          max-width: 800px;
+          height: 60vh;
+          max-height: 600px;
+        }
+
+        .vsco-fullview-frame-content {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 68%;
+          height: 54%;
+          object-fit: cover;
+          z-index: 1;
+        }
+
+        .vsco-fullview-frame-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          z-index: 2;
         }
 
         .vsco-preview-info {
@@ -571,6 +889,33 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           transform: scale(1.1);
         }
 
+        /* Portrait mobile screens */
+        @media (max-width: 480px) and (orientation: portrait) {
+          .vsco-preview-image {
+            width: 90vw;
+            max-width: 350px;
+            height: calc(90vw * 1.2);
+            max-height: 420px;
+          }
+
+          .vsco-design-on-clothing {
+            width: 60px;
+            height: 60px;
+          }
+
+          .vsco-preview-container {
+            gap: 10px;
+            padding: 10px;
+          }
+
+          .vsco-product-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 15px 10px;
+          }
+        }
+
+        /* Landscape mobile and tablets */
         @media (max-width: 768px) {
           .vsco-preview-image {
             width: 350px;

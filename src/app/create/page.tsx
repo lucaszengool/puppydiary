@@ -117,7 +117,7 @@ export default function CreatePage() {
       icon: Heart, 
       label: '宫崎骏动漫', 
       description: '温暖治愈的手绘风格',
-      prompt: 'Studio Ghibli style anime illustration, 宫崎骏风格动漫插画, hand-drawn 2D animation, soft watercolor technique, warm pastel color palette, gentle magical atmosphere, detailed character design with large expressive eyes, rounded cute features, soft shading, whimsical charm, preserve original background and setting, preserve exact pose and facial expression, maintain all original fur patterns and markings, keep identical body proportions, same eye color and shape, 高质量手绘动漫风格, masterpiece quality'
+      prompt: 'Studio Ghibli style anime illustration, 宫崎骏风格动漫插画, traditional hand-drawn cel animation, authentic watercolor on textured paper, visible brush texture and paper grain, organic paint bleeding effects, natural color variations, subtle paint layer imperfections, hand-painted cel shading, artist signature brushwork, warm earth tone palette, gentle atmospheric lighting, whimsical handcrafted charm, preserve exact pose and expression, maintain all distinctive features, traditional animation artbook quality, no digital smoothness, authentic studio painting texture'
     },
     { 
       id: 'disney', 
@@ -131,56 +131,56 @@ export default function CreatePage() {
       icon: Palette, 
       label: '水彩插画', 
       description: '柔美的水彩艺术风格',
-      prompt: 'watercolor illustration, soft watercolor painting, delicate brushstrokes, flowing colors, artistic illustration, gentle and dreamy watercolor art, maintain exact facial features and body proportions, preserve all unique markings and characteristics, keep the same pose and expression, identical eye shape and color, same fur patterns and colors, preserve all distinctive features'
+      prompt: 'traditional watercolor painting on rough watercolor paper, authentic brush texture with visible bristle marks, natural pigment flow and color bleeding, wet-on-wet watercolor technique, paper fiber texture showing through, organic paint pooling effects, natural brush stroke variations, hand-mixed color gradients, subtle paper warping from water, artist signature loose brushwork, transparent layering effects, natural color separation, preserve exact pose and expression, maintain all distinctive features, museum quality watercolor artwork, no digital perfection, authentic painting imperfections'
     },
     { 
       id: 'vintage', 
       icon: Sun, 
       label: '复古怀旧', 
       description: '温暖的复古摄影风格',
-      prompt: 'vintage portrait photography, 复古摄影风格, retro 1950s aesthetic, warm sepia and amber tones, soft film grain texture, classic portrait lighting, nostalgic warm filter, aged photograph look, golden hour lighting, vintage color grading, old-fashioned charm, preserve original background with vintage treatment, maintain exact pose and facial expression, preserve all distinctive features and markings, identical proportions, same eye detail, 复古摄影大师风格, timeless portrait quality'
+      prompt: 'authentic vintage photograph on aged film stock, natural film grain structure, organic chemical processing variations, authentic darkroom printing texture, silver halide crystal patterns, natural paper aging and yellowing, vintage lens imperfections and vignetting, authentic light leaks and exposure variations, traditional photo paper fiber texture, natural photo mounting corners, slight image warping from age, authentic vintage photo album wear, preserve exact pose and expression, maintain all distinctive features, genuine antique photography quality, no digital filters, authentic chemical photography process'
     },
     { 
       id: 'modern', 
       icon: Wand2, 
       label: '现代简约', 
       description: '简约现代的艺术风格',
-      prompt: 'modern minimalist art style, 现代简约风格, contemporary digital illustration, clean geometric lines, simplified color palette, minimalist design principles, modern graphic design, stylized vector art, clean composition, modern art aesthetic, sophisticated simplicity, preserve original background with minimalist treatment, preserve exact facial structure and expression, maintain all distinctive features, identical pose and proportions, same characteristic details, 现代艺术风格, contemporary masterpiece'
+      prompt: 'contemporary minimalist painting on primed canvas, authentic acrylic paint texture with subtle brush marks, natural canvas weave texture visible, organic paint application variations, hand-mixed color consistency, authentic artist palette knife texture, natural paint flow patterns, subtle canvas preparation marks, modern gallery-quality paint thickness, authentic studio lighting reflections, preserve exact pose and expression, maintain all distinctive features, museum contemporary art quality, authentic paint material texture, no digital vector smoothness'
     },
     {
       id: 'pencil',
       icon: Camera,
       label: '铅笔素描',
       description: '精细逼真的素描风格',
-      prompt: 'Detailed pencil sketch, 精细铅笔素描, realistic pencil strokes, fine shading and texture, black and white tones, sketchbook effect, artist hand-drawn quality, detailed cross-hatching, professional drawing, preserve exact facial features and expression, maintain all unique characteristics, identical pose and proportions, same eye detail, 素描大师风格, sketch masterpiece'
+      prompt: 'traditional graphite pencil drawing on textured drawing paper, authentic pencil grain texture, visible paper tooth showing through, natural hand tremor in lines, organic smudging and blending, fingerprint smears on paper, eraser marks and corrections, varied pencil pressure creating natural line weight, authentic cross-hatching technique, paper creases and slight wrinkles, artist grip marks, natural graphite buildup, preserve exact pose and expression, maintain all distinctive features, sketchbook authenticity with real paper texture, no digital smoothness, traditional draftsmanship'
     },
     {
       id: 'cyberpunk',
       icon: Wand2,
       label: '赛博朋克',
       description: '未来科技霓虹风格',
-      prompt: 'Cyberpunk style, 赛博朋克风格, neon lighting effects, futuristic tech aesthetic, electric blue and purple tones, holographic projection texture, dark urban background, digital art aesthetics, neon glow effects, preserve exact facial features and expression, maintain all unique characteristics, identical pose and proportions, same eye detail, 赛博朋克大师风格, cyberpunk masterpiece'
+      prompt: 'cyberpunk street art on weathered concrete wall, authentic spray paint texture with natural drips, stencil edge imperfections, urban wall surface variations, natural paint overspray patterns, authentic graffiti layering, weathered brick and concrete texture, natural paint aging and fading, street artist hand-cut stencil marks, organic spray can pressure variations, authentic urban decay texture, preserve exact pose and expression, maintain all distinctive features, authentic street art quality, no digital glow effects, real spray paint material texture'
     },
     {
       id: 'renaissance',
       icon: Heart,
       label: '文艺复兴',
       description: '古典贵族肖像风格',
-      prompt: 'Renaissance portrait style, 文艺复兴肖像画, classical oil painting technique, noble aristocratic quality, Leonardo da Vinci and Raphael style, golden decorations, royal portrait effect, baroque details, museum quality artwork, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 文艺复兴大师风格, renaissance masterpiece'
+      prompt: 'authentic Renaissance oil painting on prepared wood panel, traditional gesso ground texture, authentic sfumato technique with organic color transitions, natural oil paint consistency variations, period-appropriate pigment texture, traditional canvas preparation marks, authentic craquelure aging patterns, natural varnish patina effects, traditional brush hair texture in paint, authentic paint layer transparency, museum-quality oil painting surface, preserve exact pose and expression, maintain all distinctive features, authentic 15th century painting technique, no modern digital effects, traditional master craftsmanship'
     },
     {
       id: 'mosaic',
       icon: Sun,
       label: '马赛克艺术',
       description: '彩色玻璃镶嵌风格',
-      prompt: 'Mosaic art style, 马赛克艺术风格, colored glass pieces effect, geometric pattern composition, Byzantine art style, shiny tessellation texture, church stained glass art, colorful tile patterns, preserve exact facial features and expression, maintain all unique characteristics, identical pose and proportions, same eye detail, 马赛克艺术大师风格, mosaic masterpiece'
+      prompt: 'traditional Byzantine mosaic made from authentic glass tesserae, natural stone and ceramic tile variations, authentic mortar joint texture with organic irregularities, hand-cut glass pieces with natural edges, traditional grout aging and staining, authentic tile placement imperfections, natural light reflection variations on glass surfaces, organic color variations in handmade tiles, traditional mosaic setting technique, authentic ancient craftsmanship texture, natural wear patterns on tile edges, preserve exact pose and expression, maintain all distinctive features, museum-quality Byzantine mosaic art, no digital geometric precision, authentic handcrafted tile work'
     },
     {
       id: 'monet',
       icon: Palette,
       label: '莫奈印象派',
       description: '莫奈睡莲般的梦幻风格',
-      prompt: 'Claude Monet impressionist style, 莫奈印象派风格, signature broken brushstrokes like Water Lilies series, dreamy atmospheric effects, soft diffused light, visible canvas texture, impasto technique, shimmering color transitions, capturing fleeting moments of light, hazy dreamlike quality, dappled sunlight effects, preserve exact facial features and expression, maintain all unique fur patterns, identical pose and proportions, same eye detail, 莫奈大师风格, impressionist masterpiece'
+      prompt: 'Claude Monet authentic impressionist oil painting, thick impasto brush texture with visible paint ridges, coarse canvas weave showing through, authentic palette knife marks, natural paint texture variations, organic color mixing on canvas, traditional linen canvas preparation, oil paint consistency variations, natural brush hair texture marks, authentic varnish aging effects, museum painting surface irregularities, traditional oil painting cracking, preserve exact pose and expression, maintain all distinctive features, authentic 19th century painting technique, no modern digital effects, traditional artist materials texture'
     },
   ]
 
@@ -1445,48 +1445,11 @@ export default function CreatePage() {
             </div>
           )}
 
-          {/* Test Panel - Always show */}
-          <div className="hidden md:block fixed right-0 top-0 w-20 h-20 bg-green-500 text-white text-xs z-[100] p-2">
-            TEST PANEL
-          </div>
-
-          {/* Debug: Force show product preview for uploaded images */}
-          {selectedImageUrl && !generatedImage && (
-            <div className="hidden md:block fixed right-20 top-0 w-80 h-32 bg-blue-500 text-white text-xs z-[100] p-2">
-              UPLOADED IMAGE DETECTED
-              <br />selectedImageUrl: {selectedImageUrl ? '✓' : '✗'}
-              <br />generatedImage: {generatedImage ? '✓' : '✗'}
-            </div>
-          )}
-
-          {/* Desktop Product Preview - Always show on desktop */}
-          {(generatedImage || editedImage || selectedImageUrl) && (
-            <>
-              <div className="hidden md:block fixed right-0 top-0 bottom-0 w-96 bg-red-100 border-l-4 border-red-500 shadow-xl overflow-y-auto z-[50]">
-                <div className="h-full pt-16 p-4">
-                  <div className="bg-yellow-200 p-2 mb-4 text-sm">
-                    DEBUG: Desktop Product Preview Panel
-                    <br />generatedImage: {generatedImage ? '✓' : '✗'}
-                    <br />editedImage: {editedImage ? '✓' : '✗'}
-                  </div>
-                  <VSCOProductDisplay 
-                    selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl}
-                    isCompactMode={true}
-                  />
-                </div>
-              </div>
-              {/* Debug overlay */}
-              <div className="hidden md:block fixed top-4 right-[400px] bg-blue-500 text-white p-2 text-xs z-[60]">
-                Desktop Preview Active
-              </div>
-            </>
-          )}
-
           {/* Mobile Product Preview Modal - Show as overlay on mobile */}
           {(generatedImage || editedImage || selectedImageUrl) && showProductPreview && (
             <div className="md:hidden fixed inset-0 z-[200] bg-white">
               <VSCOProductDisplay 
-                selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl}
+                selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
                 onBack={() => setShowProductPreview(false)}
               />
             </div>
@@ -1577,7 +1540,7 @@ export default function CreatePage() {
        )}
 
       {/* Desktop Interface */}
-      <div className={`hidden md:flex vsco-editor ${savedImages.length > 0 ? 'with-gallery' : ''}`}>
+      <div className={`hidden md:flex vsco-editor ${savedImages.length > 0 ? 'with-gallery' : ''} ${(generatedImage || editedImage || selectedImageUrl) ? 'with-product-preview' : ''}`}>
         {/* Left Panel - Style Selection & Upload */}
         <div className="vsco-tools">
           {!selectedStyle && (
@@ -1848,11 +1811,11 @@ export default function CreatePage() {
             </div>
           )}
 
-          {generatedImage && (
+          {(generatedImage || editedImage || selectedImageUrl) && (
             <div className="vsco-image-container relative">
               <div className="w-full h-full flex items-center justify-center">
                 <img
-                  src={editedImage || generatedImage}
+                  src={editedImage || generatedImage || selectedImageUrl}
                   alt="生成的艺术作品"
                   className="max-w-full max-h-full object-contain transition-all duration-300"
                   style={{
@@ -1877,7 +1840,7 @@ export default function CreatePage() {
               {/* Action buttons overlay */}
               <div className="absolute bottom-4 left-4 flex space-x-2">
                 <button
-                  onClick={() => handleShareImage(editedImage || generatedImage!)}
+                  onClick={() => handleShareImage(editedImage || generatedImage || selectedImageUrl!)}
                   className="flex items-center px-3 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
                   title="分享图片获得骨头"
                 >
@@ -1893,7 +1856,7 @@ export default function CreatePage() {
                   产品预览
                 </button>
                 <button
-                  onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
+                  onClick={() => handleSingleVideoGeneration(editedImage || generatedImage || selectedImageUrl!)}
                   disabled={videoGenerating}
                   className="flex items-center px-3 py-2 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
@@ -1910,10 +1873,22 @@ export default function CreatePage() {
           )}
 
         </div>
+
+        {/* Desktop Product Preview - Show on right side when image exists */}
+        {(generatedImage || editedImage || selectedImageUrl) && (
+          <div className="hidden md:block fixed right-0 top-0 bottom-0 w-80 lg:w-96 bg-white border-l border-gray-200 shadow-xl overflow-y-auto z-[50]">
+            <div className="h-full pt-16 p-4">
+              <VSCOProductDisplay 
+                selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
+                isCompactMode={true}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* VSCO Mobile-Style Layout - Show only on mobile when image is generated */}
-      {generatedImage && (
+      {(generatedImage || editedImage || selectedImageUrl) && (
         <div className="md:hidden fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden">
               {/* Header with bones counter and reset button */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-50">
@@ -1944,7 +1919,7 @@ export default function CreatePage() {
                   {/* Mobile optimized real-time preview using CSS filters */}
                   <div className="w-full h-full flex items-center justify-center">
                     <img
-                      src={editedImage || generatedImage}
+                      src={editedImage || generatedImage || selectedImageUrl || ''}
                       alt="生成的艺术作品"
                       className="max-w-full max-h-full object-contain"
                       style={{
@@ -1965,7 +1940,7 @@ export default function CreatePage() {
                 {/* Mobile Action Buttons - Bottom Overlay */}
                 <div className="absolute bottom-4 left-4 right-4 flex justify-between">
                   <button
-                    onClick={() => handleShareImage(editedImage || generatedImage!)}
+                    onClick={() => handleShareImage(editedImage || generatedImage || selectedImageUrl!)}
                     className="flex items-center px-4 py-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
                     title="分享图片获得骨头"
                   >
@@ -1981,7 +1956,7 @@ export default function CreatePage() {
                     产品预览
                   </button>
                   <button
-                    onClick={() => handleSingleVideoGeneration(editedImage || generatedImage!)}
+                    onClick={() => handleSingleVideoGeneration(editedImage || generatedImage || selectedImageUrl!)}
                     disabled={videoGenerating}
                     className="flex items-center px-4 py-3 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
