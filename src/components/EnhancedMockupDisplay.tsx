@@ -281,7 +281,7 @@ export function EnhancedMockupDisplay({ designImageUrl, onDownload }: MockupDisp
         isOpen={showPreOrder}
         onClose={() => setShowPreOrder(false)}
         product={selectedProduct}
-        mockupUrl={selectedProduct ? productMockups.find(pm => pm.product.id === selectedProduct.id)?.mockups[0]?.mockupUrl : undefined}
+        designImageUrl={selectedProduct ? productMockups.find(pm => pm.product.id === selectedProduct.id)?.mockups[0]?.mockupUrl || '' : ''}
       />
 
       <style jsx>{`

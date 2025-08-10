@@ -1815,7 +1815,7 @@ export default function CreatePage() {
             <div className="vsco-image-container relative">
               <div className="w-full h-full flex items-center justify-center">
                 <img
-                  src={editedImage || generatedImage || selectedImageUrl}
+                  src={editedImage || generatedImage || selectedImageUrl || ''}
                   alt="生成的艺术作品"
                   className="max-w-full max-h-full object-contain transition-all duration-300"
                   style={{

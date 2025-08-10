@@ -98,7 +98,7 @@ export function MockupDisplay({ designImageUrl, onDownload }: MockupDisplayProps
     ));
   };
 
-  const handlePreOrder = (product: ProductInfo) => {
+  const handlePreOrder = (product: ProductInfoExtended) => {
     setSelectedProduct(product);
     setShowPreOrder(true);
   };

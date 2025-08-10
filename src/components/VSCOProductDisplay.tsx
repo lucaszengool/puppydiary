@@ -69,19 +69,15 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
   const currentCategoryItems = productItems.filter(item => item.type === selectedCategory);
   const previewItem = currentCategoryItems[previewIndex] || null;
 
-  const handleCategoryChange = (category: '卫衣' | '短袖' | '相框') => {
+  const handleCategoryChange = (category: '卫衣' | '短袖') => {
     setSelectedCategory(category);
     setPreviewIndex(0);
     setSelectedProduct(null);
   };
 
   const handleProductSelect = (product: ProductItem) => {
-    if (product.type === '相框') {
-      setSelectedFrame(product);
-    } else {
-      setSelectedProduct(product);
-      setShowPreOrderModal(true);
-    }
+    setSelectedProduct(product);
+    setShowPreOrderModal(true);
   };
 
   const handlePreviewNav = (direction: 'prev' | 'next') => {
@@ -131,7 +127,7 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           >
             <div className="vsco-image-layers">
               {/* For clothing items - show clothing with design */}
-              {previewItem && selectedCategory !== '相框' && (
+              {previewItem && (
                 <>
                   {/* Background Clothing */}
                   <div className="vsco-layer vsco-background-layer">
@@ -271,7 +267,7 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
       <EnhancedPreOrderModal
         isOpen={showPreOrderModal}
         onClose={() => setShowPreOrderModal(false)}
-        product={selectedProduct}
+        product={selectedProduct as any}
         designImageUrl={selectedDesignImageUrl}
       />
 
