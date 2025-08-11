@@ -176,26 +176,40 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Print Art */}
+            {/* Custom Clothing */}
             <div className="text-center space-y-6 flex flex-col">
               <div className="relative mx-auto flex-shrink-0" style={{ height: '384px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {/* Frame */}
-                <div className="w-48 h-60 bg-gradient-to-br from-amber-50 to-amber-100 p-4 shadow-xl">
-                  <div className="w-full h-full bg-white p-2 relative">
-                    <Image
-                      src="/styles/watercolor-style.png"
-                      alt="装裱画作示例"
-                      fill
-                      sizes="176px"
-                      className="object-cover"
-                    />
+                {/* Hoodie Mockup */}
+                <div className="w-48 h-60 relative">
+                  {/* Hoodie Base */}
+                  <div className="w-full h-full bg-white rounded-lg shadow-xl p-4 relative overflow-hidden">
+                    {/* Hoodie Shape */}
+                    <div className="w-full h-full relative">
+                      {/* Hoodie body */}
+                      <div className="absolute inset-x-4 top-8 bottom-4 bg-gray-50 rounded-lg border border-gray-200">
+                        {/* Hood */}
+                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-20 h-12 bg-gray-50 rounded-t-full border border-gray-200 border-b-0"></div>
+                        {/* Kangaroo Pocket */}
+                        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-gray-100 rounded border border-gray-300"></div>
+                        {/* Design Area */}
+                        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 rounded overflow-hidden border border-gray-300">
+                          <Image
+                            src="/styles/watercolor-style.png"
+                            alt="定制衣服示例"
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-start">
-                <h3 className="text-xl font-light text-gray-900 mb-4">装裱画作</h3>
+                <h3 className="text-xl font-light text-gray-900 mb-4">定制衣服</h3>
                 <p className="text-gray-600 font-light leading-relaxed">
-                  高分辨率输出，适合装裱挂画，为家居增添艺术气息
+                  将您的宠物肖像印制在高品质服装上，打造专属时尚单品
                 </p>
               </div>
             </div>

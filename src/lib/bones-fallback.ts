@@ -3,6 +3,7 @@
 
 const fallbackBones = new Map<string, number>()
 const fallbackLastReward = new Map<string, string>()
+const fallbackSharedImages = new Map<string, any>()
 
 export async function getUserBones(userId: string) {
   return {
@@ -59,13 +60,32 @@ export async function createSharedImage(
   description?: string
 ) {
   const shareId = Math.random().toString(36).substring(2, 15)
-  const shareLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/share/${shareId}`
+  const shareLink = `${process.env.NEXTAUTH_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://petpoofficial.org')}/share/${shareId}`
   
-  // In fallback mode, we just return a link but don't persist it
+  // Store in memory for fallback functionality
+  fallbackSharedImages.set(shareId, {
+    id: shareId,
+    user_id: userId,
+    image_url: imageUrl,
+    share_link: shareLink,
+    title,
+    description: description || `由AI生成的专属宠物艺术肖像 - PETPO宠物肖像定制`,
+    style,
+    view_count: 0,
+    created_at: new Date().toISOString()
+  })
+  
   return { shareLink }
 }
 
 export async function getSharedImage(shareId: string) {
-  // In fallback mode, return null (shared images not available)
+  // Get from memory storage
+  const sharedImage = fallbackSharedImages.get(shareId)
+  if (sharedImage) {
+    // Increment view count
+    sharedImage.view_count += 1
+    fallbackSharedImages.set(shareId, sharedImage)
+    return sharedImage
+  }
   return null
 }

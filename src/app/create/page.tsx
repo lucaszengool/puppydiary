@@ -60,6 +60,8 @@ export default function CreatePage() {
   const [selectedStyle, setSelectedStyle] = useState<any>(null)
   const [originalPrompt, setOriginalPrompt] = useState<string>("")  // Store the original prompt for reuse
   const [isFirstGeneration, setIsFirstGeneration] = useState(true)  // Track if it's the first generation
+  const [showCustomPromptInput, setShowCustomPromptInput] = useState(false)  // For custom style prompt input
+  const [customStylePrompt, setCustomStylePrompt] = useState<string>("")  // Store custom style prompt
   const [stateRestored, setStateRestored] = useState(false)  // Track if state has been restored from login
   const [isProcessingFile, setIsProcessingFile] = useState(false)  // Prevent multiple file selections
   
@@ -218,6 +220,13 @@ export default function CreatePage() {
       description: '莫奈睡莲般的梦幻风格',
       prompt: 'Claude Monet authentic impressionist oil painting, thick impasto brush texture with visible paint ridges, coarse canvas weave showing through, authentic palette knife marks, natural paint texture variations, organic color mixing on canvas, traditional linen canvas preparation, oil paint consistency variations, natural brush hair texture marks, authentic varnish aging effects, museum painting surface irregularities, traditional oil painting cracking, preserve exact pose and expression, maintain all distinctive features, authentic 19th century painting technique, no modern digital effects, traditional artist materials texture'
     },
+    {
+      id: 'custom',
+      icon: Sparkles,
+      label: '自定义风格',
+      description: '输入您自己的风格提示',
+      prompt: '' // Will be filled by user input
+    }
   ]
 
   // 场景风格选项（在选择主风格后显示）
@@ -387,8 +396,13 @@ export default function CreatePage() {
   }
 
   const handleStyleSelect = (style: any) => {
-    setSelectedStyle(style)
-    setCurrentStep('upload')
+    if (style.id === 'custom') {
+      setShowCustomPromptInput(true)
+      setSelectedStyle(style)
+    } else {
+      setSelectedStyle(style)
+      setCurrentStep('upload')
+    }
   }
 
 
@@ -484,9 +498,14 @@ export default function CreatePage() {
         }
       } else if (isFirstGeneration) {
         // First generation - apply the selected style transformation
-        const stylePrompt = selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
+        let stylePrompt = selectedStyle?.prompt || "Ghibli style, hand-drawn illustration, Studio Ghibli anime art style, warm colors, watercolor painting, soft lighting, whimsical, heartwarming, detailed character illustration"
         
-        // Always include preservation prompt, even for oil painting
+        // For custom style, use the user's custom prompt
+        if (selectedStyle?.id === 'custom' && customStylePrompt) {
+          stylePrompt = customStylePrompt
+        }
+        
+        // Always include preservation prompt, even for custom styles
         fullPrompt = `${preservationPrompt} ${stylePrompt}`
         
         // Store the original prompt with style for future use
@@ -494,7 +513,7 @@ export default function CreatePage() {
         setIsFirstGeneration(false)
       } else {
         // Subsequent generations with the same style - always preserve appearance
-        const baseStyle = originalPrompt || selectedStyle?.prompt
+        const baseStyle = originalPrompt || selectedStyle?.prompt || customStylePrompt
         fullPrompt = `${preservationPrompt} ${baseStyle}`
         if (additionalPrompt) {
           fullPrompt = `${fullPrompt}, ${additionalPrompt}`
@@ -578,6 +597,13 @@ export default function CreatePage() {
             colorPalette = "pastel"
             cutenessLevel = "low"
             console.log("✅ [MONET] Applied parameters")
+            break
+          case 'custom':
+            // For custom style, use general parameters
+            artStyle = "anime"
+            colorPalette = "vibrant"
+            cutenessLevel = "high"
+            console.log("✅ [CUSTOM] Applied default parameters with custom prompt")
             break
           default:
             console.log(`❌ [UNKNOWN STYLE] "${selectedStyle.id}" - using defaults`)
@@ -1615,16 +1641,27 @@ export default function CreatePage() {
                       <button
                         key={style.id}
                         onClick={() => {
-                          setSelectedStyle(style)
-                          setCurrentStep('upload')
+                          if (style.id === 'custom') {
+                            setShowCustomPromptInput(true)
+                            setSelectedStyle(style)
+                          } else {
+                            setSelectedStyle(style)
+                            setCurrentStep('upload')
+                          }
                         }}
                         className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 hover:scale-105 transition-transform"
                       >
-                        <img
-                          src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
-                          alt={style.label}
-                          className="w-full h-full object-cover"
-                        />
+                        {style.id === 'custom' ? (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                            <Sparkles className="w-12 h-12 text-purple-600" />
+                          </div>
+                        ) : (
+                          <img
+                            src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
+                            alt={style.label}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
                         <div className="absolute bottom-2 left-2 right-2">
                           <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-center">
                             {style.label}
@@ -1632,6 +1669,54 @@ export default function CreatePage() {
                         </div>
                       </button>
                     ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Custom prompt input modal for mobile */}
+              {showCustomPromptInput && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+                  <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">输入自定义风格提示</h3>
+                    <textarea
+                      value={customStylePrompt}
+                      onChange={(e) => setCustomStylePrompt(e.target.value)}
+                      placeholder="例如：cyberpunk style, neon lights, futuristic... (将自动保留宠物特征)"
+                      className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <div className="flex space-x-3 mt-4">
+                      <button
+                        onClick={() => {
+                          if (customStylePrompt.trim()) {
+                            setSelectedStyle({
+                              ...selectedStyle,
+                              prompt: customStylePrompt
+                            })
+                            setShowCustomPromptInput(false)
+                            setCurrentStep('upload')
+                          } else {
+                            toast({
+                              title: "请输入风格提示",
+                              description: "自定义风格需要输入提示词",
+                              variant: "destructive",
+                            })
+                          }
+                        }}
+                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                      >
+                        确认
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowCustomPromptInput(false)
+                          setSelectedStyle(null)
+                          setCustomStylePrompt("")
+                        }}
+                        className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                      >
+                        取消
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1698,14 +1783,68 @@ export default function CreatePage() {
                     onClick={() => handleStyleSelect(style)}
                     className={`style-card ${selectedStyle?.id === style.id ? 'selected' : ''}`}
                   >
-                    <img
-                      src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
-                      alt={style.label}
-                    />
+                    {style.id === 'custom' ? (
+                      <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                        <Sparkles className="w-8 h-8 text-purple-600" />
+                      </div>
+                    ) : (
+                      <img
+                        src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
+                        alt={style.label}
+                      />
+                    )}
                     <div className="style-label">{style.label}</div>
                   </div>
                 ))}
               </div>
+              
+              {/* Custom prompt input modal */}
+              {showCustomPromptInput && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                  <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">输入自定义风格提示</h3>
+                    <textarea
+                      value={customStylePrompt}
+                      onChange={(e) => setCustomStylePrompt(e.target.value)}
+                      placeholder="例如：cyberpunk style, neon lights, futuristic... (将自动保留宠物特征)"
+                      className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <div className="flex space-x-3 mt-4">
+                      <button
+                        onClick={() => {
+                          if (customStylePrompt.trim()) {
+                            setSelectedStyle({
+                              ...selectedStyle,
+                              prompt: customStylePrompt
+                            })
+                            setShowCustomPromptInput(false)
+                            setCurrentStep('upload')
+                          } else {
+                            toast({
+                              title: "请输入风格提示",
+                              description: "自定义风格需要输入提示词",
+                              variant: "destructive",
+                            })
+                          }
+                        }}
+                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                      >
+                        确认
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowCustomPromptInput(false)
+                          setSelectedStyle(null)
+                          setCustomStylePrompt("")
+                        }}
+                        className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

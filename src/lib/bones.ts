@@ -166,7 +166,7 @@ export async function createSharedImage(
 
   try {
     const shareId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-    const shareLink = `${process.env.NEXTAUTH_URL || 'https://petpoofficial.org'}/share/${shareId}`
+    const shareLink = `${process.env.NEXTAUTH_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://petpoofficial.org')}/share/${shareId}`
 
     const { data, error } = await supabaseAdmin
       .from('shared_images')
@@ -198,8 +198,16 @@ export async function createSharedImage(
 
 // Get shared image by share ID
 export async function getSharedImage(shareId: string) {
+  const initialized = await initSupabase()
+  
+  if (!initialized || !supabaseAvailable) {
+    // Use fallback system
+    const fallback = await import('./bones-fallback')
+    return await fallback.getSharedImage(shareId)
+  }
+
   try {
-    const shareLink = `${process.env.NEXTAUTH_URL || 'https://petpoofficial.org'}/share/${shareId}`
+    const shareLink = `${process.env.NEXTAUTH_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://petpoofficial.org')}/share/${shareId}`
     
     const { data, error } = await supabaseAdmin
       .from('shared_images')
@@ -221,6 +229,8 @@ export async function getSharedImage(shareId: string) {
     return { ...data, view_count: data.view_count + 1 }
   } catch (error) {
     console.error('Error in getSharedImage:', error)
-    return null
+    // Fall back to in-memory system
+    const fallback = await import('./bones-fallback')
+    return await fallback.getSharedImage(shareId)
   }
 }
