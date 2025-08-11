@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       success: true,
       message: 'Database connection successful',
       ordersCount: count,
-      sampleOrders: data?.map(order => ({
+      sampleOrders: data?.map((order: any) => ({
         id: order.id,
         order_id: order.order_id,
         product_name: order.product_name,
