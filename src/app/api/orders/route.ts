@@ -12,16 +12,19 @@ export async function GET(request: NextRequest) {
 
     // 从 Clerk 用户元数据中获取订单
     const user = await clerkClient.users.getUser(userId);
-    const orders = user.privateMetadata?.orders || [];
+    const orders = user.privateMetadata?.orders;
+    
+    // 确保 orders 是数组
+    const ordersArray = Array.isArray(orders) ? orders : [];
     
     // 按创建时间倒序排列
-    const sortedOrders = orders.sort((a: any, b: any) => 
+    const sortedOrders = ordersArray.sort((a: any, b: any) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
     return NextResponse.json({ 
       orders: sortedOrders,
-      total: orders.length,
+      total: ordersArray.length,
       success: true 
     });
 
@@ -56,10 +59,13 @@ export async function PUT(request: NextRequest) {
     // 获取目标用户的订单
     const targetUser = await clerkClient.users.getUser(targetUserId);
     const currentMetadata = targetUser.privateMetadata || {};
-    const orders = currentMetadata.orders || [];
+    const orders = currentMetadata.orders;
+    
+    // 确保 orders 是数组
+    const ordersArray = Array.isArray(orders) ? orders : [];
     
     // 找到并更新订单
-    const updatedOrders = orders.map((order: any) => {
+    const updatedOrders = ordersArray.map((order: any) => {
       if (order.orderId === orderId) {
         return {
           ...order,

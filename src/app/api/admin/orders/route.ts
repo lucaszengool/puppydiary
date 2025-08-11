@@ -39,27 +39,30 @@ export async function GET(request: NextRequest) {
 
     // 收集所有用户的订单
     for (const user of usersResponse) {
-      const orders = user.privateMetadata?.orders || [];
+      const orders = user.privateMetadata?.orders;
       
-      for (const order of orders) {
-        const enrichedOrder = {
-          ...order,
-          userInfo: {
-            userId: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.emailAddresses?.[0]?.emailAddress,
-            phone: user.phoneNumbers?.[0]?.phoneNumber
+      // 确保 orders 是数组
+      if (Array.isArray(orders)) {
+        for (const order of orders) {
+          const enrichedOrder = {
+            ...order,
+            userInfo: {
+              userId: user.id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.emailAddresses?.[0]?.emailAddress,
+              phone: user.phoneNumbers?.[0]?.phoneNumber
+            }
+          };
+          
+          allOrders.push(enrichedOrder);
+          
+          // 更新统计
+          stats.totalOrders++;
+          stats.totalRevenue += order.price || 0;
+          if (stats.statusCounts[order.status as keyof typeof stats.statusCounts] !== undefined) {
+            stats.statusCounts[order.status as keyof typeof stats.statusCounts]++;
           }
-        };
-        
-        allOrders.push(enrichedOrder);
-        
-        // 更新统计
-        stats.totalOrders++;
-        stats.totalRevenue += order.price || 0;
-        if (stats.statusCounts[order.status as keyof typeof stats.statusCounts] !== undefined) {
-          stats.statusCounts[order.status as keyof typeof stats.statusCounts]++;
         }
       }
     }
