@@ -70,35 +70,59 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product || !form.size) return;
+    console.log('🚀 [预订表单] 开始提交预订', {
+      product: product?.name,
+      productId: product?.id,
+      formValid: !!product && !!form.size,
+      userId
+    });
+
+    if (!product || !form.size) {
+      console.error('❌ [预订表单] 缺少必要信息:', { product: !!product, size: !!form.size });
+      return;
+    }
 
     setLoading(true);
+    
+    const orderData = {
+      productId: product.id,
+      productName: product.name,
+      productType: product.type,
+      size: form.size,
+      price: product.price,
+      designImageUrl,
+      frameImage,
+      customerInfo: {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        address: form.address,
+        height: form.height
+      },
+      userId: userId || null
+    };
+
+    console.log('📦 [预订表单] 准备发送的订单数据:', orderData);
+
     try {
+      console.log('📡 [预订表单] 向API发送请求...');
       const response = await fetch('/api/enhanced-preorder', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          productId: product.id,
-          productName: product.name,
-          productType: product.type,
-          size: form.size,
-          price: product.price,
-          designImageUrl,
-          frameImage,
-          customerInfo: {
-            name: form.name,
-            email: form.email,
-            phone: form.phone,
-            address: form.address,
-            height: form.height
-          },
-          userId: userId || null
-        })
+        body: JSON.stringify(orderData)
+      });
+
+      console.log('📬 [预订表单] API响应状态:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText
       });
 
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ [预订表单] 预订成功!', result);
         setSuccess(true);
         setTimeout(() => {
           setSuccess(false);
@@ -106,12 +130,19 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
           resetForm();
         }, 3000);
       } else {
-        throw new Error('Failed to submit pre-order');
+        const errorText = await response.text();
+        console.error('❌ [预订表单] API响应错误:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        });
+        throw new Error(`Failed to submit pre-order: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Pre-order error:', error);
+      console.error('💥 [预订表单] 请求异常:', error);
     } finally {
       setLoading(false);
+      console.log('🏁 [预订表单] 提交流程结束');
     }
   };
 
