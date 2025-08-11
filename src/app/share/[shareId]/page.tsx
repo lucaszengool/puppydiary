@@ -65,6 +65,12 @@ export default async function SharePage({ params }: SharePageProps) {
               src={sharedImage.image_url} 
               alt={sharedImage.title}
               className="w-full h-full object-cover"
+              onLoad={() => console.log('Shared image loaded successfully:', sharedImage.image_url)}
+              onError={(e) => {
+                console.error('Shared image failed to load:', sharedImage.image_url, e);
+                // Try to show a fallback or error message
+              }}
+              style={{ backgroundColor: '#f3f4f6' }}
             />
           </div>
 

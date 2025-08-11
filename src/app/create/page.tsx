@@ -1545,57 +1545,6 @@ export default function CreatePage() {
             </div>
           )}
 
-          {/* Mobile Product Preview Modal - Full screen on mobile */}
-          {showProductPreview && (
-            <>
-              <div 
-                className="md:hidden fixed inset-0 bg-white overflow-y-auto"
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  width: '100vw',
-                  height: '100vh',
-                  backgroundColor: 'white',
-                  zIndex: 999999
-                }}
-              >
-                {/* Close Button */}
-                <button
-                  onClick={() => setShowProductPreview(false)}
-                  className="fixed top-4 right-4 w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-gray-700 transition-all"
-                  style={{
-                    position: 'fixed',
-                    top: '16px',
-                    right: '16px',
-                    zIndex: 100000,
-                    width: '40px',
-                    height: '40px',
-                    backgroundColor: '#1f2937',
-                    borderRadius: '50%',
-                    border: 'none',
-                    color: 'white',
-                    fontSize: '20px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  ✕
-                </button>
-                
-                <div className="w-full h-full overflow-y-auto">
-                  <VSCOProductDisplay 
-                    selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
-                    onBack={() => setShowProductPreview(false)}
-                  />
-                </div>
-              </div>
-            </>
-          )}
 
           {/* Login Prompt Modal for Guest Users */}
           {showLoginPrompt && (
@@ -2621,6 +2570,56 @@ export default function CreatePage() {
             onConfirm={handlePublishConfirm}
             imageUrl={(editedImage || generatedImage) || ''}
           />
+        )}
+
+        {/* Mobile Product Preview Modal - Full screen on mobile - Outside mobile layout */}
+        {showProductPreview && (
+          <div 
+            className="md:hidden fixed inset-0 bg-white overflow-y-auto"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'white',
+              zIndex: 999999
+            }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowProductPreview(false)}
+              className="fixed top-4 right-4 w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-gray-700 transition-all"
+              style={{
+                position: 'fixed',
+                top: '16px',
+                right: '16px',
+                zIndex: 1000000,
+                width: '40px',
+                height: '40px',
+                backgroundColor: '#1f2937',
+                borderRadius: '50%',
+                border: 'none',
+                color: 'white',
+                fontSize: '20px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ✕
+            </button>
+            
+            <div className="w-full h-full overflow-y-auto">
+              <VSCOProductDisplay 
+                selectedDesignImageUrl={editedImage || generatedImage || selectedImageUrl || undefined}
+                onBack={() => setShowProductPreview(false)}
+              />
+            </div>
+          </div>
         )}
 
     </div>
