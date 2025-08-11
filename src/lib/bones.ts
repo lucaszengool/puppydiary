@@ -98,19 +98,40 @@ export async function consumeBones(userId: string, amount: number = 1): Promise<
   }
 }
 
-// Award bones for sharing (max once per day) using database function
+// Award bones for sharing (unlimited) - direct implementation
 export async function awardShareBones(userId: string): Promise<{ success: boolean, message: string, bones?: number }> {
   try {
-    const { data, error } = await supabaseAdmin.rpc('award_share_bones', {
-      user_id_param: userId
-    })
+    // Get current user bones
+    const userBones = await getUserBones(userId)
+    
+    if (!userBones) {
+      return { success: false, message: 'User not found' }
+    }
+
+    // Add 1 bone for sharing
+    const newBonesCount = userBones.bones_count + 1
+
+    // Update user bones
+    const { data, error } = await supabaseAdmin
+      .from('user_bones')
+      .update({ 
+        bones_count: newBonesCount,
+        last_share_reward_date: new Date().toISOString()
+      })
+      .eq('user_id', userId)
+      .select()
+      .single()
 
     if (error) {
       console.error('Error awarding share bones:', error)
       return { success: false, message: 'Database error' }
     }
 
-    return data
+    return { 
+      success: true, 
+      message: '分享成功，获得1个骨头！',
+      bones: newBonesCount 
+    }
   } catch (error) {
     console.error('Error in awardShareBones:', error)
     return { success: false, message: 'Error processing reward' }

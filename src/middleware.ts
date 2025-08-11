@@ -5,6 +5,7 @@ export default authMiddleware({
     "/",
     "/create",
     "/gallery",
+    "/share/(.*)",
     "/sign-in",
     "/sign-up",
     "/public-mockup-test",
@@ -12,7 +13,8 @@ export default authMiddleware({
     "/api/generate",
     "/api/generate-video",
     "/api/uploadthing",
-    "/api/webhooks(.*)"
+    "/api/webhooks(.*)",
+    "/api/share"
   ],
 });
 

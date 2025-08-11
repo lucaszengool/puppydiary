@@ -1549,7 +1549,7 @@ export default function CreatePage() {
           {showProductPreview && (
             <>
               <div 
-                className="md:hidden fixed inset-0 bg-white z-[99999] overflow-y-auto"
+                className="md:hidden fixed inset-0 bg-white overflow-y-auto"
                 style={{
                   position: 'fixed',
                   top: 0,
@@ -1559,7 +1559,7 @@ export default function CreatePage() {
                   width: '100vw',
                   height: '100vh',
                   backgroundColor: 'white',
-                  zIndex: 99999
+                  zIndex: 999999
                 }}
               >
                 {/* Close Button */}
