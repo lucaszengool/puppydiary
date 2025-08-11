@@ -21,6 +21,8 @@ export default authMiddleware({
     "/api/preorder",
     "/api/enhanced-preorder",
     "/api/test",
+    "/api/test-db",
+    "/api/test-order",
     "/test-order"
   ],
 });

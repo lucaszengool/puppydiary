@@ -99,19 +99,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 根据现有数据库结构调整字段 - 完全匹配现有订单的字段结构
     const dbOrder = {
       order_id: orderData.id,
       user_id: orderData.userId,
       product_name: orderData.productName,
-      product_type: orderData.productType,
-      size: orderData.size,
       price: orderData.price,
-      design_image_url: orderData.designImageUrl,
-      frame_image: orderData.frameImage,
-      customer_info: orderData.customerInfo,
+      design_image_url: orderData.designImageUrl || '',
       status: orderData.status,
-      created_at: orderData.createdAt,
-      order_type: orderData.orderType
+      customer_info: orderData.customerInfo,
+      user_info: {
+        firstName: '',
+        lastName: '',
+        email: orderData.customerInfo.email
+      },
+      // 添加现有订单都有的字段
+      weidian_order_id: null
     };
 
     console.log('🗄️ [API] 准备保存到数据库的数据:', {
@@ -124,8 +127,7 @@ export async function POST(request: NextRequest) {
     const { data: savedOrder, error: saveError } = await supabaseAdmin
       .from('orders')
       .insert([dbOrder])
-      .select()
-      .single();
+      .select();
 
     if (saveError) {
       console.error('💥 [API] 数据库保存错误:', {
@@ -141,8 +143,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('✅ [API] 订单成功保存到数据库:', {
-      savedOrderId: savedOrder?.order_id,
-      dbId: savedOrder?.id
+      savedOrderCount: savedOrder?.length || 0,
+      firstOrderId: savedOrder?.[0]?.order_id,
+      firstDbId: savedOrder?.[0]?.id
     });
 
     const response = {
