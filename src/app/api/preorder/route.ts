@@ -7,30 +7,38 @@ export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
     
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // 允许未登录用户下订单，使用'guest'作为userId
+    const actualUserId = userId || 'guest';
 
     const body = await req.json();
     const { productId, productName, price, designImageUrl, customerInfo } = body;
 
-    // Get user info from Clerk
-    const user = await clerkClient.users.getUser(userId);
+    let userInfo = {};
+    
+    // 如果用户已登录，获取用户信息
+    if (userId) {
+      try {
+        const user = await clerkClient.users.getUser(userId);
+        userInfo = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.emailAddresses[0]?.emailAddress
+        };
+      } catch (error) {
+        console.warn('Failed to get user info:', error);
+      }
+    }
 
     // Create order data
     const preOrderData: any = {
-      orderId: `PO-${Date.now()}-${userId.slice(-4)}`,
-      userId,
+      orderId: `PO-${Date.now()}-${actualUserId.slice(-4)}`,
+      userId: actualUserId,
       productId,
       productName,
       price,
       designImageUrl,
       customerInfo,
-      userInfo: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.emailAddresses[0]?.emailAddress
-      },
+      userInfo,
       createdAt: new Date().toISOString(),
       status: 'pending',
       weidianOrderId: null // Will be set if Weidian order is created successfully
@@ -38,33 +46,20 @@ export async function POST(req: NextRequest) {
 
     // 保存订单到 Supabase
     try {
-      await saveOrderToSupabase(preOrderData);
-      console.log('✅ Order saved to Supabase');
+      if (supabaseAdmin) {
+        await saveOrderToSupabase(preOrderData);
+        console.log('✅ Order saved to Supabase');
+      } else {
+        console.log('📦 Order logged (Supabase not available):', JSON.stringify(preOrderData, null, 2));
+      }
     } catch (error) {
       console.error('Failed to save order to Supabase:', error);
+      console.log('📦 Order logged (fallback):', JSON.stringify(preOrderData, null, 2));
+      // 继续处理，不要因为保存失败而中断
     }
 
-    // Send to Weidian (微店) - 可选
-    if (process.env.WEIDIAN_APP_KEY && process.env.WEIDIAN_APP_SECRET) {
-      try {
-        // 创建微店订单
-        const weidianOrder = await createWeidianOrder(preOrderData);
-        console.log('✅ Order created in Weidian:', weidianOrder);
-        
-        // 如果微店订单创建成功，保存微店订单号
-        if (weidianOrder && weidianOrder.order_id) {
-          preOrderData.weidianOrderId = weidianOrder.order_id;
-        }
-      } catch (error) {
-        console.error('Failed to create Weidian order:', error);
-        // 即使微店创建失败，也继续处理（发送邮件等）
-      }
-    } else {
-      console.log('⚠️ Weidian API credentials not configured, using Clerk storage only');
-    }
-
-    // Send confirmation email
-    await sendPreOrderConfirmation(preOrderData);
+    // 暂时跳过微店和邮件发送
+    console.log('⚠️ Weidian and email disabled for testing');
 
     return NextResponse.json({ 
       success: true, 

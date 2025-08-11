@@ -4,10 +4,18 @@ import { Heart, Dog, Sparkles, ArrowRight } from 'lucide-react'
 async function getSharedImage(shareId: string) {
   try {
     const { getSharedImage } = await import('@/lib/bones')
-    return await getSharedImage(shareId)
+    const result = await getSharedImage(shareId)
+    return result
   } catch (error) {
     console.error('Failed to load bones lib:', error)
-    return null
+    // Try fallback directly if bones system fails
+    try {
+      const fallback = await import('@/lib/bones-fallback')
+      return await fallback.getSharedImage(shareId)
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError)
+      return null
+    }
   }
 }
 
@@ -18,7 +26,14 @@ interface SharePageProps {
 }
 
 export default async function SharePage({ params }: SharePageProps) {
-  const sharedImage = await getSharedImage(params.shareId)
+  let sharedImage = null
+  
+  try {
+    sharedImage = await getSharedImage(params.shareId)
+  } catch (error) {
+    console.error('Error in SharePage:', error)
+    sharedImage = null
+  }
 
   if (!sharedImage) {
     return (

@@ -20,7 +20,21 @@ interface ClothingProduct {
 }
 
 const clothingProducts: ClothingProduct[] = [
-  // 卫衣产品
+  // 卫衣产品 - 将926e055aa81bcd7681beffbcd82d2dd5.jpg设为第一个
+  {
+    id: 'hoodie-4',
+    name: '经典连帽卫衣 - 款式4',
+    type: '卫衣',
+    price: 168,
+    image: '/卫衣/926e055aa81bcd7681beffbcd82d2dd5.jpg',
+    sizes: {
+      S: { height: '160-165cm', chest: '88-92cm' },
+      M: { height: '165-170cm', chest: '92-96cm' },
+      L: { height: '170-175cm', chest: '96-100cm' },
+      XL: { height: '175-180cm', chest: '100-104cm' }
+    },
+    description: '舒适棉质，经典版型，适合休闲穿着'
+  },
   {
     id: 'hoodie-1',
     name: '经典连帽卫衣 - 款式1',
@@ -55,20 +69,6 @@ const clothingProducts: ClothingProduct[] = [
     type: '卫衣',
     price: 168,
     image: '/卫衣/826c7f376223c11a5d44adb95ceeaf6a.jpg',
-    sizes: {
-      S: { height: '160-165cm', chest: '88-92cm' },
-      M: { height: '165-170cm', chest: '92-96cm' },
-      L: { height: '170-175cm', chest: '96-100cm' },
-      XL: { height: '175-180cm', chest: '100-104cm' }
-    },
-    description: '舒适棉质，经典版型，适合休闲穿着'
-  },
-  {
-    id: 'hoodie-4',
-    name: '经典连帽卫衣 - 款式4',
-    type: '卫衣',
-    price: 168,
-    image: '/卫衣/926e055aa81bcd7681beffbcd82d2dd5.jpg',
     sizes: {
       S: { height: '160-165cm', chest: '88-92cm' },
       M: { height: '165-170cm', chest: '92-96cm' },

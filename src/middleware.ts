@@ -16,7 +16,10 @@ export default authMiddleware({
     "/api/uploadthing",
     "/api/webhooks(.*)",
     "/api/share",
-    "/api/secret-orders"
+    "/api/secret-orders",
+    "/api/preorder",
+    "/api/test",
+    "/test-order"
   ],
 });
 
