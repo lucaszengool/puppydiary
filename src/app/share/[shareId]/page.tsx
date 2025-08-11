@@ -1,45 +1,17 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Heart, Dog, Sparkles, ArrowRight } from 'lucide-react'
 
-async function getSharedImage(shareId: string) {
-  // Return null for now to avoid server component errors in production
-  // This will show the "not found" page which is user-friendly
-  console.log('Attempting to get shared image for ID:', shareId)
-  
-  try {
-    // Try bones system first
-    const { getSharedImage } = await import('@/lib/bones')
-    const result = await getSharedImage(shareId)
-    console.log('Bones result:', result ? 'found' : 'not found')
-    return result
-  } catch (bonesError) {
-    console.error('Bones system failed:', bonesError)
-    
-    try {
-      // Try fallback system
-      const fallback = await import('@/lib/bones-fallback')
-      const result = await fallback.getSharedImage(shareId)
-      console.log('Fallback result:', result ? 'found' : 'not found')
-      return result
-    } catch (fallbackError) {
-      console.error('Fallback system also failed:', fallbackError)
-      
-      // Return a mock shared image for testing if both systems fail
-      if (shareId === 'test-123' || shareId.startsWith('test-')) {
-        return {
-          id: shareId,
-          image_url: 'https://placehold.co/512x512/green/white?text=Test+Share',
-          title: '测试分享图片',
-          description: '这是一个测试的分享图片',
-          style: '测试风格',
-          view_count: 1,
-          created_at: new Date().toISOString()
-        }
-      }
-      
-      return null
-    }
-  }
+interface SharedImage {
+  id: string
+  image_url: string
+  title: string
+  description?: string
+  style: string
+  view_count: number
+  created_at: string
 }
 
 interface SharePageProps {
@@ -48,14 +20,67 @@ interface SharePageProps {
   }
 }
 
-export default async function SharePage({ params }: SharePageProps) {
-  let sharedImage = null
-  
-  try {
-    sharedImage = await getSharedImage(params.shareId)
-  } catch (error) {
-    console.error('Error in SharePage:', error)
-    sharedImage = null
+export default function SharePage({ params }: SharePageProps) {
+  const [sharedImage, setSharedImage] = useState<SharedImage | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchSharedImage() {
+      try {
+        console.log('Fetching shared image for ID:', params.shareId)
+        
+        // For test IDs, return mock data immediately
+        if (params.shareId === 'test-123' || params.shareId.startsWith('test-')) {
+          setSharedImage({
+            id: params.shareId,
+            image_url: 'https://placehold.co/512x512/green/white?text=Test+Share',
+            title: '测试分享图片',
+            description: '这是一个测试的分享图片',
+            style: '测试风格',
+            view_count: 1,
+            created_at: new Date().toISOString()
+          })
+          setLoading(false)
+          return
+        }
+
+        try {
+          // Try to fetch from API
+          const response = await fetch(`/api/share?id=${params.shareId}`)
+          if (response.ok) {
+            const data = await response.json()
+            setSharedImage(data)
+          } else {
+            console.log('Share not found via API')
+            setSharedImage(null)
+          }
+        } catch (apiError) {
+          console.error('API fetch failed:', apiError)
+          setSharedImage(null)
+        }
+      } catch (error) {
+        console.error('Error fetching shared image:', error)
+        setError(error instanceof Error ? error.message : 'Unknown error')
+        setSharedImage(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSharedImage()
+  }, [params.shareId])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen sky-gradient flex items-center justify-center p-4">
+        <div className="text-center ghibli-card max-w-md">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-forest mx-auto mb-4"></div>
+          <h1 className="text-2xl font-bold text-gray-600 mb-2">加载中...</h1>
+          <p className="text-gray-500 mb-6">正在获取分享内容</p>
+        </div>
+      </div>
+    )
   }
 
   if (!sharedImage) {
@@ -106,7 +131,6 @@ export default async function SharePage({ params }: SharePageProps) {
               onLoad={() => console.log('Shared image loaded successfully:', sharedImage.image_url)}
               onError={(e) => {
                 console.error('Shared image failed to load:', sharedImage.image_url, e);
-                // Try to show a fallback or error message
               }}
               style={{ backgroundColor: '#f3f4f6' }}
             />
