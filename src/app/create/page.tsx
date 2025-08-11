@@ -46,7 +46,7 @@ export default function CreatePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   
-  const [, setCurrentStep] = useState<'style' | 'upload' | 'processing' | 'result' | 'refine'>('style')
+  const [currentStep, setCurrentStep] = useState<'style' | 'upload' | 'processing' | 'result' | 'refine'>('style')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
   const [originalFile, setOriginalFile] = useState<File | null>(null)  // Store original file for reset
@@ -438,6 +438,14 @@ export default function CreatePage() {
     }
     
     setIsProcessing(true)
+    
+    // Show generating dialog with estimated time
+    const generateToast = toast({
+      title: "🎨 AI正在创作中...",
+      description: "预计需要10-15秒，请耐心等待",
+      duration: 20000, // Keep it for 20 seconds
+    })
+    
     try {
       const formData = new FormData()
       
@@ -607,6 +615,9 @@ export default function CreatePage() {
       setGeneratedPrompt(fullPrompt)
       setCurrentStep('result')
       
+      // Close the generating toast
+      generateToast.dismiss()
+      
       // Reset edited image when new generation is created
       setEditedImage(null)
       
@@ -651,6 +662,7 @@ export default function CreatePage() {
       }
     } catch (error) {
       console.error("Generation error:", error)
+      generateToast.dismiss()
       toast({
         title: "生成失败",
         description: error instanceof Error ? error.message : "请稍后重试",
@@ -670,6 +682,9 @@ export default function CreatePage() {
   }
 
   const handleNextImage = async () => {
+    // Ensure product preview is not shown when moving to next image
+    setShowProductPreview(false)
+    
     // Apply final edits and save the result
     let imageToSave = generatedImage
     if (Object.values(imageAdjustments).some(val => val !== 0)) {
@@ -1531,10 +1546,10 @@ export default function CreatePage() {
           )}
 
           {/* Mobile Product Preview Modal - Full screen on mobile */}
-          {showProductPreview && isMobile && (
+          {showProductPreview && (
             <>
               <div 
-                className="fixed inset-0 bg-white"
+                className="md:hidden fixed inset-0 bg-white z-[99999] overflow-y-auto"
                 style={{
                   position: 'fixed',
                   top: 0,
@@ -1544,9 +1559,7 @@ export default function CreatePage() {
                   width: '100vw',
                   height: '100vh',
                   backgroundColor: 'white',
-                  zIndex: 99999,
-                  overflow: 'auto',
-                  display: 'block'
+                  zIndex: 99999
                 }}
               >
                 {/* Close Button */}
@@ -2119,30 +2132,26 @@ export default function CreatePage() {
                     />
                   </div>
                 
-                  {/* Mobile Action Buttons - Bottom Overlay - Fixed position to always be visible */}
-                  <div className="fixed bottom-4 left-4 right-4 flex justify-between z-[90]" style={{ zIndex: 90 }}>
+                  {/* Mobile Action Buttons - Top Left Overlay - Fixed position to always be visible */}
+                  <div className="fixed top-4 left-4 flex space-x-3 z-[90]" style={{ zIndex: 90 }}>
                   <button
                     onClick={() => handleShareImage(editedImage || generatedImage || selectedImageUrl!)}
-                    className="flex items-center px-4 py-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
+                    className="flex items-center px-3 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-xs font-medium hover:bg-white transition-colors"
                     title={userId ? "分享图片获得骨头" : "分享你的作品"}
                   >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    {userId ? "分享获得骨头" : "分享作品"}
+                    <Share2 className="w-3 h-3 mr-1" />
+                    分享
                   </button>
                   <button
                     onClick={() => setShowProductPreview(true)}
-                    className="flex items-center px-4 py-3 bg-black/90 backdrop-blur-sm text-white rounded-full shadow-xl text-sm font-medium hover:bg-black transition-colors"
+                    className="flex items-center px-3 py-2 bg-black/90 backdrop-blur-sm text-white rounded-full shadow-xl text-xs font-medium hover:bg-black transition-colors"
                     title="查看产品效果"
                     style={{ 
                       pointerEvents: 'auto',
-                      touchAction: 'manipulation',
-                      zIndex: 999,
-                      position: 'relative',
-                      minHeight: '48px',
-                      minWidth: '120px'
+                      touchAction: 'manipulation'
                     }}
                   >
-                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    <ShoppingBag className="w-3 h-3 mr-1" />
                     产品预览
                   </button>
                   </div>

@@ -28,9 +28,7 @@ export async function POST(request: NextRequest) {
 
     const { userId } = await auth()
     
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // Allow both logged in and guest users to create share links
 
     const { imageUrl, title, style, description } = await request.json()
 
@@ -40,9 +38,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Create shared image record
+    // Create shared image record (userId can be null for guest users)
     const { shareLink, error } = await createSharedImage(
-      userId, 
+      userId || `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, 
       imageUrl, 
       title, 
       style, 
@@ -53,8 +51,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error || 'Failed to create share link' }, { status: 500 })
     }
 
-    // Try to award bones for sharing (max once per day)
-    const boneResult = await awardShareBones(userId)
+    // Try to award bones for sharing (only for logged in users)
+    let boneResult = { success: false, bones: 0, message: 'Guest user' }
+    if (userId) {
+      boneResult = await awardShareBones(userId)
+    }
     
     return NextResponse.json({
       shareLink,

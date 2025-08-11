@@ -66,6 +66,7 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
   const [showFullView, setShowFullView] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
+
   const currentCategoryItems = productItems.filter(item => item.type === selectedCategory);
   const previewItem = currentCategoryItems[previewIndex] || null;
 
@@ -137,7 +138,10 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
                   {/* Design on Clothing */}
                   {selectedDesignImageUrl && (
                     <div className="vsco-layer vsco-design-on-clothing">
-                      <img src={selectedDesignImageUrl} alt="设计" />
+                      <img 
+                        src={selectedDesignImageUrl} 
+                        alt="设计" 
+                      />
                     </div>
                   )}
                 </>
@@ -206,7 +210,11 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
               <>
                 <img src={previewItem.image} alt={previewItem.name} className="vsco-fullview-bg" />
                 {selectedDesignImageUrl && (
-                  <img src={selectedDesignImageUrl} alt="设计" className="vsco-fullview-design" />
+                  <img 
+                    src={selectedDesignImageUrl} 
+                    alt="设计" 
+                    className="vsco-fullview-design"
+                  />
                 )}
               </>
             )}
@@ -400,7 +408,7 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
 
         .vsco-design-on-clothing {
           position: absolute;
-          top: 48%;
+          top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
           width: ${isCompactMode ? '70px' : '100px'};
@@ -972,6 +980,14 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           .vsco-tab {
             padding: 10px 18px;
             font-size: 14px;
+          }
+          
+          /* Fix fullview design position on landscape */
+          .vsco-fullview-design {
+            top: 50%;
+            left: 50%;
+            width: 180px;
+            height: 180px;
           }
         }
 

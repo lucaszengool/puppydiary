@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Preview Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-steps {
+            list-style: none;
+            padding: 0;
+        }
+        .test-steps li {
+            padding: 10px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .pending { background: #6c757d; }
+        .success { background: #28a745; }
+        .error { background: #dc3545; }
+        .console-log {
+            background: #1e1e1e;
+            color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔍 Product Preview Debug Helper</h1>
+        
+        <p><strong>Current Issue:</strong> Product preview modal shows clothing but missing generated image</p>
+        
+        <h2>Test Steps</h2>
+        <ol class="test-steps">
+            <li>1. Open <a href="http://localhost:3002/create" target="_blank">Create Page</a> <span class="status pending">PENDING</span></li>
+            <li>2. Select an art style (e.g., Disney) <span class="status pending">PENDING</span></li>
+            <li>3. Upload a pet image <span class="status pending">PENDING</span></li>
+            <li>4. Wait for AI generation to complete <span class="status pending">PENDING</span></li>
+            <li>5. Open browser console (F12) to see debug logs <span class="status pending">PENDING</span></li>
+            <li>6. Click "产品预览" (Product Preview) button <span class="status pending">PENDING</span></li>
+            <li>7. Check if design image appears in modal <span class="status pending">PENDING</span></li>
+        </ol>
+        
+        <h2>Expected Console Logs</h2>
+        <div class="console-log">
+            <div>✅ VSCOProductDisplay received selectedDesignImageUrl: EXISTS</div>
+            <div>✅ Mobile Product preview clicked: {editedImage: 'EXISTS', generatedImage: 'EXISTS', ...}</div>
+            <div>✅ VSCOProductDisplay rendering with: {finalUrl: 'EXISTS'}</div>
+            <div>✅ Design image loaded successfully</div>
+        </div>
+        
+        <h2>Potential Issues to Check</h2>
+        <ul>
+            <li>🔍 Check if selectedDesignImageUrl is NULL/undefined</li>
+            <li>🔍 Check if image URL is valid (starts with blob: or https:)</li>
+            <li>🔍 Check for CSS z-index conflicts hiding the design</li>
+            <li>🔍 Check if image fails to load (network errors)</li>
+            <li>🔍 Check mobile vs desktop behavior differences</li>
+        </ul>
+        
+        <h2>Quick Links</h2>
+        <ul>
+            <li><a href="http://localhost:3002/create" target="_blank">🎨 Create Page (Port 3002)</a></li>
+            <li><a href="http://localhost:3001/create" target="_blank">🎨 Create Page (Port 3001)</a></li>
+            <li><a href="http://localhost:3000/create" target="_blank">🎨 Create Page (Port 3000)</a></li>
+        </ul>
+        
+        <p><em>Open this page alongside the create page and follow the test steps while monitoring console logs.</em></p>
+    </div>
+</body>
+</html>
