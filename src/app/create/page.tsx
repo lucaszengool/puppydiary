@@ -102,6 +102,29 @@ export default function CreatePage() {
   // Bones system state
   const [userBones, setUserBones] = useState<number>(0)
   const [loadingBones, setLoadingBones] = useState(false)
+  
+  // Trial system for non-signed up users
+  const [guestTrialCount, setGuestTrialCount] = useState<number>(0)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  
+  // Load guest trial count from localStorage
+  useEffect(() => {
+    if (!userId) {
+      const savedTrialCount = localStorage.getItem('guestTrialCount')
+      if (savedTrialCount) {
+        setGuestTrialCount(parseInt(savedTrialCount))
+      }
+    }
+  }, [userId])
+  
+  // Save guest trial count to localStorage
+  const incrementGuestTrial = () => {
+    if (!userId) {
+      const newCount = guestTrialCount + 1
+      setGuestTrialCount(newCount)
+      localStorage.setItem('guestTrialCount', newCount.toString())
+    }
+  }
 
 
   // Video-related states (stubs to prevent compilation errors)
@@ -385,6 +408,22 @@ export default function CreatePage() {
   }
 
   const generatePortrait = async (file: File, additionalPrompt?: string, isBackgroundChange: boolean = false) => {
+    // Check if guest user has exceeded trial limit
+    if (!userId && guestTrialCount >= 1) {
+      setShowLoginPrompt(true)
+      return
+    }
+    
+    // Check if logged in user has enough bones
+    if (userId && userBones < 1) {
+      toast({
+        title: "骨头不足 🦴",
+        description: "生成图片需要消耗1个骨头，请先分享作品获得更多骨头！",
+        variant: "destructive",
+      })
+      return
+    }
+    
     setIsProcessing(true)
     try {
       const formData = new FormData()
@@ -557,6 +596,33 @@ export default function CreatePage() {
       
       // Reset edited image when new generation is created
       setEditedImage(null)
+      
+      // Increment guest trial count for non-logged in users
+      if (!userId) {
+        incrementGuestTrial()
+      } else {
+        // Consume one bone for logged in users
+        try {
+          const boneResponse = await fetch('/api/bones', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              action: 'consume',
+              userId: userId,
+              amount: 1
+            })
+          })
+          
+          if (boneResponse.ok) {
+            const boneData = await boneResponse.json()
+            setUserBones(boneData.bones || Math.max(0, userBones - 1))
+          }
+        } catch (error) {
+          console.error('Error consuming bone:', error)
+        }
+      }
       
       // Show different messages based on saved images count
       if (savedImages.length === 0) {
@@ -1498,6 +1564,60 @@ export default function CreatePage() {
             </>
           )}
 
+          {/* Login Prompt Modal for Guest Users */}
+          {showLoginPrompt && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
+              <div className="bg-white rounded-lg p-6 mx-4 max-w-md w-full shadow-xl">
+                <div className="text-center">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-3xl">🎨</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      解锁无限创作
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      您已体验了免费试用！注册账号享受：
+                    </p>
+                    <div className="text-left space-y-2 mb-6">
+                      <div className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span className="text-sm text-gray-700">无限制AI画图</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span className="text-sm text-gray-700">分享作品获得更多骨头</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span className="text-sm text-gray-700">产品定制服务</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span className="text-sm text-gray-700">作品永久保存</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setShowLoginPrompt(false)}
+                      className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    >
+                      稍后再说
+                    </button>
+                    <button
+                      onClick={() => window.location.href = '/sign-up'}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      立即注册
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Publish Dialog - removed from here, moved to top level */}
 
           {/* Main upload area */}
@@ -1885,10 +2005,10 @@ export default function CreatePage() {
                 <button
                   onClick={() => handleShareImage(editedImage || generatedImage || selectedImageUrl!)}
                   className="flex items-center px-3 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
-                  title="分享图片获得骨头"
+                  title={userId ? "分享图片获得骨头" : "分享你的作品"}
                 >
                   <Share2 className="w-4 h-4 mr-1" />
-                  分享
+                  {userId ? "分享获得骨头" : "分享"}
                 </button>
                 <button
                   onClick={() => setShowProductPreview(true)}
@@ -1980,25 +2100,26 @@ export default function CreatePage() {
                   </div>
                 
                   {/* Mobile Action Buttons - Bottom Overlay - Fixed position to always be visible */}
-                  <div className="fixed bottom-4 left-4 right-4 flex justify-between z-[70]" style={{ zIndex: 70 }}>
+                  <div className="fixed bottom-4 left-4 right-4 flex justify-between z-[90]" style={{ zIndex: 90 }}>
                   <button
                     onClick={() => handleShareImage(editedImage || generatedImage || selectedImageUrl!)}
                     className="flex items-center px-4 py-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm font-medium hover:bg-white transition-colors"
-                    title="分享图片获得骨头"
+                    title={userId ? "分享图片获得骨头" : "分享你的作品"}
                   >
                     <Share2 className="w-4 h-4 mr-2" />
-                    分享获得骨头
+                    {userId ? "分享获得骨头" : "分享作品"}
                   </button>
                   <button
-                    onClick={() => {
-                      console.log('产品预览按钮被点击了！');
-                      setShowProductPreview(true);
-                    }}
-                    className="flex items-center px-4 py-3 bg-black/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-black transition-colors"
+                    onClick={() => setShowProductPreview(true)}
+                    className="flex items-center px-4 py-3 bg-black/90 backdrop-blur-sm text-white rounded-full shadow-xl text-sm font-medium hover:bg-black transition-colors"
                     title="查看产品效果"
                     style={{ 
                       pointerEvents: 'auto',
-                      touchAction: 'manipulation'
+                      touchAction: 'manipulation',
+                      zIndex: 999,
+                      position: 'relative',
+                      minHeight: '48px',
+                      minWidth: '120px'
                     }}
                   >
                     <ShoppingBag className="w-4 h-4 mr-2" />

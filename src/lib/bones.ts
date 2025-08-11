@@ -60,7 +60,7 @@ async function createUserBonesRecord(userId: string): Promise<UserBones | null> 
       .from('user_bones')
       .insert({
         user_id: userId,
-        bones_count: 5,
+        bones_count: 1,
         last_share_reward_date: null
       })
       .select()
