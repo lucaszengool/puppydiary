@@ -6,27 +6,25 @@ import { useToast } from '@/hooks/use-toast'
 
 interface Order {
   id: string
-  orderId: string
-  userId: string
-  productName: string
+  order_id: string
+  user_id: string
+  product_name: string
   price: number
-  customerInfo: {
+  customer_info: {
     name: string
     phone: string
     email: string
     address: string
     notes?: string
   }
-  designImageUrl: string
-  createdAt: string
-  status: 'pending' | 'processing' | 'shipped' | 'delivered'
-  userInfo?: {
-    userId: string
+  user_info?: {
     firstName: string
     lastName: string
     email: string
-    phone?: string
   }
+  design_image_url: string
+  created_at: string
+  status: 'pending' | 'processing' | 'shipped' | 'delivered'
 }
 
 interface OrderStats {
@@ -80,7 +78,11 @@ export default function SecretOrdersDashboard() {
   const fetchOrders = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/orders')
+      const response = await fetch('/api/secret-orders', {
+        headers: {
+          'x-admin-password': ADMIN_PASSWORD
+        }
+      })
       if (!response.ok) {
         throw new Error('Failed to fetch orders')
       }
@@ -127,15 +129,15 @@ export default function SecretOrdersDashboard() {
     const csv = [
       ['订单号', '产品', '价格', '客户姓名', '电话', '邮箱', '地址', '状态', '下单时间'].join(','),
       ...filteredOrders.map(order => [
-        order.orderId,
-        order.productName,
+        order.order_id,
+        order.product_name,
         order.price,
-        order.customerInfo.name,
-        order.customerInfo.phone,
-        order.customerInfo.email || order.userInfo?.email || '',
-        order.customerInfo.address,
+        order.customer_info.name,
+        order.customer_info.phone,
+        order.customer_info.email || order.user_info?.email || '',
+        order.customer_info.address,
         getStatusLabel(order.status),
-        new Date(order.createdAt).toLocaleString('zh-CN')
+        new Date(order.created_at).toLocaleString('zh-CN')
       ].join(','))
     ].join('\n')
 
@@ -304,19 +306,19 @@ export default function SecretOrdersDashboard() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredOrders.map((order) => (
-                    <tr key={order.orderId} className="hover:bg-gray-50">
+                    <tr key={order.order_id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
                           <img
-                            src={order.designImageUrl}
+                            src={order.design_image_url}
                             alt="Design"
                             className="w-12 h-12 rounded object-cover"
                           />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{order.orderId}</p>
-                            <p className="text-sm text-gray-600">{order.productName}</p>
+                            <p className="text-sm font-medium text-gray-900">{order.order_id}</p>
+                            <p className="text-sm text-gray-600">{order.product_name}</p>
                             <p className="text-xs text-gray-500">
-                              {new Date(order.createdAt).toLocaleString('zh-CN')}
+                              {new Date(order.created_at).toLocaleString('zh-CN')}
                             </p>
                           </div>
                         </div>
@@ -324,18 +326,18 @@ export default function SecretOrdersDashboard() {
                       <td className="px-6 py-4">
                         <div className="text-sm">
                           <p className="font-medium text-gray-900">
-                            {order.userInfo?.firstName} {order.userInfo?.lastName} / {order.customerInfo.name}
+                            {order.user_info?.firstName} {order.user_info?.lastName} / {order.customer_info.name}
                           </p>
                           <p className="text-gray-600 flex items-center">
                             <Phone className="w-3 h-3 mr-1" />
-                            {order.customerInfo.phone}
+                            {order.customer_info.phone}
                           </p>
                           <p className="text-gray-600 flex items-center">
                             <Mail className="w-3 h-3 mr-1" />
-                            {order.customerInfo.email || order.userInfo?.email}
+                            {order.customer_info.email || order.user_info?.email}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            {order.customerInfo.address}
+                            {order.customer_info.address}
                           </p>
                         </div>
                       </td>
@@ -383,11 +385,11 @@ export default function SecretOrdersDashboard() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-2">订单信息</h3>
                     <div className="bg-gray-50 p-4 rounded">
-                      <p className="text-sm"><span className="font-medium">订单号:</span> {selectedOrder.orderId}</p>
-                      <p className="text-sm"><span className="font-medium">产品:</span> {selectedOrder.productName}</p>
+                      <p className="text-sm"><span className="font-medium">订单号:</span> {selectedOrder.order_id}</p>
+                      <p className="text-sm"><span className="font-medium">产品:</span> {selectedOrder.product_name}</p>
                       <p className="text-sm"><span className="font-medium">价格:</span> ¥{selectedOrder.price}</p>
                       <p className="text-sm"><span className="font-medium">状态:</span> {getStatusLabel(selectedOrder.status)}</p>
-                      <p className="text-sm"><span className="font-medium">下单时间:</span> {new Date(selectedOrder.createdAt).toLocaleString('zh-CN')}</p>
+                      <p className="text-sm"><span className="font-medium">下单时间:</span> {new Date(selectedOrder.created_at).toLocaleString('zh-CN')}</p>
                     </div>
                   </div>
 
@@ -395,13 +397,13 @@ export default function SecretOrdersDashboard() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-2">客户信息</h3>
                     <div className="bg-gray-50 p-4 rounded">
-                      <p className="text-sm"><span className="font-medium">用户:</span> {selectedOrder.userInfo?.firstName} {selectedOrder.userInfo?.lastName}</p>
-                      <p className="text-sm"><span className="font-medium">收货人:</span> {selectedOrder.customerInfo.name}</p>
-                      <p className="text-sm"><span className="font-medium">电话:</span> {selectedOrder.customerInfo.phone}</p>
-                      <p className="text-sm"><span className="font-medium">邮箱:</span> {selectedOrder.customerInfo.email || selectedOrder.userInfo?.email}</p>
-                      <p className="text-sm"><span className="font-medium">地址:</span> {selectedOrder.customerInfo.address}</p>
-                      {selectedOrder.customerInfo.notes && (
-                        <p className="text-sm"><span className="font-medium">备注:</span> {selectedOrder.customerInfo.notes}</p>
+                      <p className="text-sm"><span className="font-medium">用户:</span> {selectedOrder.user_info?.firstName} {selectedOrder.user_info?.lastName}</p>
+                      <p className="text-sm"><span className="font-medium">收货人:</span> {selectedOrder.customer_info.name}</p>
+                      <p className="text-sm"><span className="font-medium">电话:</span> {selectedOrder.customer_info.phone}</p>
+                      <p className="text-sm"><span className="font-medium">邮箱:</span> {selectedOrder.customer_info.email || selectedOrder.user_info?.email}</p>
+                      <p className="text-sm"><span className="font-medium">地址:</span> {selectedOrder.customer_info.address}</p>
+                      {selectedOrder.customer_info.notes && (
+                        <p className="text-sm"><span className="font-medium">备注:</span> {selectedOrder.customer_info.notes}</p>
                       )}
                     </div>
                   </div>
@@ -411,7 +413,7 @@ export default function SecretOrdersDashboard() {
                     <h3 className="text-sm font-medium text-gray-500 mb-2">设计预览</h3>
                     <div className="bg-gray-50 p-4 rounded">
                       <img
-                        src={selectedOrder.designImageUrl}
+                        src={selectedOrder.design_image_url}
                         alt="Design"
                         className="w-full max-w-sm mx-auto rounded"
                       />

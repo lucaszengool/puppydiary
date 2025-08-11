@@ -10,11 +10,13 @@ export default authMiddleware({
     "/sign-up",
     "/public-mockup-test",
     "/fabric-mockup-test",
+    "/secret-orders-dashboard",
     "/api/generate",
     "/api/generate-video",
     "/api/uploadthing",
     "/api/webhooks(.*)",
-    "/api/share"
+    "/api/share",
+    "/api/secret-orders"
   ],
 });
 

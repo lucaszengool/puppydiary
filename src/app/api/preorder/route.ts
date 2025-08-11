@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
+import { supabaseAdmin } from '@/lib/supabase';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,12 +36,12 @@ export async function POST(req: NextRequest) {
       weidianOrderId: null // Will be set if Weidian order is created successfully
     };
 
-    // 保存订单到 Clerk 用户元数据
+    // 保存订单到 Supabase
     try {
-      await saveOrderToClerk(userId, preOrderData);
-      console.log('✅ Order saved to Clerk');
+      await saveOrderToSupabase(preOrderData);
+      console.log('✅ Order saved to Supabase');
     } catch (error) {
-      console.error('Failed to save order to Clerk:', error);
+      console.error('Failed to save order to Supabase:', error);
     }
 
     // Send to Weidian (微店) - 可选
@@ -80,38 +81,38 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// 保存订单到 Clerk 用户元数据
-async function saveOrderToClerk(userId: string, orderData: any) {
+// 保存订单到 Supabase
+async function saveOrderToSupabase(orderData: any) {
   try {
-    // 获取用户当前的私有元数据
-    const user = await clerkClient.users.getUser(userId);
-    const currentMetadata = user.privateMetadata || {};
-    const existingOrders = currentMetadata.orders;
-    
-    // 确保 orders 是数组
-    const orders = Array.isArray(existingOrders) ? existingOrders : [];
-    
-    // 添加新订单
-    orders.push({
-      ...orderData,
-      id: orderData.orderId,
-      createdAt: orderData.createdAt,
-      updatedAt: new Date().toISOString()
-    });
-    
-    // 更新用户元数据
-    await clerkClient.users.updateUser(userId, {
-      privateMetadata: {
-        ...currentMetadata,
-        orders: orders,
-        totalOrders: orders.length,
-        lastOrderDate: new Date().toISOString()
-      }
-    });
-    
-    console.log(`✅ Order ${orderData.orderId} saved to Clerk for user ${userId}`);
+    if (!supabaseAdmin) {
+      throw new Error('Supabase not configured');
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .insert([{
+        order_id: orderData.orderId,
+        user_id: orderData.userId,
+        product_name: orderData.productName,
+        price: orderData.price,
+        customer_info: orderData.customerInfo,
+        user_info: orderData.userInfo,
+        design_image_url: orderData.designImageUrl,
+        status: orderData.status,
+        weidian_order_id: orderData.weidianOrderId,
+        created_at: orderData.createdAt,
+        updated_at: new Date().toISOString()
+      }]);
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+
+    console.log(`✅ Order ${orderData.orderId} saved to Supabase for user ${orderData.userId}`);
+    return data;
   } catch (error) {
-    console.error('Error saving order to Clerk:', error);
+    console.error('Error saving order to Supabase:', error);
     throw error;
   }
 }

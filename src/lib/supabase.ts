@@ -47,3 +47,28 @@ export interface SharedImage {
   style: string
   created_at: string
 }
+
+export interface Order {
+  id: string
+  order_id: string
+  user_id: string
+  product_name: string
+  price: number
+  customer_info: {
+    name: string
+    phone: string
+    email: string
+    address: string
+    notes?: string
+  }
+  user_info: {
+    firstName?: string
+    lastName?: string
+    email?: string
+  }
+  design_image_url: string
+  status: 'pending' | 'processing' | 'shipped' | 'delivered'
+  weidian_order_id?: string
+  created_at: string
+  updated_at: string
+}
