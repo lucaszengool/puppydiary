@@ -86,7 +86,10 @@ async function saveOrderToClerk(userId: string, orderData: any) {
     // 获取用户当前的私有元数据
     const user = await clerkClient.users.getUser(userId);
     const currentMetadata = user.privateMetadata || {};
-    const orders = currentMetadata.orders || [];
+    const existingOrders = currentMetadata.orders;
+    
+    // 确保 orders 是数组
+    const orders = Array.isArray(existingOrders) ? existingOrders : [];
     
     // 添加新订单
     orders.push({
