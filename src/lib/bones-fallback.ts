@@ -38,25 +38,15 @@ export async function consumeBones(userId: string, amount: number = 1) {
 }
 
 export async function awardShareBones(userId: string) {
-  const today = new Date().toISOString().split('T')[0]
-  const lastReward = fallbackLastReward.get(userId)
-  
-  if (lastReward === today) {
-    return {
-      success: false,
-      message: 'Already received share reward today',
-      bones: fallbackBones.get(userId) ?? 5
-    }
-  }
-  
+  // Remove daily limit - allow unlimited sharing rewards
   const currentBones = fallbackBones.get(userId) ?? 5
   const newBones = currentBones + 1
   fallbackBones.set(userId, newBones)
-  fallbackLastReward.set(userId, today)
+  fallbackLastReward.set(userId, new Date().toISOString())
   
   return {
     success: true,
-    message: 'Bone reward granted!',
+    message: '分享成功，获得1个骨头！',
     bones: newBones
   }
 }

@@ -100,6 +100,14 @@ export async function consumeBones(userId: string, amount: number = 1): Promise<
 
 // Award bones for sharing (unlimited) - direct implementation
 export async function awardShareBones(userId: string): Promise<{ success: boolean, message: string, bones?: number }> {
+  const initialized = await initSupabase()
+  
+  if (!initialized || !supabaseAvailable) {
+    // Use fallback system
+    const fallback = await import('./bones-fallback')
+    return await fallback.awardShareBones(userId)
+  }
+
   try {
     // Get current user bones
     const userBones = await getUserBones(userId)
@@ -134,7 +142,9 @@ export async function awardShareBones(userId: string): Promise<{ success: boolea
     }
   } catch (error) {
     console.error('Error in awardShareBones:', error)
-    return { success: false, message: 'Error processing reward' }
+    // Fall back to in-memory system
+    const fallback = await import('./bones-fallback')
+    return await fallback.awardShareBones(userId)
   }
 }
 
@@ -146,6 +156,14 @@ export async function createSharedImage(
   style: string, 
   description?: string
 ): Promise<{ shareLink: string | null, error?: string }> {
+  const initialized = await initSupabase()
+  
+  if (!initialized || !supabaseAvailable) {
+    // Use fallback system
+    const fallback = await import('./bones-fallback')
+    return await fallback.createSharedImage(userId, imageUrl, title, style, description)
+  }
+
   try {
     const shareId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
     const shareLink = `${process.env.NEXTAUTH_URL || 'https://petpoofficial.org'}/share/${shareId}`
@@ -172,7 +190,9 @@ export async function createSharedImage(
     return { shareLink }
   } catch (error) {
     console.error('Error in createSharedImage:', error)
-    return { shareLink: null, error: 'Error creating share link' }
+    // Fall back to in-memory system
+    const fallback = await import('./bones-fallback')
+    return await fallback.createSharedImage(userId, imageUrl, title, style, description)
   }
 }
 

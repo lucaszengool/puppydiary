@@ -2033,7 +2033,7 @@ export default function CreatePage() {
       </div>
 
       {/* VSCO Mobile-Style Layout - Show only on mobile when image is generated */}
-      {(generatedImage || editedImage || selectedImageUrl) && (
+      {(generatedImage || editedImage || selectedImageUrl) && !showProductPreview && (
         <div className="md:hidden fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden">
               {/* Header with bones counter and reset button */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-50">
@@ -2575,7 +2575,7 @@ export default function CreatePage() {
         {/* Mobile Product Preview Modal - Full screen on mobile - Outside mobile layout */}
         {showProductPreview && (
           <div 
-            className="md:hidden fixed inset-0 bg-white overflow-y-auto"
+            className="md:hidden fixed inset-0 bg-white overflow-y-auto z-[9999]"
             style={{
               position: 'fixed',
               top: 0,
@@ -2584,19 +2584,17 @@ export default function CreatePage() {
               bottom: 0,
               width: '100vw',
               height: '100vh',
-              backgroundColor: 'white',
-              zIndex: 999999
+              backgroundColor: 'white'
             }}
           >
             {/* Close Button */}
             <button
               onClick={() => setShowProductPreview(false)}
-              className="fixed top-4 right-4 w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-gray-700 transition-all"
+              className="fixed top-4 right-4 w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-gray-700 transition-all z-[10000]"
               style={{
                 position: 'fixed',
                 top: '16px',
                 right: '16px',
-                zIndex: 1000000,
                 width: '40px',
                 height: '40px',
                 backgroundColor: '#1f2937',
