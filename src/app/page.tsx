@@ -177,12 +177,12 @@ export default async function Home() {
             </div>
 
             {/* Custom Clothing */}
-            <div className="text-center space-y-6 flex flex-col">
+            <Link href="/clothing-test" className="text-center space-y-6 flex flex-col hover:scale-105 transition-transform duration-200 cursor-pointer">
               <div className="relative mx-auto flex-shrink-0" style={{ height: '384px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {/* Hoodie Mockup */}
                 <div className="w-48 h-60 relative">
                   {/* Hoodie Base */}
-                  <div className="w-full h-full bg-white rounded-lg shadow-xl p-4 relative overflow-hidden">
+                  <div className="w-full h-full bg-white rounded-lg shadow-xl p-4 relative overflow-hidden hover:shadow-2xl transition-shadow duration-200">
                     {/* Hoodie Shape */}
                     <div className="w-full h-full relative">
                       {/* Hoodie body */}
@@ -207,12 +207,12 @@ export default async function Home() {
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-start">
-                <h3 className="text-xl font-light text-gray-900 mb-4">定制衣服</h3>
+                <h3 className="text-xl font-light text-gray-900 mb-4 group-hover:text-forest transition-colors">定制衣服</h3>
                 <p className="text-gray-600 font-light leading-relaxed">
                   将您的宠物肖像印制在高品质服装上，打造专属时尚单品
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Social Media */}
             <div className="text-center space-y-6 flex flex-col">

@@ -10,6 +10,7 @@ export default authMiddleware({
     "/sign-up",
     "/public-mockup-test",
     "/fabric-mockup-test",
+    "/clothing-test",
     "/secret-orders-dashboard",
     "/api/generate",
     "/api/generate-video",
@@ -18,6 +19,7 @@ export default authMiddleware({
     "/api/share",
     "/api/secret-orders",
     "/api/preorder",
+    "/api/enhanced-preorder",
     "/api/test",
     "/test-order"
   ],
