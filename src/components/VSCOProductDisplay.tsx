@@ -625,7 +625,7 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
 
         .vsco-fullview-design {
           position: absolute;
-          top: 42%;
+          top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
           width: 240px;
@@ -998,6 +998,30 @@ export function VSCOProductDisplay({ selectedDesignImageUrl, onBack, isCompactMo
           .vsco-order-btn {
             padding: 12px 24px;
             font-size: 14px;
+          }
+          
+          /* Fix fullview on mobile */
+          .vsco-fullview-modal {
+            padding: 10px;
+          }
+          
+          .vsco-fullview-content {
+            width: 100%;
+            height: 100%;
+          }
+          
+          .vsco-fullview-bg {
+            max-width: 95vw;
+            max-height: 85vh;
+          }
+          
+          .vsco-fullview-design {
+            width: 30vw;
+            min-width: 100px;
+            max-width: 150px;
+            height: 30vw;
+            min-height: 100px;
+            max-height: 150px;
           }
         }
         

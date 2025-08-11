@@ -106,6 +106,7 @@ export default function CreatePage() {
   // Trial system for non-signed up users
   const [guestTrialCount, setGuestTrialCount] = useState<number>(0)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   
   // Load guest trial count from localStorage
   useEffect(() => {
@@ -116,6 +117,18 @@ export default function CreatePage() {
       }
     }
   }, [userId])
+  
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
   
   // Save guest trial count to localStorage
   const incrementGuestTrial = () => {
@@ -759,11 +772,7 @@ export default function CreatePage() {
 
   // Share with native share API and confirmation for bone reward
   const handleShareWithConfirmation = async (imageUrl: string) => {
-    if (!userId) {
-      // 直接跳转到登录页面
-      window.location.href = '/sign-in'
-      return
-    }
+    // Allow both registered and guest users to share
 
     try {
       // First create the share link
@@ -799,15 +808,23 @@ export default function CreatePage() {
           })
           
           // Show confirmation dialog after successful share
-          const confirmed = confirm(
-            "感谢分享！🎉\n\n" +
-            "为了获得骨头奖励，请确认：\n" + 
-            "✅ 您是否已成功分享了这个链接？\n\n" +
-            "点击\"确定\"领取1个骨头奖励 🦴"
-          )
-          
-          if (confirmed) {
-            await awardBonesAfterShare(data.boneReward)
+          if (userId) {
+            const confirmed = confirm(
+              "感谢分享！🎉\n\n" +
+              "为了获得骨头奖励，请确认：\n" + 
+              "✅ 您是否已成功分享了这个链接？\n\n" +
+              "点击\"确定\"领取1个骨头奖励 🦴"
+            )
+            
+            if (confirmed) {
+              await awardBonesAfterShare(data.boneReward)
+            }
+          } else {
+            // For guest users, just show success message
+            toast({
+              title: "分享成功！🎉",
+              description: "感谢分享我们的应用！",
+            })
           }
           
         } catch (shareError) {
@@ -843,14 +860,16 @@ export default function CreatePage() {
       })
       
       // Show confirmation dialog
-      const confirmed = confirm(
-        "链接已复制到剪贴板！📋\n\n" +
-        "请将链接分享到微信、微博等社交平台\n\n" +
-        "分享完成后点击\"确定\"获得1个骨头奖励 🦴"
-      )
-      
-      if (confirmed) {
-        await awardBonesAfterShare(boneReward)
+      if (userId) {
+        const confirmed = confirm(
+          "链接已复制到剪贴板！📋\n\n" +
+          "请将链接分享到微信、微博等社交平台\n\n" +
+          "分享完成后点击\"确定\"获得1个骨头奖励 🦴"
+        )
+        
+        if (confirmed) {
+          await awardBonesAfterShare(boneReward)
+        }
       }
     } catch (error) {
       console.error('Clipboard copy failed:', error)
@@ -1512,10 +1531,10 @@ export default function CreatePage() {
           )}
 
           {/* Mobile Product Preview Modal - Full screen on mobile */}
-          {showProductPreview && (
+          {showProductPreview && isMobile && (
             <>
               <div 
-                className="md:hidden fixed inset-0 bg-white"
+                className="fixed inset-0 bg-white"
                 style={{
                   position: 'fixed',
                   top: 0,
@@ -1526,7 +1545,8 @@ export default function CreatePage() {
                   height: '100vh',
                   backgroundColor: 'white',
                   zIndex: 99999,
-                  overflow: 'hidden'
+                  overflow: 'auto',
+                  display: 'block'
                 }}
               >
                 {/* Close Button */}
@@ -2124,19 +2144,6 @@ export default function CreatePage() {
                   >
                     <ShoppingBag className="w-4 h-4 mr-2" />
                     产品预览
-                  </button>
-                  <button
-                    onClick={() => handleSingleVideoGeneration(editedImage || generatedImage || selectedImageUrl!)}
-                    disabled={videoGenerating}
-                    className="flex items-center px-4 py-3 bg-rose/90 backdrop-blur-sm text-white rounded-full shadow-lg text-sm font-medium hover:bg-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={userBones < 1 ? "点击分享获得骨头后生成视频" : "生成视频"}
-                  >
-                    <Video className="w-4 h-4 mr-2" />
-                    {videoGenerating ? '生成中...' : (userBones < 1 ? '先分享获得骨头' : '生成视频')}
-                    <div className="flex items-center ml-2">
-                      <BoneIcon className="w-3 h-3 text-white/80" />
-                      <span className="text-xs ml-1">1</span>
-                    </div>
                   </button>
                   </div>
                 </div>
