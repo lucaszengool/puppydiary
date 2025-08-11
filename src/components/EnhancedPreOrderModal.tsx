@@ -70,7 +70,7 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product || !userId || !form.size) return;
+    if (!product || !form.size) return;
 
     setLoading(true);
     try {
@@ -94,7 +94,7 @@ export function EnhancedPreOrderModal({ isOpen, onClose, product, designImageUrl
             address: form.address,
             height: form.height
           },
-          userId
+          userId: userId || null
         })
       });
 

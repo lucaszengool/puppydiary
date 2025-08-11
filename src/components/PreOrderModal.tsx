@@ -32,7 +32,7 @@ export function PreOrderModal({ isOpen, onClose, product, designImageUrl }: PreO
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product || !userId) return;
+    if (!product) return;
 
     setLoading(true);
     try {
@@ -47,7 +47,7 @@ export function PreOrderModal({ isOpen, onClose, product, designImageUrl }: PreO
           price: product.price,
           designImageUrl,
           customerInfo: form,
-          userId
+          userId: userId || null
         })
       });
 

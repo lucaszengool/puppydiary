@@ -4,13 +4,7 @@ import { auth } from '@clerk/nextjs';
 export async function POST(request: NextRequest) {
   try {
     const { userId } = auth();
-    
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const actualUserId = userId || 'guest';
 
     const body = await request.json();
     const {
@@ -33,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const orderData = {
       id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      userId,
+      userId: actualUserId,
       productId,
       productName,
       productType,

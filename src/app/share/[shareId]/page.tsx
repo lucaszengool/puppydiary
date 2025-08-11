@@ -24,6 +24,12 @@ export default function SharePage({ params }: SharePageProps) {
   const [sharedImage, setSharedImage] = useState<SharedImage | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure component is mounted before showing content
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     async function fetchSharedImage() {
@@ -32,27 +38,45 @@ export default function SharePage({ params }: SharePageProps) {
         
         // For test IDs, return mock data immediately
         if (params.shareId === 'test-123' || params.shareId.startsWith('test-')) {
-          setSharedImage({
-            id: params.shareId,
-            image_url: 'https://placehold.co/512x512/green/white?text=Test+Share',
-            title: '测试分享图片',
-            description: '这是一个测试的分享图片',
-            style: '测试风格',
-            view_count: 1,
-            created_at: new Date().toISOString()
-          })
-          setLoading(false)
+          setTimeout(() => {
+            setSharedImage({
+              id: params.shareId,
+              image_url: 'https://placehold.co/512x512/green/white?text=Test+Share',
+              title: '测试分享图片',
+              description: '这是一个测试的分享图片',
+              style: '测试风格',
+              view_count: 1,
+              created_at: new Date().toISOString()
+            })
+            setLoading(false)
+          }, 1000)
           return
         }
 
         try {
-          // Try to fetch from API
-          const response = await fetch(`/api/share?id=${params.shareId}`)
+          // Try to fetch from API with timeout
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+          
+          const response = await fetch(`/api/share?id=${params.shareId}`, {
+            signal: controller.signal,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          
+          clearTimeout(timeoutId)
+          
           if (response.ok) {
             const data = await response.json()
-            setSharedImage(data)
+            if (data && data.id) {
+              setSharedImage(data)
+            } else {
+              console.log('Invalid data received from API')
+              setSharedImage(null)
+            }
           } else {
-            console.log('Share not found via API')
+            console.log('Share not found via API, status:', response.status)
             setSharedImage(null)
           }
         } catch (apiError) {
@@ -64,14 +88,22 @@ export default function SharePage({ params }: SharePageProps) {
         setError(error instanceof Error ? error.message : 'Unknown error')
         setSharedImage(null)
       } finally {
-        setLoading(false)
+        setTimeout(() => {
+          setLoading(false)
+        }, 500)
       }
     }
 
-    fetchSharedImage()
+    // Add a small delay to ensure the component is fully mounted
+    const timer = setTimeout(() => {
+      fetchSharedImage()
+    }, 100)
+
+    return () => clearTimeout(timer)
   }, [params.shareId])
 
-  if (loading) {
+  // Don't render anything until mounted to avoid hydration issues
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen sky-gradient flex items-center justify-center p-4">
         <div className="text-center ghibli-card max-w-md">
