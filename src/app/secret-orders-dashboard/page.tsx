@@ -31,6 +31,8 @@ interface OrderStats {
   totalOrders: number
   totalRevenue: number
   statusCounts: {
+    
+
     pending: number
     processing: number
     shipped: number
@@ -77,78 +79,27 @@ export default function SecretOrdersDashboard() {
   // 获取订单数据
   const fetchOrders = async () => {
     try {
-      console.log('🔄 [Dashboard] 开始获取订单数据...');
       setLoading(true)
-      
-      const fetchUrl = '/api/secret-orders';
-      const headers = {
-        'x-admin-password': ADMIN_PASSWORD
-      };
-      
-      console.log('📡 [Dashboard] 发送请求:', {
-        url: fetchUrl,
-        headers: { 'x-admin-password': '[已设置]' }
-      });
-      
-      const response = await fetch(fetchUrl, { headers });
-      
-      console.log('📬 [Dashboard] API响应状态:', {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      
+      const response = await fetch('/api/secret-orders', {
+        headers: {
+          'x-admin-password': ADMIN_PASSWORD
+        }
+      })
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ [Dashboard] API响应错误:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorText
-        });
-        throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
+        throw new Error('Failed to fetch orders')
       }
-      
-      const data = await response.json();
-      console.log('📊 [Dashboard] 获取到的数据:', {
-        hasOrders: !!data.orders,
-        ordersCount: data.orders ? data.orders.length : 0,
-        hasStats: !!data.stats,
-        statsKeys: data.stats ? Object.keys(data.stats) : []
-      });
-      
-      setOrders(data.orders || []);
-      setStats(data.stats || {
-        totalOrders: 0,
-        totalRevenue: 0,
-        statusCounts: { pending: 0, processing: 0, shipped: 0, delivered: 0 }
-      });
-      
-      console.log('✅ [Dashboard] 订单数据更新完成');
-      
+      const data = await response.json()
+      setOrders(data.orders)
+      setStats(data.stats)
     } catch (error) {
-      console.error('💥 [Dashboard] 获取订单异常:', {
-        error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      
+      console.error('Error fetching orders:', error)
       toast({
         title: "获取订单失败",
         description: "请刷新页面重试",
         variant: "destructive",
-      });
-      
-      // 设置空数据以防止界面崩溃
-      setOrders([]);
-      setStats({
-        totalOrders: 0,
-        totalRevenue: 0,
-        statusCounts: { pending: 0, processing: 0, shipped: 0, delivered: 0 }
-      });
-      
+      })
     } finally {
-      setLoading(false);
-      console.log('🏁 [Dashboard] 获取订单流程结束');
+      setLoading(false)
     }
   }
 

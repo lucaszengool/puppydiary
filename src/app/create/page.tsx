@@ -848,18 +848,9 @@ export default function CreatePage() {
             url: shareUrl
           })
           
-          // Show confirmation dialog after successful share
+          // Directly award bones after successful share
           if (userId) {
-            const confirmed = confirm(
-              "感谢分享！🎉\n\n" +
-              "为了获得骨头奖励，请确认：\n" + 
-              "✅ 您是否已成功分享了这个链接？\n\n" +
-              "点击\"确定\"领取1个骨头奖励 🦴"
-            )
-            
-            if (confirmed) {
-              await awardBonesAfterShare(data.boneReward)
-            }
+            await awardBonesAfterShare(data.boneReward)
           } else {
             // For guest users, just show success message
             toast({
