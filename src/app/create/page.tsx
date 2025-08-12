@@ -387,6 +387,13 @@ export default function CreatePage() {
       description: "AI 正在为您的宠物生成艺术作品...",
     })
 
+    // Check if guest user has exceeded trial limit before generation
+    if (!userId && guestTrialCount >= 1) {
+      setIsProcessingFile(false)  // Clear processing flag
+      setShowLoginPrompt(true)
+      return
+    }
+
     // Automatically start generation
     try {
       await generatePortrait(file, undefined, false)
@@ -1598,7 +1605,11 @@ export default function CreatePage() {
                       稍后再说
                     </button>
                     <button
-                      onClick={() => window.location.href = '/sign-up'}
+                      onClick={() => {
+                        // Save redirect URL to return to main page after registration
+                        sessionStorage.setItem('redirectAfterLogin', '/')
+                        window.location.href = '/sign-up'
+                      }}
                       className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                       立即注册
