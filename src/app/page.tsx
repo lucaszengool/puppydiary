@@ -10,7 +10,7 @@ export default async function Home() {
     { id: 'ghibli', name: '宫崎骏动漫', image: '/styles/ghibli-style.png', description: '温暖治愈的手绘风格' },
     { id: 'watercolor', name: '水彩插画', image: '/styles/watercolor-style.png', description: '柔美的水彩艺术风格' },
     { id: 'modern', name: '现代简约', image: '/styles/modern-style.png', description: '简约现代的艺术风格' },
-    { id: 'disney', name: '迪士尼卡通', image: '/styles/disney-cartoon.png', description: '可爱生动的卡通风格' },
+    { id: 'disney', name: '迪士尼卡通', image: '/disney cartoon.png', description: '可爱生动的卡通风格' },
     { id: 'vintage', name: '复古怀旧', image: '/styles/vintage-style.png', description: '温暖的复古摄影风格' },
     { id: 'pencil', name: '铅笔素描', image: '/styles/pencil-style.png', description: '精细逼真的素描风格' },
     { id: 'cyberpunk', name: '赛博朋克', image: '/styles/cyberpunk-style.png', description: '未来科技霓虹风格' },
@@ -55,12 +55,12 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-6xl md:text-8xl font-extralight text-gray-900 mb-8 tracking-tight leading-none">
-              AI 宠物
+              Petpo 宠物
               <span className="block text-gray-600">肖像画</span>
             </h1>
             
             <p className="text-xl md:text-2xl font-light text-gray-600 mb-16 leading-relaxed max-w-2xl mx-auto">
-              用专业级 AI 技术，将您心爱的宠物变成惊艳的艺术作品
+              用先进视觉模型，保留宠物原有特征，将您心爱的宠物变成惊艳的艺术作品
             </p>
 
             <Link 
@@ -176,43 +176,27 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Custom Clothing */}
-            <Link href="/clothing-test" className="text-center space-y-6 flex flex-col hover:scale-105 transition-transform duration-200 cursor-pointer">
+            {/* Custom Clothing - Disabled */}
+            <div className="text-center space-y-6 flex flex-col cursor-not-allowed opacity-75">
               <div className="relative mx-auto flex-shrink-0" style={{ height: '384px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {/* Hoodie Mockup */}
-                <div className="w-48 h-60 relative">
-                  {/* Hoodie Base */}
-                  <div className="w-full h-full bg-white rounded-lg shadow-xl p-4 relative overflow-hidden hover:shadow-2xl transition-shadow duration-200">
-                    {/* Hoodie Shape */}
-                    <div className="w-full h-full relative">
-                      {/* Hoodie body */}
-                      <div className="absolute inset-x-4 top-8 bottom-4 bg-gray-50 rounded-lg border border-gray-200">
-                        {/* Hood */}
-                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-20 h-12 bg-gray-50 rounded-t-full border border-gray-200 border-b-0"></div>
-                        {/* Kangaroo Pocket */}
-                        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-gray-100 rounded border border-gray-300"></div>
-                        {/* Design Area */}
-                        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 rounded overflow-hidden border border-gray-300">
-                          <Image
-                            src="/styles/watercolor-style.png"
-                            alt="定制衣服示例"
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                {/* Hoodie Mockup with Background Image */}
+                <div className="w-48 h-60 relative overflow-hidden rounded-lg shadow-xl">
+                  <Image
+                    src="/卫衣/926e055aa81bcd7681beffbcd82d2dd5.jpg"
+                    alt="定制衣服示例"
+                    fill
+                    sizes="192px"
+                    className="object-cover"
+                  />
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-start">
-                <h3 className="text-xl font-light text-gray-900 mb-4 group-hover:text-forest transition-colors">定制衣服</h3>
+                <h3 className="text-xl font-light text-gray-900 mb-4">定制衣服</h3>
                 <p className="text-gray-600 font-light leading-relaxed">
                   将您的宠物肖像印制在高品质服装上，打造专属时尚单品
                 </p>
               </div>
-            </Link>
+            </div>
 
             {/* Social Media */}
             <div className="text-center space-y-6 flex flex-col">

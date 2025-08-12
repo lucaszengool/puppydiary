@@ -33,6 +33,18 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="zh-CN">
+        <head>
+          {/* Google tag (gtag.js) */}
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZKRKZK57RM"></script>
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-ZKRKZK57RM');
+            `
+          }} />
+        </head>
         <body className="font-sans">
           {children}
           <Toaster />

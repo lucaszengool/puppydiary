@@ -1651,7 +1651,7 @@ export default function CreatePage() {
                           </div>
                         ) : (
                           <img
-                            src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
+                            src={`${style.id === 'realistic' ? '/styles/disney-style.png' : style.id === 'disney' ? '/disney cartoon.png' : `/styles/${style.id}-style.png`}`}
                             alt={style.label}
                             className="w-full h-full object-cover"
                           />
@@ -1783,7 +1783,7 @@ export default function CreatePage() {
                       </div>
                     ) : (
                       <img
-                        src={`/styles/${style.id === 'realistic' ? 'disney' : style.id}-style.png`}
+                        src={`${style.id === 'realistic' ? '/styles/disney-style.png' : style.id === 'disney' ? '/disney cartoon.png' : `/styles/${style.id}-style.png`}`}
                         alt={style.label}
                       />
                     )}
