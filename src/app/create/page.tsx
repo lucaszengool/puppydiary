@@ -900,17 +900,9 @@ export default function CreatePage() {
         duration: 5000,
       })
       
-      // Show confirmation dialog
+      // Directly award bones after successful share
       if (userId) {
-        const confirmed = confirm(
-          "链接已复制到剪贴板！📋\n\n" +
-          "请将链接分享到微信、微博等社交平台\n\n" +
-          "分享完成后点击\"确定\"获得1个骨头奖励 🦴"
-        )
-        
-        if (confirmed) {
-          await awardBonesAfterShare(boneReward)
-        }
+        await awardBonesAfterShare(boneReward)
       }
     } catch (error) {
       console.error('Clipboard copy failed:', error)
