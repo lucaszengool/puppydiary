@@ -179,8 +179,9 @@ export default async function Home() {
             {/* Custom Clothing - Disabled */}
             <div className="text-center space-y-6 flex flex-col cursor-not-allowed opacity-75">
               <div className="relative mx-auto flex-shrink-0" style={{ height: '384px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {/* Hoodie Mockup with Background Image */}
+                {/* Hoodie Mockup with Background Image and Style Overlay */}
                 <div className="w-48 h-60 relative overflow-hidden rounded-lg shadow-xl">
+                  {/* Background Hoodie Image */}
                   <Image
                     src="/卫衣/926e055aa81bcd7681beffbcd82d2dd5.jpg"
                     alt="定制衣服示例"
@@ -188,6 +189,16 @@ export default async function Home() {
                     sizes="192px"
                     className="object-cover"
                   />
+                  {/* Style Image Overlay in the center of the hoodie */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-lg overflow-hidden border-2 border-white shadow-lg">
+                    <Image
+                      src="/styles/watercolor-style.png"
+                      alt="风格示例"
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-start">
